@@ -121,22 +121,22 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
+      <section className="py-20 bg-gradient-to-br from-primary/20 via-background to-accent/10">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Begin Your Spiritual Journey
           </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+          <p className="text-xl mb-8 max-w-2xl mx-auto text-muted-foreground">
             Join thousands discovering the depth of Hindu philosophy and tradition
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" asChild>
+            <Button size="lg" variant="default" className="hover:brightness-110 transition-all" asChild>
               <Link href="/login">
                 <Users className="mr-2 h-5 w-5" />
                 Create Account
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+            <Button size="lg" variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 hover:border-primary hover:brightness-110 transition-all" asChild>
               <Link href="/donate">
                 <Heart className="mr-2 h-5 w-5" />
                 Support Us
