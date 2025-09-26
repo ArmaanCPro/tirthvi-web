@@ -13,5 +13,4 @@ export default async function CalendarPage() {
   );
 }
 
-// Simple revalidation - once per hour
-export const revalidate = 3600;
+// Static generation - page is built at build time with fresh data

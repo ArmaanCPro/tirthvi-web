@@ -19,9 +19,7 @@ export default async function EventPage({ params }: EventPageProps) {
   return <EventDetail event={event} />;
 }
 
-// Simple revalidation - once per hour
-export const revalidate = 3600;
-
+// Static generation - pages are built at build time with fresh data
 export async function generateStaticParams() {
   const events = await getAllEvents();
   return events.map(event => ({

@@ -24,9 +24,7 @@ export default async function CalendarYearPage({ params }: CalendarYearPageProps
   );
 }
 
-// Simple revalidation - once per hour
-export const revalidate = 3600;
-
+// Static generation - pages are built at build time with fresh data
 export async function generateStaticParams() {
   // Generate static params for the next 10 years
   const years = Array.from({ length: 10 }, (_, i) => {
