@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "@/styles/globals.css";
 import { Navigation } from "@/components/navigation";
 import { Analytics } from "@vercel/analytics/next"
@@ -25,16 +26,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
-      >
-        <Navigation />
-        <main className="min-h-screen">
-          {children}
-        </main>
-        <Analytics />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
+        >
+          <Navigation />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <Analytics />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

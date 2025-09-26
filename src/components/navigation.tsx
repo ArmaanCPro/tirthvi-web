@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
 import { Calendar, BookOpen, Bot, Heart, User, Menu, X } from "lucide-react";
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -73,12 +74,33 @@ export function Navigation() {
             </Link>
           </Button>
           
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/login">
-              <User className="mr-2 h-4 w-4" />
-              Login
-            </Link>
-          </Button>
+          {/* Clerk Authentication */}
+          <SignedOut>
+            <div className="flex items-center gap-2">
+              <SignInButton mode="modal">
+                <Button variant="outline" size="sm">
+                  <User className="mr-2 h-4 w-4" />
+                  Sign In
+                </Button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button size="sm">
+                  Sign Up
+                </Button>
+              </SignUpButton>
+            </div>
+          </SignedOut>
+          
+          <SignedIn>
+            <UserButton 
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: "h-8 w-8"
+                }
+              }}
+            />
+          </SignedIn>
         </div>
       </nav>
 
@@ -114,6 +136,37 @@ export function Navigation() {
                   Donate
                 </Link>
               </Button>
+              
+              {/* Mobile Clerk Authentication */}
+              <div className="pt-2 space-y-2">
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <Button variant="outline" className="w-full justify-start">
+                      <User className="mr-2 h-4 w-4" />
+                      Sign In
+                    </Button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <Button className="w-full justify-start">
+                      Sign Up
+                    </Button>
+                  </SignUpButton>
+                </SignedOut>
+                
+                <SignedIn>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Account</span>
+                    <UserButton 
+                      afterSignOutUrl="/"
+                      appearance={{
+                        elements: {
+                          avatarBox: "h-8 w-8"
+                        }
+                      }}
+                    />
+                  </div>
+                </SignedIn>
+              </div>
             </div>
           </div>
         </div>
