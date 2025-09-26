@@ -16,13 +16,13 @@ const getCachedEvent = unstable_cache(
   }
 );
 
-interface RouteParams {
-  params: {
+interface RouteContext {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(request: Request, { params }: RouteContext) {
   try {
     const { slug } = await params;
     const event = await getCachedEvent(slug);
@@ -33,7 +33,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
     
     const response = NextResponse.json(event);
-    return withCacheHeaders(response, ...Object.values(CACHE_STRATEGIES.EVENTS));
+    return withCacheHeaders(response, CACHE_STRATEGIES.EVENTS.maxAge, CACHE_STRATEGIES.EVENTS.staleWhileRevalidate, CACHE_STRATEGIES.EVENTS.tags);
   } catch (error) {
     const { slug } = await params;
     console.error(`API Error - getEventBySlug(${slug}):`, error);
@@ -41,6 +41,6 @@ export async function GET(request: Request, { params }: RouteParams) {
       { error: 'Failed to fetch event', details: error instanceof Error ? error.message : 'Unknown error' }, 
       { status: 500 }
     );
-    return withCacheHeaders(response, ...Object.values(CACHE_STRATEGIES.API));
+    return withCacheHeaders(response, CACHE_STRATEGIES.API.maxAge, CACHE_STRATEGIES.API.staleWhileRevalidate, CACHE_STRATEGIES.API.tags);
   }
 }

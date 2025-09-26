@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Event, EventOccurrence, validateEventFile } from './schemas/event';
+import { Event, validateEventFile } from './schemas/event';
 
 // Re-export types for convenience
 export type { Event, EventOccurrence } from './schemas/event';

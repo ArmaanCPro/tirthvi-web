@@ -26,17 +26,17 @@ export async function GET() {
         { message: 'No events found', events: [] }, 
         { status: 200 }
       );
-      return withCacheHeaders(response, ...Object.values(CACHE_STRATEGIES.EVENTS));
+      return withCacheHeaders(response, CACHE_STRATEGIES.EVENTS.maxAge, CACHE_STRATEGIES.EVENTS.staleWhileRevalidate, CACHE_STRATEGIES.EVENTS.tags);
     }
     
     const response = NextResponse.json({ events, count: events.length });
-    return withCacheHeaders(response, ...Object.values(CACHE_STRATEGIES.EVENTS));
+    return withCacheHeaders(response, CACHE_STRATEGIES.EVENTS.maxAge, CACHE_STRATEGIES.EVENTS.staleWhileRevalidate, CACHE_STRATEGIES.EVENTS.tags);
   } catch (error) {
     console.error('API Error - getAllEvents:', error);
     const response = NextResponse.json(
       { error: 'Failed to fetch events', details: error instanceof Error ? error.message : 'Unknown error' }, 
       { status: 500 }
     );
-    return withCacheHeaders(response, ...Object.values(CACHE_STRATEGIES.API));
+    return withCacheHeaders(response, CACHE_STRATEGIES.API.maxAge, CACHE_STRATEGIES.API.staleWhileRevalidate, CACHE_STRATEGIES.API.tags);
   }
 }

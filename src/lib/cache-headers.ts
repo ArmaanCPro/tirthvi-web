@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export function getCacheHeaders(
   maxAge: number = 3600, // 1 hour default
@@ -42,14 +42,14 @@ export function withCacheHeaders(
 // Predefined cache strategies
 export const CACHE_STRATEGIES = {
   // Static content - cache for 1 day
-  STATIC: { maxAge: 86400, staleWhileRevalidate: 604800, tags: ['static'] },
+  STATIC: { maxAge: 86400, staleWhileRevalidate: 604800, tags: ['static'] as string[] },
   
   // Dynamic content - cache for 1 hour
-  DYNAMIC: { maxAge: 3600, staleWhileRevalidate: 86400, tags: ['dynamic'] },
+  DYNAMIC: { maxAge: 3600, staleWhileRevalidate: 86400, tags: ['dynamic'] as string[] },
   
   // Events - cache for 1 hour with event tags
-  EVENTS: { maxAge: 3600, staleWhileRevalidate: 86400, tags: ['events'] },
+  EVENTS: { maxAge: 3600, staleWhileRevalidate: 86400, tags: ['events'] as string[] },
   
   // API responses - cache for 30 minutes
-  API: { maxAge: 1800, staleWhileRevalidate: 3600, tags: ['api'] },
-} as const;
+  API: { maxAge: 1800, staleWhileRevalidate: 3600, tags: ['api'] as string[] },
+};

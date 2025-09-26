@@ -26,7 +26,7 @@ export function measurePerformance<T>(
 }
 
 // Web Vitals reporting
-export function reportWebVitals(metric: any) {
+export function reportWebVitals(metric: { name: string; value: number; delta: number; id: string; navigationType: string }) {
   if (process.env.NODE_ENV === 'development') {
     console.log('Web Vital:', metric);
   }

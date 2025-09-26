@@ -38,7 +38,7 @@ export function validateEvent(data: unknown): { success: true; data: Event } | {
     return { success: true, data: event };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors = error.errors.map(err => {
+      const errors = error.issues.map(err => {
         const path = err.path.join('.');
         return `${path}: ${err.message}`;
       });

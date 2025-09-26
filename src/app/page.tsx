@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, BookOpen, Bot, Heart, Star, Users, Clock } from "lucide-react";
+import { Calendar, BookOpen, Bot, Heart, Users } from "lucide-react";
 
 export default function Home() {
   return (
