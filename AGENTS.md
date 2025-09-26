@@ -13,9 +13,9 @@ Users should be able to login and logout, donate to the project, be able to save
 - shadcn/ui and shadcn.io for UI components
 - **Database**: Supabase (Postgres) + Drizzle ORM
 - **Authentication**: Clerk
-- **Config**: Vercel Edge Config (Hindu calendar settings, feature flags)
-- **Media**: Vercel Blob (images, documents, audio)
-- **Cache**: Upstash Redis (user sessions, AI responses, heavy queries)
+- **Event Data**: JSON files (static, version-controlled)
+- **Media**: Public folder (static images) → Vercel Blob (future: user uploads)
+- **Cache**: Next.js unstable_cache (built-in) → Upstash Redis (future: real-time features)
 - **AI**: RAG + LLM (OpenAI API) with Supabase Vector Store
 - **Payments**: Stripe for donations
 
@@ -30,23 +30,44 @@ Users should be able to login and logout, donate to the project, be able to save
     - `/src/lib/db.ts`: Supabase client
     - `/src/lib/auth.ts`: Clerk configuration
     - `/src/lib/drizzle`: Database schema
+- `/src/data`: Static data files
+    - `/src/data/events`: Event JSON files
 - `/src/types`: TypeScript definitions
 - `/src/styles`: Tailwind CSS definitions
 
 ## Data Architecture
 
-- **Supabase**: Primary database for users, events, subscriptions, chat history
-- **Vercel Edge Config**: Hindu calendar configurations, feature flags, regional settings
-- **Vercel Blob**: Event images, user avatars, scripture PDFs, audio files
-- **Upstash Redis**: Cache for frequently accessed data (events, user preferences)
+- **Supabase**: User data, subscriptions, chat history, user-generated content
+- **JSON Files**: Event data (static, version-controlled, fast)
+- **Public Folder**: Static images, assets (CDN-optimized)
+- **Next.js Cache**: Built-in memory caching for performance
 - **Supabase Vector Store**: RAG embeddings for AI chat
+
+## Future Scalability
+
+### **When to Add Vercel Blob:**
+- User-uploaded event images
+- Large media files (videos, audio)
+- Dynamic image generation
+- User avatars and profiles
+
+### **When to Add Upstash Redis:**
+- Real-time features (live chat, notifications)
+- Complex caching requirements
+- High-frequency data updates
+- User sessions and preferences
+
+### **When to Add Vercel Edge Config:**
+- Global feature flags
+- Regional settings and configurations
+- A/B testing configurations
+- Dynamic site-wide settings
 
 ## Development Environment Tips
 
 - Use `pnpm install` to install dependencies
 - To run the development server: `pnpm dev`
-- Environment variables needed: Clerk, Supabase, OpenAI, Upstash Redis
-- Use Vercel CLI for Edge Config and Blob management
+- Environment variables needed: Clerk, Supabase, OpenAI
 - After done making significant changes, run `pnpm build` to assert the project is ready for production
 
 ## Coding Conventions & Design Patterns
@@ -55,14 +76,15 @@ Users should be able to login and logout, donate to the project, be able to save
 - **State Management:** All application state should be managed cleanly using React and Nextjs tools.
 - **Architecture:** Follow a layered architecture, separating UI, business logic, and data access. This is necessary when we decide to add a React Native mobile app.
 - **Error Handling:** Implement robust error handling with clear logging when necessary. Don't overly log.
-- **Caching Strategy:** Use Edge Config for static configs, Redis for dynamic data, Supabase for persistent storage
+- **Caching Strategy:** Use Next.js built-in caching for static data, add external services only when needed
 
 ## Implementation Order
 
-1. **Phase 1**: Supabase + Drizzle + Clerk (core auth and database)
-2. **Phase 2**: Vercel Edge Config (Hindu calendar configurations)
-3. **Phase 3**: Vercel Blob (media storage)
-4. **Phase 4**: Upstash Redis (performance optimization)
+1. **Phase 1**: Supabase + Drizzle + Clerk (core auth and database) ✅
+2. **Phase 2**: Event data system with JSON files ✅
+3. **Phase 3**: Static image optimization ✅
+4. **Phase 4**: Vercel Blob (when user uploads are needed)
+5. **Phase 5**: Upstash Redis (when real-time features are needed)
 
 ## Testing Instructions
 
