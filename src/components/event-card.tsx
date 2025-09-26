@@ -39,7 +39,7 @@ export function EventCard({ event, year }: EventCardProps) {
             {event.name}
           </Link>
         </CardTitle>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           {formatEventDate(
             firstOccurrence.date,
             firstOccurrence.startTime,
@@ -48,14 +48,14 @@ export function EventCard({ event, year }: EventCardProps) {
         </p>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-gray-700 line-clamp-3">
+        <p className="text-sm text-muted-foreground line-clamp-3">
           {event.description.replace(/<[^>]*>/g, '')}
         </p>
         <div className="mt-2 flex flex-wrap gap-1">
           {event.regions.map(region => (
             <span 
               key={region}
-              className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+              className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
             >
               {region}
             </span>

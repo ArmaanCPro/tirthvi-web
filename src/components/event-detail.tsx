@@ -73,7 +73,7 @@ export function EventDetail({ event }: EventDetailProps) {
               <div>
                 <h4 className="font-semibold mb-2">Occurrences in {selectedYear}:</h4>
                 {currentOccurrences.map((occurrence, index) => (
-                  <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className="p-3 bg-muted rounded-lg">
                     <p className="font-medium">
                       {formatEventDate(
                         occurrence.date,
@@ -82,7 +82,7 @@ export function EventDetail({ event }: EventDetailProps) {
                       )}
                     </p>
                     {occurrence.significance && (
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         {occurrence.significance}
                       </p>
                     )}
@@ -92,7 +92,7 @@ export function EventDetail({ event }: EventDetailProps) {
               
               <div>
                 <h4 className="font-semibold mb-2">Category:</h4>
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
                   {event.category}
                 </span>
               </div>
@@ -103,7 +103,7 @@ export function EventDetail({ event }: EventDetailProps) {
                   {event.regions.map(region => (
                     <span 
                       key={region}
-                      className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                      className="px-2 py-1 bg-accent text-accent-foreground rounded-full text-sm"
                     >
                       {region}
                     </span>
