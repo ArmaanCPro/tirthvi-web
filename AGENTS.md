@@ -38,6 +38,7 @@ Users should be able to login and logout, donate to the project, be able to save
 ## Data Architecture
 
 - **Supabase**: User data, subscriptions, chat history, user-generated content
+- **UpStash**: Session Caching, API Response Caching, Rate Limiting
 - **JSON Files**: Event data (static, version-controlled, fast)
 - **Public Folder**: Static images, assets (CDN-optimized)
 - **Next.js Cache**: Built-in memory caching for performance
