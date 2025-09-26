@@ -1,22 +1,8 @@
 import { getAllEvents } from '@/lib/events';
 import { CalendarView } from '@/components/calendar-view';
-import { unstable_cache } from 'next/cache';
-
-// Cache events for 1 hour with ISR
-const getCachedEvents = unstable_cache(
-  async () => {
-    console.log('Cache miss - fetching events for calendar');
-    return await getAllEvents();
-  },
-  ['calendar-events'],
-  {
-    revalidate: 3600, // 1 hour
-    tags: ['events'],
-  }
-);
 
 export default async function CalendarPage() {
-  const events = await getCachedEvents();
+  const events = await getAllEvents();
   const currentYear = new Date().getFullYear().toString();
   
   return (
@@ -27,5 +13,5 @@ export default async function CalendarPage() {
   );
 }
 
-// Enable ISR - regenerate every hour
+// Simple revalidation - once per hour
 export const revalidate = 3600;

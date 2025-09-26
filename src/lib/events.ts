@@ -1,15 +1,57 @@
 import fs from 'fs';
 import path from 'path';
 import { Event, validateEventFile } from './schemas/event';
+import { unstable_cache } from 'next/cache';
 
 // Re-export types for convenience
 export type { Event, EventOccurrence } from './schemas/event';
 
-export async function getAllEvents(): Promise<Event[]> {
+// Cache events in memory for 1 hour - this will scale well with hundreds of events
+const getCachedEvents = unstable_cache(
+  async () => {
+    console.log('Cache miss - loading events from files');
+    return await loadEventsFromFiles();
+  },
+  ['events'],
+  {
+    revalidate: 3600, // 1 hour
+    tags: ['events'],
+  }
+);
+
+// Cache individual events for 1 hour
+const getCachedEventBySlug = unstable_cache(
+  async (slug: string) => {
+    console.log(`Cache miss - loading event: ${slug}`);
+    const events = await loadEventsFromFiles();
+    return events.find(event => event.slug === slug) || null;
+  },
+  ['event-detail'],
+  {
+    revalidate: 3600,
+    tags: ['events', 'event-detail'],
+  }
+);
+
+// Cache events by year for 1 hour
+const getCachedEventsForYear = unstable_cache(
+  async (year: string) => {
+    console.log(`Cache miss - loading events for year: ${year}`);
+    const events = await loadEventsFromFiles();
+    return events.filter(event => event.occurrences[year]);
+  },
+  ['events-by-year'],
+  {
+    revalidate: 3600,
+    tags: ['events', 'events-by-year'],
+  }
+);
+
+// Raw file loading function (not cached)
+async function loadEventsFromFiles(): Promise<Event[]> {
   try {
     const eventsDir = path.join(process.cwd(), 'src/data/events');
     
-    // Check if directory exists
     if (!fs.existsSync(eventsDir)) {
       console.warn(`Events directory not found: ${eventsDir}`);
       return [];
@@ -70,24 +112,17 @@ export async function getAllEvents(): Promise<Event[]> {
   }
 }
 
+// Public API functions (cached)
+export async function getAllEvents(): Promise<Event[]> {
+  return await getCachedEvents();
+}
+
 export async function getEventBySlug(slug: string): Promise<Event | null> {
-  try {
-    const events = await getAllEvents();
-    return events.find(event => event.slug === slug) || null;
-  } catch (error) {
-    console.error(`Error finding event with slug: ${slug}`, error);
-    return null;
-  }
+  return await getCachedEventBySlug(slug);
 }
 
 export async function getEventsForYear(year: string): Promise<Event[]> {
-  try {
-    const events = await getAllEvents();
-    return events.filter(event => event.occurrences[year]);
-  } catch (error) {
-    console.error(`Error filtering events for year: ${year}`, error);
-    return [];
-  }
+  return await getCachedEventsForYear(year);
 }
 
 // Utility function to get event statistics

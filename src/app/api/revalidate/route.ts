@@ -1,49 +1,21 @@
-import { revalidateTag, revalidatePath } from 'next/cache';
-import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
+import { NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
-    const body = await request.json();
-    const { tag, path: pathToRevalidate, secret } = body;
-
-    // Verify the secret to prevent unauthorized revalidation
-    if (secret !== process.env.REVALIDATE_SECRET) {
-      return NextResponse.json({ message: 'Invalid secret' }, { status: 401 });
-    }
-
-    // Revalidate by tag
-    if (tag) {
-      revalidateTag(tag);
-      return NextResponse.json({ 
-        message: `Revalidated tag: ${tag}`,
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Revalidate by path
-    if (pathToRevalidate) {
-      revalidatePath(pathToRevalidate);
-      return NextResponse.json({ 
-        message: `Revalidated path: ${pathToRevalidate}`,
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Revalidate all events if no specific tag/path provided
+    // Invalidate all event-related caches
     revalidateTag('events');
     revalidateTag('event-detail');
-    revalidateTag('calendar-events');
     revalidateTag('events-by-year');
-
+    
     return NextResponse.json({ 
-      message: 'Revalidated all event caches',
+      message: 'Cache invalidated successfully',
       timestamp: new Date().toISOString()
     });
-
   } catch (error) {
-    console.error('Revalidation error:', error);
+    console.error('Cache invalidation error:', error);
     return NextResponse.json(
-      { error: 'Failed to revalidate cache' }, 
+      { error: 'Failed to invalidate cache' }, 
       { status: 500 }
     );
   }

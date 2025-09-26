@@ -1,7 +1,6 @@
 import { getEventsForYear } from '@/lib/events';
 import { CalendarView } from '@/components/calendar-view';
 import { notFound } from 'next/navigation';
-import { unstable_cache } from 'next/cache';
 
 interface CalendarYearPageProps {
   params: {
@@ -9,22 +8,9 @@ interface CalendarYearPageProps {
   };
 }
 
-// Cache events by year for 1 hour
-const getCachedEventsForYear = unstable_cache(
-  async (year: string) => {
-    console.log(`Cache miss - fetching events for year: ${year}`);
-    return await getEventsForYear(year);
-  },
-  ['events-by-year'],
-  {
-    revalidate: 3600,
-    tags: ['events', 'events-by-year'],
-  }
-);
-
 export default async function CalendarYearPage({ params }: CalendarYearPageProps) {
   const { year } = await params;
-  const events = await getCachedEventsForYear(year);
+  const events = await getEventsForYear(year);
   
   if (events.length === 0) {
     notFound();
@@ -38,7 +24,7 @@ export default async function CalendarYearPage({ params }: CalendarYearPageProps
   );
 }
 
-// Enable ISR - regenerate every hour
+// Simple revalidation - once per hour
 export const revalidate = 3600;
 
 export async function generateStaticParams() {

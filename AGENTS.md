@@ -47,6 +47,7 @@ Users should be able to login and logout, donate to the project, be able to save
 - To run the development server: `pnpm dev`
 - Environment variables needed: Clerk, Supabase, OpenAI, Upstash Redis
 - Use Vercel CLI for Edge Config and Blob management
+- After done making significant changes, run `pnpm build` to assert the project is ready for production
 
 ## Coding Conventions & Design Patterns
 
