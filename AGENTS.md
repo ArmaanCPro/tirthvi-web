@@ -16,7 +16,7 @@ Users should be able to login and logout, donate to the project, be able to save
 - **Event Data**: JSON files (static, version-controlled)
 - **Media**: Public folder (static images) → Vercel Blob (future: user uploads)
 - **Cache**: Next.js unstable_cache (built-in) → Upstash Redis (future: real-time features)
-- **AI**: RAG + LLM (OpenAI API) with Supabase Vector Store
+- **AI**: RAG + LLM (Vercel AI Gateway) with Supabase Vector Store
 - **Payments**: Stripe for donations
 
 ## Project Structure
