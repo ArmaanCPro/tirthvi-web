@@ -57,9 +57,9 @@ export function EventDetail({ event }: EventDetailProps) {
               blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
             />
           </div>
-          <p className="text-sm text-gray-600 italic">{event.image.caption}</p>
+          <p className="text-sm text-muted-foreground italic">{event.image.caption}</p>
           
-          <div className="prose max-w-none">
+          <div className="prose prose-invert max-w-none">
             <div dangerouslySetInnerHTML={{ __html: event.description }} />
           </div>
         </div>

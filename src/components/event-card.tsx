@@ -48,9 +48,10 @@ export function EventCard({ event, year }: EventCardProps) {
         </p>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground line-clamp-3">
-          {event.description.replace(/<[^>]*>/g, '')}
-        </p>
+        <div 
+          className="text-sm text-muted-foreground line-clamp-3 prose prose-sm prose-invert max-w-none"
+          dangerouslySetInnerHTML={{ __html: event.description }}
+        />
         <div className="mt-2 flex flex-wrap gap-1">
           {event.regions.map(region => (
             <span 
