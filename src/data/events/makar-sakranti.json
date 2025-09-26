@@ -1,9 +1,9 @@
 {
   "id": "makar-sankranti",
   "name": "Makar Sankranti",
-  "description": "<p>Makar Sankranti is a <strong>harvest festival</strong> that marks the sun's transition into Capricorn. It's celebrated across India with great enthusiasm. </p><h3>Significance </h3><p>The festival symbolizes the <em>victory of light over darkness</em> and the beginning of longer days.</p>",
+  "description": "<p>Makar Sankranti is a <strong>harvest festival</strong> that marks the sun's transition into Capricorn. It's celebrated across India with great enthusiasm.</p><h3>Significance</h3><p>The festival symbolizes the <em>victory of light over darkness</em> and the beginning of longer days.</p>",
   "image": {
-    "url": "/images/events/makar-sankranti.svg",
+    "url": "/images/events/makar-sankranti.jpg",
     "caption": "People flying kites during Makar Sankranti celebrations",
     "alt": "Makar Sankranti kite festival"
   },

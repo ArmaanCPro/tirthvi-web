@@ -13,7 +13,9 @@ export const EventSchema = z.object({
   name: z.string().min(1, 'Event name is required'),
   description: z.string().min(1, 'Event description is required'),
   image: z.object({
-    url: z.string().min(1, 'Image URL is required'),
+    url: z.string()
+      .min(1, 'Image URL is required')
+      .regex(/\.(jpg|jpeg|png|webp)$/i, 'Image must be a JPG, PNG, or WebP file'),
     caption: z.string().min(1, 'Image caption is required'),
     alt: z.string().min(1, 'Image alt text is required'),
   }),
