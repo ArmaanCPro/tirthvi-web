@@ -6,7 +6,10 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "validate-events": "tsx src/scripts/validate-events.ts",
+    "analyze-bundle": "tsx src/scripts/analyze-bundle.ts",
+    "revalidate": "curl -X POST http://localhost:3000/api/revalidate -H 'Content-Type: application/json' -d '{\"secret\":\"your-secret-here\"}'"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.32.2",

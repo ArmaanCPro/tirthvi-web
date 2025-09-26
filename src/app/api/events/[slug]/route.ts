@@ -1,6 +1,7 @@
 import { getEventBySlug } from '@/lib/events';
 import { NextResponse } from 'next/server';
 import { unstable_cache } from 'next/cache';
+import { withCacheHeaders, CACHE_STRATEGIES } from '@/lib/cache-headers';
 
 // Cache individual events for 1 hour
 const getCachedEvent = unstable_cache(
@@ -27,16 +28,19 @@ export async function GET(request: Request, { params }: RouteParams) {
     const event = await getCachedEvent(slug);
     
     if (!event) {
-      return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+      const response = NextResponse.json({ error: 'Event not found' }, { status: 404 });
+      return withCacheHeaders(response, 300, 3600, ['events', 'event-detail']); // 5 min cache for 404s
     }
     
-    return NextResponse.json(event);
+    const response = NextResponse.json(event);
+    return withCacheHeaders(response, ...Object.values(CACHE_STRATEGIES.EVENTS));
   } catch (error) {
     const { slug } = await params;
     console.error(`API Error - getEventBySlug(${slug}):`, error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Failed to fetch event', details: error instanceof Error ? error.message : 'Unknown error' }, 
       { status: 500 }
     );
+    return withCacheHeaders(response, ...Object.values(CACHE_STRATEGIES.API));
   }
 }

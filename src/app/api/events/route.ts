@@ -1,6 +1,7 @@
 import { getAllEvents } from '@/lib/events';
 import { NextResponse } from 'next/server';
 import { unstable_cache } from 'next/cache';
+import { withCacheHeaders, CACHE_STRATEGIES } from '@/lib/cache-headers';
 
 // Cache the events for 1 hour (3600 seconds)
 // You can adjust this based on how often you update events
@@ -21,18 +22,21 @@ export async function GET() {
     const events = await getCachedEvents();
     
     if (events.length === 0) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { message: 'No events found', events: [] }, 
         { status: 200 }
       );
+      return withCacheHeaders(response, ...Object.values(CACHE_STRATEGIES.EVENTS));
     }
     
-    return NextResponse.json({ events, count: events.length });
+    const response = NextResponse.json({ events, count: events.length });
+    return withCacheHeaders(response, ...Object.values(CACHE_STRATEGIES.EVENTS));
   } catch (error) {
     console.error('API Error - getAllEvents:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Failed to fetch events', details: error instanceof Error ? error.message : 'Unknown error' }, 
       { status: 500 }
     );
+    return withCacheHeaders(response, ...Object.values(CACHE_STRATEGIES.API));
   }
 }
