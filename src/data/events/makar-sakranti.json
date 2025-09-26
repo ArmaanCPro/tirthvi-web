@@ -1,0 +1,40 @@
+{
+  "id": "makar-sankranti",
+  "name": "Makar Sankranti",
+  "description": "<p>Makar Sankranti is a <strong>harvest festival</strong> that marks the sun's transition into Capricorn. It's celebrated across India with great enthusiasm. </p><h3>Significance </h3><p>The festival symbolizes the <em>victory of light over darkness</em> and the beginning of longer days.</p>",
+  "image": {
+    "url": "/images/events/makar-sankranti.svg",
+    "caption": "People flying kites during Makar Sankranti celebrations",
+    "alt": "Makar Sankranti kite festival"
+  },
+  "externalLinks": [
+    {
+      "title": "ISKCON Makar Sankranti",
+      "url": "https://iskcondwarka.org/blogs/makar-sankranti/",
+      "description": "Detailed information about the spiritual significance"
+    }
+  ],
+  "category": "harvest",
+  "regions": ["north", "south"],
+  "slug": "makar-sankranti",
+  "occurrences": {
+    "2024": [
+      {
+        "date": "2024-01-14",
+        "startTime": "08:57",
+        "endTime": "18:00",
+        "timezone": "IST",
+        "significance": "Main celebration"
+      }
+    ],
+    "2025": [
+      {
+        "date": "2025-01-14",
+        "startTime": "09:12",
+        "endTime": "18:15",
+        "timezone": "IST",
+        "significance": "Main celebration"
+      }
+    ]
+  }
+}
