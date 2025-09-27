@@ -5,6 +5,7 @@ import { dark } from "@clerk/themes";
 import "@/styles/globals.css";
 import { Navigation } from "@/components/navigation";
 import { Analytics } from "@vercel/analytics/next"
+import { Toaster } from "@/components/ui/sonner"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
             {children}
           </main>
           <Analytics />
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>

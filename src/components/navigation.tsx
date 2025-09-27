@@ -92,14 +92,22 @@ export function Navigation() {
           </SignedOut>
           
           <SignedIn>
-            <UserButton 
-              afterSignOutUrl="/"
-              appearance={{
-                elements: {
-                  avatarBox: "h-8 w-8"
-                }
-              }}
-            />
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/dashboard">
+                  <User className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Link>
+              </Button>
+              <UserButton 
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: "h-8 w-8"
+                  }
+                }}
+              />
+            </div>
           </SignedIn>
         </div>
       </nav>
@@ -154,6 +162,12 @@ export function Navigation() {
                 </SignedOut>
                 
                 <SignedIn>
+                  <Button variant="ghost" className="w-full justify-start" asChild>
+                    <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </Button>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Account</span>
                     <UserButton 

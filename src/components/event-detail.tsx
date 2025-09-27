@@ -6,6 +6,7 @@ import { formatEventDate } from '@/lib/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { SaveEventButton } from '@/components/save-event-button';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -26,20 +27,23 @@ export function EventDetail({ event }: EventDetailProps) {
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-4">{event.name}</h1>
         
-        <div className="flex items-center gap-4 mb-6">
-          <label className="text-lg font-medium">View year:</label>
-          <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {availableYears.map(year => (
-                <SelectItem key={year} value={year}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <label className="text-lg font-medium">View year:</label>
+            <Select value={selectedYear} onValueChange={setSelectedYear}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {availableYears.map(year => (
+                  <SelectItem key={year} value={year}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <SaveEventButton eventSlug={event.slug} />
         </div>
       </div>
       
