@@ -21,6 +21,7 @@ interface SavedEvent {
     description: string
     date: string
     location?: string
+    category?: string
     image: {
       url: string
       alt: string
@@ -151,24 +152,42 @@ export function SavedEventsList() {
               <div className="flex-1 p-4">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg mb-1">
-                      {savedEvent.event?.name || 'Event not found'}
-                    </h3>
+                    {savedEvent.event ? (
+                      <Link 
+                        href={`/events/${savedEvent.eventSlug}`}
+                        className="font-semibold text-lg mb-1 hover:text-primary transition-colors cursor-pointer block"
+                      >
+                        {savedEvent.event.name}
+                      </Link>
+                    ) : (
+                      <h3 className="font-semibold text-lg mb-1 text-muted-foreground">
+                        Event not found
+                      </h3>
+                    )}
                     
                     {savedEvent.event && (
-                      <div className="space-y-1 text-sm text-muted-foreground mb-2">
-                        {savedEvent.event.date && (
-                          <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            {format(new Date(savedEvent.event.date), 'MMM dd, yyyy')}
-                          </div>
-                        )}
+                      <div className="space-y-2 text-sm text-muted-foreground mb-3">
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          <span className="font-medium">Next occurrence:</span>
+                          <span className="ml-1">
+                            {savedEvent.event.date ? 
+                              format(new Date(savedEvent.event.date), 'MMM dd, yyyy') : 
+                              'Date TBD'
+                            }
+                          </span>
+                        </div>
                         {savedEvent.event.location && (
                           <div className="flex items-center">
                             <MapPin className="h-4 w-4 mr-2" />
-                            {savedEvent.event.location}
+                            <span className="font-medium">Location:</span>
+                            <span className="ml-1">{savedEvent.event.location}</span>
                           </div>
                         )}
+                        <div className="flex items-center">
+                          <span className="font-medium">Category:</span>
+                          <span className="ml-1 capitalize">{savedEvent.event.category || 'Religious'}</span>
+                        </div>
                       </div>
                     )}
 
@@ -178,9 +197,14 @@ export function SavedEventsList() {
                       </p>
                     )}
 
-                    <p className="text-xs text-muted-foreground">
-                      Saved on {format(new Date(savedEvent.savedAt), 'MMM dd, yyyy')}
-                    </p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Saved on {format(new Date(savedEvent.savedAt), 'MMM dd, yyyy')}</span>
+                      {savedEvent.event && (
+                        <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                          {savedEvent.event.category || 'Religious'}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Actions */}
