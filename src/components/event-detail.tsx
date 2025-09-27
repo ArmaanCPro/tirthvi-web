@@ -28,7 +28,8 @@ export function EventDetail({ event }: EventDetailProps) {
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-4">{event.name}</h1>
         
-        <div className="flex items-center justify-between mb-6">
+        <div className="space-y-4 mb-6">
+          {/* Year Selector */}
           <div className="flex items-center gap-4">
             <label className="text-lg font-medium">View year:</label>
             <Select value={selectedYear} onValueChange={setSelectedYear}>
@@ -44,9 +45,11 @@ export function EventDetail({ event }: EventDetailProps) {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
-            <SaveEventButton eventSlug={event.slug} />
-            <SubscribeEventButton eventSlug={event.slug} />
+          
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <SaveEventButton eventSlug={event.slug} className="flex-1 sm:flex-none" />
+            <SubscribeEventButton eventSlug={event.slug} className="flex-1 sm:flex-none" />
           </div>
         </div>
       </div>
