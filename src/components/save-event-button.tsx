@@ -64,6 +64,8 @@ export function SaveEventButton({ eventSlug, className }: SaveEventButtonProps) 
           if (response.ok) {
             setIsSaved(false)
             toast.success('Event removed from saved list')
+            // Refresh the saved status to ensure consistency
+            await checkIfSaved()
           } else {
             toast.error('Failed to remove event')
           }
@@ -80,6 +82,8 @@ export function SaveEventButton({ eventSlug, className }: SaveEventButtonProps) 
         if (response.ok) {
           setIsSaved(true)
           toast.success('Event saved successfully!')
+          // Refresh the saved status to ensure consistency
+          await checkIfSaved()
         } else {
           const error = await response.json()
           toast.error(error.error || 'Failed to save event')

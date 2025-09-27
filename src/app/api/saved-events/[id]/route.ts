@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/drizzle'
 import { savedEvents, profiles } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
+import { revalidateTag } from 'next/cache'
 
 // DELETE /api/saved-events/[id] - Remove saved event
 export async function DELETE(
@@ -34,6 +35,9 @@ export async function DELETE(
         eq(savedEvents.userId, user.id)
       )
     )
+
+    // Invalidate cache so fresh data is fetched
+    revalidateTag('saved-events')
 
     return NextResponse.json({ success: true })
   } catch (error) {
@@ -81,6 +85,9 @@ export async function PATCH(
     if (!updatedEvent) {
       return NextResponse.json({ error: 'Saved event not found' }, { status: 404 })
     }
+
+    // Invalidate cache so fresh data is fetched
+    revalidateTag('saved-events')
 
     return NextResponse.json({ savedEvent: updatedEvent })
   } catch (error) {

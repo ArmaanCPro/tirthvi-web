@@ -1,251 +1,434 @@
-// @ts-nocheck
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// Supabase Edge Function to process event notifications with Resend email
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-interface Subscriber {
-  user_id: string
-  email: string
-  first_name: string
-  last_name: string
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface TomorrowEvent {
-  event_slug: string
-  event_name: string
-  event_description: string
-  event_date: string
-  subscribers: Subscriber[]
+interface EventOccurrence {
+  date: string
+  startTime?: string
+  endTime?: string
+  timezone: string
+  significance?: string
+}
+
+interface Event {
+  id: string
+  name: string
+  description: string
+  slug: string
+  occurrences: Record<string, EventOccurrence[]>
 }
 
 serve(async (req) => {
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 })
+  // Handle CORS
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    console.log('Processing daily event notifications...')
-    
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+    console.log('Processing notifications for tomorrow...')
+
+    // Get tomorrow's date
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const tomorrowStr = tomorrow.toISOString().split('T')[0] // YYYY-MM-DD format
+
+    console.log(`Checking for events on: ${tomorrowStr}`)
+
+    // Get all event subscriptions
+    const { data: subscriptions, error: subscriptionsError } = await supabase
+      .from('event_subscriptions')
+      .select(`
+        id,
+        event_slug,
+        user_id,
+        notification_enabled,
+        profiles!inner(
+          id,
+          email,
+          first_name,
+          last_name
+        )
+      `)
+      .eq('notification_enabled', true)
+
+    if (subscriptionsError) {
+      console.error('Error fetching subscriptions:', subscriptionsError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch subscriptions' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!subscriptions || subscriptions.length === 0) {
+      console.log('No active subscriptions found')
+      return new Response(
+        JSON.stringify({ message: 'No active subscriptions found' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log(`Found ${subscriptions.length} active subscriptions`)
+
+    // Group subscriptions by event slug
+    const subscriptionsByEvent = subscriptions.reduce((acc, sub) => {
+      if (!acc[sub.event_slug]) {
+        acc[sub.event_slug] = []
+      }
+      acc[sub.event_slug].push(sub)
+      return acc
+    }, {} as Record<string, any[]>)
+
+    // Check each event for tomorrow's occurrences
+    const eventsToNotify: Array<{
+      eventSlug: string
+      subscribers: any[]
+    }> = []
+
+    for (const [eventSlug, eventSubscriptions] of Object.entries(subscriptionsByEvent)) {
+      // Check if this event occurs tomorrow
+      const occursTomorrow = await checkEventOccursTomorrow(eventSlug, tomorrowStr)
+      
+      if (occursTomorrow) {
+        eventsToNotify.push({
+          eventSlug,
+          subscribers: eventSubscriptions
+        })
+        console.log(`Event ${eventSlug} occurs tomorrow - ${eventSubscriptions.length} subscribers`)
+      }
+    }
+
+    if (eventsToNotify.length === 0) {
+      console.log('No events tomorrow')
+      return new Response(
+        JSON.stringify({ message: 'No events tomorrow' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Send notifications for each event
+    const results = []
+    for (const { eventSlug, subscribers } of eventsToNotify) {
+      const result = await sendEventNotifications(eventSlug, subscribers, tomorrowStr)
+      results.push(result)
+    }
+
+    console.log(`Processed ${results.length} events for notifications`)
+
+    return new Response(
+      JSON.stringify({ 
+        message: 'Notifications processed successfully',
+        eventsProcessed: results.length,
+        totalSubscribers: results.reduce((sum, r) => sum + r.subscribersNotified, 0)
+      }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
-    // Get all events happening tomorrow with their subscribers
-    const { data: tomorrowEvents, error } = await supabase
-      .rpc('get_tomorrows_events')
-
-    if (error) {
-      throw new Error(`Failed to get tomorrow's events: ${error.message}`)
-    }
-
-    if (!tomorrowEvents || tomorrowEvents.length === 0) {
-      console.log('No events happening tomorrow')
-      return new Response(JSON.stringify({ 
-        message: 'No events happening tomorrow',
-        timestamp: new Date().toISOString()
-      }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-    }
-
-    let totalSent = 0
-    const results = []
-
-    // Process each event
-    for (const event of tomorrowEvents) {
-      console.log(`Processing event: ${event.event_name} (${event.event_slug})`)
-      
-      if (!event.subscribers || event.subscribers.length === 0) {
-        console.log(`No subscribers for ${event.event_name}`)
-        continue
-      }
-
-      let eventSentCount = 0
-      const eventResults = []
-
-      // Send notification to each subscriber
-      for (const subscriber of event.subscribers) {
-        try {
-          // Check if we already sent a notification for this event/date
-          const { data: existingNotification } = await supabase
-            .from('notification_history')
-            .select('id')
-            .eq('event_slug', event.event_slug)
-            .eq('user_id', subscriber.user_id)
-            .eq('event_date', event.event_date)
-            .eq('notification_type', 'reminder')
-            .single()
-
-          if (existingNotification) {
-            console.log(`Already notified ${subscriber.email} about ${event.event_name}`)
-            continue
-          }
-
-          // Send email notification using Supabase's built-in email service
-          const emailSent = await sendEventEmail({
-            to: subscriber.email,
-            userName: `${subscriber.first_name} ${subscriber.last_name}`.trim(),
-            eventName: event.event_name,
-            eventDescription: event.event_description,
-            eventDate: event.event_date,
-            eventSlug: event.event_slug
-          })
-
-          if (emailSent) {
-            // Record the notification in history
-            await supabase
-              .from('notification_history')
-              .insert({
-                event_slug: event.event_slug,
-                user_id: subscriber.user_id,
-                event_date: event.event_date,
-                notification_type: 'reminder'
-              })
-
-            eventSentCount++
-            totalSent++
-            eventResults.push({
-              email: subscriber.email,
-              status: 'sent'
-            })
-          } else {
-            eventResults.push({
-              email: subscriber.email,
-              status: 'failed',
-              error: 'Email sending failed'
-            })
-          }
-
-        } catch (error) {
-          console.error(`Error processing subscriber ${subscriber.email}:`, error)
-          eventResults.push({
-            email: subscriber.email,
-            status: 'error',
-            error: error.message
-          })
-        }
-      }
-
-      results.push({
-        event_slug: event.event_slug,
-        event_name: event.event_name,
-        subscribers: event.subscribers.length,
-        emails_sent: eventSentCount,
-        results: eventResults
-      })
-
-      console.log(`Sent ${eventSentCount} notifications for ${event.event_name}`)
-    }
-
-    console.log(`Daily notification processing completed. Sent ${totalSent} total notifications`)
-
-    return new Response(JSON.stringify({
-      success: true,
-      message: `Processed ${tomorrowEvents.length} events, sent ${totalSent} notifications`,
-      events_processed: tomorrowEvents.length,
-      total_notifications_sent: totalSent,
-      results,
-      timestamp: new Date().toISOString()
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    })
-
   } catch (error) {
-    console.error('Notification processing failed:', error)
-    return new Response(JSON.stringify({ 
-      error: 'Notification processing failed', 
-      details: error.message 
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    })
+    console.error('Error processing notifications:', error)
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   }
 })
 
-// Helper function to send email notifications using Supabase's built-in email service
-async function sendEventEmail({
+// Check if an event occurs on a specific date
+async function checkEventOccursTomorrow(eventSlug: string, targetDate: string): Promise<boolean> {
+  try {
+    console.log(`Checking if ${eventSlug} occurs on ${targetDate}`)
+    
+    // Call your Next.js API to check events for the date
+    const nextjsUrl = Deno.env.get('NEXTJS_URL') || 'https://www.tirthvi.com'
+    const response = await fetch(`${nextjsUrl}/api/notifications/check`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ date: targetDate })
+    })
+
+    if (!response.ok) {
+      console.error(`API call failed: ${response.status}`)
+      return false
+    }
+
+    const data = await response.json()
+    
+    // Check if our specific event is in the results
+    const eventOccurs = data.events.some((event: any) => event.slug === eventSlug)
+    
+    console.log(`Event ${eventSlug} occurs tomorrow: ${eventOccurs}`)
+    return eventOccurs
+    
+  } catch (error) {
+    console.error(`Error checking event ${eventSlug}:`, error)
+    return false
+  }
+}
+
+// Send notifications for an event
+async function sendEventNotifications(eventSlug: string, subscribers: any[], eventDate: string) {
+  console.log(`Sending notifications for ${eventSlug} to ${subscribers.length} subscribers`)
+  
+  // Get event details from your Next.js API
+  const nextjsUrl = Deno.env.get('NEXTJS_URL') || 'https://www.tirthvi.com'
+  const eventResponse = await fetch(`${nextjsUrl}/api/events/${eventSlug}`)
+  
+  if (!eventResponse.ok) {
+    console.error(`Failed to fetch event details for ${eventSlug}`)
+    return { eventSlug, subscribersNotified: 0, error: 'Failed to fetch event details' }
+  }
+  
+  const eventData = await eventResponse.json()
+  
+  // Send email to each subscriber
+  const emailResults = []
+  for (const subscriber of subscribers) {
+    try {
+      const emailResult = await sendEmailNotification({
+        to: subscriber.profiles.email,
+        firstName: subscriber.profiles.first_name || 'Friend',
+        eventName: eventData.name,
+        eventDescription: eventData.description,
+        eventDate: eventDate,
+        eventSlug: eventSlug,
+        eventImage: eventData.image?.url
+      })
+      emailResults.push(emailResult)
+    } catch (error) {
+      console.error(`Failed to send email to ${subscriber.profiles.email}:`, error)
+      emailResults.push({ success: false, email: subscriber.profiles.email, error: error.message })
+    }
+  }
+  
+  const successfulEmails = emailResults.filter(r => r.success).length
+  
+  console.log(`Sent ${successfulEmails}/${subscribers.length} emails for ${eventSlug}`)
+  
+  return {
+    eventSlug,
+    subscribersNotified: successfulEmails,
+    emailResults
+  }
+}
+
+// Send email notification using Resend
+async function sendEmailNotification({
   to,
-  userName,
+  firstName,
   eventName,
   eventDescription,
   eventDate,
-  eventSlug
+  eventSlug,
+  eventImage
 }: {
   to: string
-  userName: string
+  firstName: string
   eventName: string
   eventDescription: string
   eventDate: string
   eventSlug: string
-}): Promise<boolean> {
-  try {
-    const subject = `Reminder: ${eventName} is tomorrow!`
-    const htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2563eb;">🕉️ Tirthvi - Hindu Wisdom Hub</h2>
-        
-        <h3>${subject}</h3>
-        
-        <p>Dear ${userName},</p>
-        
-        <p>We wanted to remind you about the upcoming Hindu celebration:</p>
-        
-        <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h4 style="margin: 0 0 10px 0; color: #1e293b;">${eventName}</h4>
-          <p style="margin: 5px 0; color: #64748b;"><strong>Date:</strong> ${new Date(eventDate).toLocaleDateString()}</p>
-          <p style="margin: 5px 0; color: #64748b;"><strong>Type:</strong> Reminder</p>
+  eventImage?: string
+}) {
+  const resendApiKey = Deno.env.get('RESEND_API_KEY')
+  
+  if (!resendApiKey) {
+    throw new Error('RESEND_API_KEY not configured')
+  }
+  
+  // Format the date nicely
+  const formattedDate = new Date(eventDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+  
+  // Create beautiful HTML email content
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Hindu Event Reminder - ${eventName}</title>
+      <style>
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          line-height: 1.6; 
+          color: #333; 
+          margin: 0; 
+          padding: 0; 
+          background-color: #f8f9fa;
+        }
+        .container { 
+          max-width: 600px; 
+          margin: 0 auto; 
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header { 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 30px 20px; 
+          text-align: center;
+        }
+        .header h1 { 
+          margin: 0; 
+          font-size: 28px;
+          font-weight: 600;
+        }
+        .header p { 
+          margin: 10px 0 0 0; 
+          font-size: 16px;
+          opacity: 0.9;
+        }
+        .content { 
+          padding: 30px 20px; 
+        }
+        .event-card {
+          background: #f8f9fa;
+          border-radius: 8px;
+          padding: 20px;
+          margin: 20px 0;
+          border-left: 4px solid #667eea;
+        }
+        .event-title {
+          font-size: 24px;
+          font-weight: 600;
+          color: #2c3e50;
+          margin: 0 0 10px 0;
+        }
+        .event-date {
+          font-size: 18px;
+          color: #667eea;
+          font-weight: 500;
+          margin: 0 0 15px 0;
+        }
+        .event-description {
+          font-size: 16px;
+          line-height: 1.6;
+          color: #555;
+        }
+        .event-image {
+          width: 100%;
+          max-width: 300px;
+          height: 200px;
+          object-fit: cover;
+          border-radius: 8px;
+          margin: 15px 0;
+        }
+        .button { 
+          display: inline-block; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white; 
+          padding: 15px 30px; 
+          text-decoration: none; 
+          border-radius: 8px; 
+          margin: 20px 0; 
+          font-weight: 600;
+          font-size: 16px;
+          transition: transform 0.2s;
+        }
+        .button:hover {
+          transform: translateY(-2px);
+        }
+        .footer { 
+          background: #f8f9fa;
+          padding: 20px; 
+          text-align: center; 
+          font-size: 14px; 
+          color: #666; 
+          border-top: 1px solid #e9ecef;
+        }
+        .footer a {
+          color: #667eea;
+          text-decoration: none;
+        }
+        .blessing {
+          font-style: italic;
+          color: #667eea;
+          text-align: center;
+          margin: 20px 0;
+          font-size: 16px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🕉️ Tirthvi</h1>
+          <p>Namaste ${firstName},</p>
         </div>
         
-        <p>${eventDescription.substring(0, 200)}...</p>
-        
-        <div style="margin: 30px 0;">
-          <a href="${Deno.env.get('NEXT_PUBLIC_SITE_URL') || 'https://tirthvi.com'}/events/${eventSlug}" 
-             style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-            View Event Details
-          </a>
+        <div class="content">
+          <div class="blessing">
+            "May this sacred day bring you peace, prosperity, and spiritual growth."
+          </div>
+          
+          <div class="event-card">
+            <h2 class="event-title">${eventName}</h2>
+            <p class="event-date">📅 ${formattedDate}</p>
+            ${eventImage ? `<img src="${eventImage}" alt="${eventName}" class="event-image">` : ''}
+            <div class="event-description">
+              ${eventDescription}
+            </div>
+          </div>
+          
+          <div style="text-align: center;">
+            <a href="https://your-app.vercel.app/events/${eventSlug}" class="button">
+              View Full Event Details
+            </a>
+          </div>
         </div>
         
-        <p style="color: #64748b; font-size: 14px;">
-          You're receiving this because you subscribed to notifications for this event. 
-          <a href="${Deno.env.get('NEXT_PUBLIC_SITE_URL') || 'https://tirthvi.com'}/dashboard">Manage your subscriptions</a>
-        </p>
-        
-        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
-        <p style="color: #94a3b8; font-size: 12px; text-align: center;">
-          Tirthvi - Hindu Wisdom Hub | <a href="${Deno.env.get('NEXT_PUBLIC_SITE_URL') || 'https://tirthvi.com'}">Visit our website</a>
-        </p>
+        <div class="footer">
+          <p><strong>Tirthvi</strong> - Your Hindu Wisdom Hub</p>
+          <p>To manage your event subscriptions, visit your <a href="https://your-app.vercel.app/dashboard">dashboard</a>.</p>
+          <p>This is an automated reminder. If you no longer wish to receive these emails, you can unsubscribe from your dashboard.</p>
+        </div>
       </div>
-    `
-
-    // Use Supabase's built-in email service
-    // This uses Supabase's email functionality - no external services needed
-    const response = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-email`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        to,
-        subject,
-        html: htmlContent,
-      }),
-    })
-
-    if (!response.ok) {
-      console.error(`Failed to send email to ${to}:`, await response.text())
-      return false
-    }
-
-    console.log(`Email sent successfully to ${to} about ${eventName}`)
-    return true
-
-  } catch (error) {
-    console.error('Error sending email:', error)
-    return false
+    </body>
+    </html>
+  `
+  
+  // Send email via Resend API
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${resendApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Tirthvi <notifications@notifications.tirthvi.com>',
+      to: [to],
+      subject: `🕉️ Reminder: ${eventName} is tomorrow`,
+      html: htmlContent,
+    }),
+  })
+  
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Resend API error: ${response.status} - ${error}`)
+  }
+  
+  const result = await response.json()
+  console.log(`Email sent successfully to ${to}: ${result.id}`)
+  
+  return {
+    success: true,
+    email: to,
+    messageId: result.id
   }
 }

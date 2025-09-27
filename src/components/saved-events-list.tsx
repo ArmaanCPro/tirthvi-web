@@ -60,6 +60,8 @@ export function SavedEventsList() {
       if (response.ok) {
         setSavedEvents(prev => prev.filter(event => event.id !== id))
         toast.success('Event removed from saved list')
+        // Refresh the list to ensure consistency
+        await fetchSavedEvents()
       } else {
         toast.error('Failed to remove event')
       }
@@ -87,6 +89,8 @@ export function SavedEventsList() {
         setEditingId(null)
         setEditNotes('')
         toast.success('Notes updated successfully')
+        // Refresh the list to ensure consistency
+        await fetchSavedEvents()
       } else {
         toast.error('Failed to update notes')
       }

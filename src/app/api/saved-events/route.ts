@@ -4,7 +4,7 @@ import { db } from '@/lib/drizzle'
 import { savedEvents, profiles } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
 import { getEventBySlug } from '@/lib/events'
-import { unstable_cache } from 'next/cache'
+import { unstable_cache, revalidateTag } from 'next/cache'
 
 // Cache user's saved events for 5 minutes
 const getCachedSavedEvents = unstable_cache(
@@ -119,6 +119,9 @@ export async function POST(request: NextRequest) {
       eventSlug,
       notes: notes || null,
     }).returning()
+
+    // Invalidate cache so fresh data is fetched
+    revalidateTag('saved-events')
 
     return NextResponse.json({ savedEvent }, { status: 201 })
   } catch (error) {
