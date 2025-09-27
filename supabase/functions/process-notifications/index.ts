@@ -1,5 +1,8 @@
 // Supabase Edge Function to process event notifications with Resend email
+// @ts-nocheck
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
