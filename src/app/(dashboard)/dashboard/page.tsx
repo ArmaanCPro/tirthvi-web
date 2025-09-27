@@ -13,7 +13,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
@@ -35,7 +35,7 @@ export default async function DashboardPage() {
               Events you&apos;ve saved for later reference
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 sm:p-6">
             <Suspense fallback={<SavedEventsSkeleton />}>
               <SavedEventsList />
             </Suspense>

@@ -17,11 +17,14 @@ interface SavedEvent {
   notes?: string
   savedAt: string
   event: {
-    title: string
+    name: string
     description: string
     date: string
     location?: string
-    image?: string
+    image: {
+      url: string
+      alt: string
+    }
   } | null
 }
 
@@ -127,13 +130,13 @@ export function SavedEventsList() {
       {savedEvents.map((savedEvent) => (
         <Card key={savedEvent.id} className="overflow-hidden">
           <CardContent className="p-0">
-            <div className="flex">
+            <div className="flex flex-col sm:flex-row">
               {/* Event Image */}
-              <div className="w-24 h-24 bg-muted flex-shrink-0">
+              <div className="w-full h-32 sm:w-24 sm:h-24 bg-muted flex-shrink-0 relative">
                 {savedEvent.event?.image ? (
                   <Image
-                    src={savedEvent.event.image}
-                    alt={savedEvent.event.title}
+                    src={savedEvent.event.image.url}
+                    alt={savedEvent.event.image.alt}
                     fill
                     className="object-cover"
                   />
@@ -146,10 +149,10 @@ export function SavedEventsList() {
 
               {/* Event Details */}
               <div className="flex-1 p-4">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg mb-1">
-                      {savedEvent.event?.title || 'Event not found'}
+                      {savedEvent.event?.name || 'Event not found'}
                     </h3>
                     
                     {savedEvent.event && (
@@ -181,7 +184,7 @@ export function SavedEventsList() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center space-x-2 ml-4">
+                  <div className="flex items-center space-x-2 mt-4 sm:mt-0 sm:ml-4">
                     {savedEvent.event && (
                       <Button asChild size="sm" variant="outline">
                         <Link href={`/events/${savedEvent.eventSlug}`}>

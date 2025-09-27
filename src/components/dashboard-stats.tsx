@@ -60,7 +60,7 @@ export function DashboardStats() {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Saved Events</CardTitle>
@@ -87,7 +87,7 @@ export function DashboardStats() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="sm:col-span-2 lg:col-span-1">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Chat Sessions</CardTitle>
           <MessageSquare className="h-4 w-4 text-muted-foreground" />
