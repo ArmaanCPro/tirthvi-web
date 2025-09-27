@@ -150,28 +150,24 @@ async function checkEventOccursTomorrow(eventSlug: string, targetDate: string): 
   try {
     console.log(`Checking if ${eventSlug} occurs on ${targetDate}`)
     
-    // Call your Next.js API to check events for the date
+    // Get the specific event data
     const nextjsUrl = Deno.env.get('NEXTJS_URL') || 'https://www.tirthvi.com'
-    const response = await fetch(`${nextjsUrl}/api/notifications/check`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ date: targetDate })
-    })
+    const response = await fetch(`${nextjsUrl}/api/events/${eventSlug}`)
 
     if (!response.ok) {
       console.error(`API call failed: ${response.status}`)
       return false
     }
 
-    const data = await response.json()
+    const eventData = await response.json()
     
-    // Check if our specific event is in the results
-    const eventOccurs = data.events.some((event: any) => event.slug === eventSlug)
+    // Check if the event has an occurrence on the target date
+    const hasOccurrence = Object.values(eventData.occurrences || {}).some((yearOccurrences: any) => 
+      yearOccurrences.some((occurrence: any) => occurrence.date === targetDate)
+    )
     
-    console.log(`Event ${eventSlug} occurs tomorrow: ${eventOccurs}`)
-    return eventOccurs
+    console.log(`Event ${eventSlug} occurs on ${targetDate}: ${hasOccurrence}`)
+    return hasOccurrence
     
   } catch (error) {
     console.error(`Error checking event ${eventSlug}:`, error)

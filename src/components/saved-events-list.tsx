@@ -5,11 +5,12 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { Bookmark, Calendar, MapPin, ExternalLink, Trash2, Edit3 } from 'lucide-react'
+import { Bookmark, Calendar, ExternalLink, Trash2, Edit3 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
+import { getNextOccurrence, formatEventDate } from '@/lib/event-utils'
 
 interface SavedEvent {
   id: string
@@ -19,13 +20,19 @@ interface SavedEvent {
   event: {
     name: string
     description: string
-    date: string
-    location?: string
+    slug: string
     category?: string
     image: {
       url: string
       alt: string
     }
+    occurrences: Record<string, Array<{
+      date: string
+      startTime?: string
+      endTime?: string
+      timezone: string
+      significance?: string
+    }>>
   } | null
 }
 
@@ -175,19 +182,15 @@ export function SavedEventsList() {
                           <Calendar className="h-4 w-4 mr-2" />
                           <span className="font-medium">Next occurrence:</span>
                           <span className="ml-1">
-                            {savedEvent.event.date ? 
-                              format(new Date(savedEvent.event.date), 'MMM dd, yyyy') : 
-                              'Date TBD'
-                            }
+                            {(() => {
+                              const nextOccurrence = getNextOccurrence(savedEvent.event!)
+                              if (nextOccurrence) {
+                                return formatEventDate(nextOccurrence.date)
+                              }
+                              return 'Date TBD'
+                            })()}
                           </span>
                         </div>
-                        {savedEvent.event.location && (
-                          <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-2" />
-                            <span className="font-medium">Location:</span>
-                            <span className="ml-1">{savedEvent.event.location}</span>
-                          </div>
-                        )}
                         <div className="flex items-center">
                           <span className="font-medium">Category:</span>
                           <span className="ml-1 capitalize">{savedEvent.event.category || 'Religious'}</span>
