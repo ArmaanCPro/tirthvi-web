@@ -4,23 +4,20 @@ import { db } from '@/lib/drizzle'
 import { eventSubscriptions, profiles } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
 import { getEventBySlug } from '@/lib/events'
+import { unstable_cache } from 'next/cache'
 
-// GET /api/event-subscriptions - Get user's event subscriptions
-export async function GET() {
-  try {
-    const { userId } = await auth()
+// Cache user's event subscriptions for 5 minutes
+const getCachedEventSubscriptions = unstable_cache(
+  async (userId: string) => {
+    console.log('Cache miss - loading event subscriptions for user:', userId)
     
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     // Get user profile
     const user = await db.query.profiles.findFirst({
       where: eq(profiles.clerkId, userId),
     })
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      throw new Error('User not found')
     }
 
     // Get event subscriptions with event details
@@ -54,6 +51,25 @@ export async function GET() {
       })
     )
 
+    return enrichedSubscriptions
+  },
+  ['event-subscriptions'],
+  {
+    revalidate: 300, // 5 minutes
+    tags: ['event-subscriptions'],
+  }
+)
+
+// GET /api/event-subscriptions - Get user's event subscriptions
+export async function GET() {
+  try {
+    const { userId } = await auth()
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const enrichedSubscriptions = await getCachedEventSubscriptions(userId)
     return NextResponse.json({ subscriptions: enrichedSubscriptions })
   } catch (error) {
     console.error('Error fetching event subscriptions:', error)

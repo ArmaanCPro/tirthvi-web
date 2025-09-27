@@ -4,23 +4,20 @@ import { db } from '@/lib/drizzle'
 import { savedEvents, profiles } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
 import { getEventBySlug } from '@/lib/events'
+import { unstable_cache } from 'next/cache'
 
-// GET /api/saved-events - Get user's saved events
-export async function GET() {
-  try {
-    const { userId } = await auth()
+// Cache user's saved events for 5 minutes
+const getCachedSavedEvents = unstable_cache(
+  async (userId: string) => {
+    console.log('Cache miss - loading saved events for user:', userId)
     
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     // Get user profile
     const user = await db.query.profiles.findFirst({
       where: eq(profiles.clerkId, userId),
     })
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      throw new Error('User not found')
     }
 
     // Get saved events with event details
@@ -54,6 +51,25 @@ export async function GET() {
       })
     )
 
+    return enrichedEvents
+  },
+  ['saved-events'],
+  {
+    revalidate: 300, // 5 minutes
+    tags: ['saved-events'],
+  }
+)
+
+// GET /api/saved-events - Get user's saved events
+export async function GET() {
+  try {
+    const { userId } = await auth()
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const enrichedEvents = await getCachedSavedEvents(userId)
     return NextResponse.json({ savedEvents: enrichedEvents })
   } catch (error) {
     console.error('Error fetching saved events:', error)
