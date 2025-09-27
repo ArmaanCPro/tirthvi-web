@@ -5,10 +5,24 @@ import { getAllEvents } from '@/lib/events'
 
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Verify this request is from Supabase Edge Function
+    const authHeader = request.headers.get('authorization')
+    const expectedAuth = `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
+    
+    if (!authHeader || authHeader !== expectedAuth) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { date } = await request.json()
     
     if (!date) {
       return NextResponse.json({ error: 'Date is required' }, { status: 400 })
+    }
+
+    // Validate date format (YYYY-MM-DD)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+    if (!dateRegex.test(date)) {
+      return NextResponse.json({ error: 'Invalid date format. Use YYYY-MM-DD' }, { status: 400 })
     }
 
     // Get all events
