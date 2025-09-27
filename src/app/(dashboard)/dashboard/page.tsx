@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { SavedEventsList } from '@/components/saved-events-list'
+import { SubscribedEventsList } from '@/components/subscribed-events-list'
 import { DashboardStats } from '@/components/dashboard-stats'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -41,6 +42,21 @@ export default async function DashboardPage() {
             </Suspense>
           </CardContent>
         </Card>
+
+        {/* Subscribed Events */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Subscribed Events</CardTitle>
+            <CardDescription>
+              Events you&apos;re following for notifications
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0 sm:p-6">
+            <Suspense fallback={<SubscribedEventsSkeleton />}>
+              <SubscribedEventsList />
+            </Suspense>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
@@ -64,6 +80,22 @@ function DashboardStatsSkeleton() {
 }
 
 function SavedEventsSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="flex items-center space-x-4 p-4 border rounded-lg">
+          <div className="h-12 w-12 bg-muted animate-pulse rounded"></div>
+          <div className="flex-1 space-y-2">
+            <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
+            <div className="h-3 bg-muted animate-pulse rounded w-1/2"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function SubscribedEventsSkeleton() {
   return (
     <div className="space-y-4">
       {[1, 2, 3].map((i) => (

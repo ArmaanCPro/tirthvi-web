@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/drizzle'
 import { eventSubscriptions, profiles } from '@/lib/drizzle/schema'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { getEventBySlug } from '@/lib/events'
 
 // GET /api/event-subscriptions - Get user's event subscriptions
@@ -87,7 +87,10 @@ export async function POST(request: NextRequest) {
 
     // Check if already subscribed
     const existing = await db.query.eventSubscriptions.findFirst({
-      where: eq(eventSubscriptions.userId, user.id) && eq(eventSubscriptions.eventSlug, eventSlug),
+      where: and(
+        eq(eventSubscriptions.userId, user.id),
+        eq(eventSubscriptions.eventSlug, eventSlug)
+      ),
     })
 
     if (existing) {
