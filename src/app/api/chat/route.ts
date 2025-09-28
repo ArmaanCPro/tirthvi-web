@@ -47,6 +47,18 @@ export async function POST(req: NextRequest) {
 
     const { messages, conversationId } = await req.json()
 
+    // Convert UI messages to model messages
+    const modelMessages = messages.map((msg: { role: string; content?: string; parts?: Array<{ type: string; text?: string }> }) => {
+      if (msg.role === 'user') {
+        const content = msg.content || msg.parts?.[0]?.text || ''
+        return { role: 'user' as const, content }
+      } else if (msg.role === 'assistant') {
+        const content = msg.content || msg.parts?.[0]?.text || ''
+        return { role: 'assistant' as const, content }
+      }
+      return msg
+    })
+
     // Get or create conversation (only if user exists)
     let convId = conversationId
     if (user) {
@@ -63,7 +75,8 @@ export async function POST(req: NextRequest) {
       try {
         const lastUserMessage = messages[messages.length - 1]
         if (lastUserMessage?.role === 'user') {
-          await addMessage(convId, 'user', lastUserMessage.content || lastUserMessage.parts?.[0]?.text || '')
+          const content = lastUserMessage.content || lastUserMessage.parts?.[0]?.text || ''
+          await addMessage(convId, 'user', content)
         }
       } catch (messageError) {
         console.error('Message saving error:', messageError)
@@ -73,7 +86,7 @@ export async function POST(req: NextRequest) {
 
     const result = streamText({
       model: 'openai/gpt-oss-120b',
-      messages,
+      messages: modelMessages,
       system: `You are a knowledgeable assistant specializing in Hindu philosophy, culture, and traditions. You help users understand Hindu concepts, festivals, scriptures, and spiritual practices. Provide accurate, respectful, and insightful responses about Hindu philosophy and knowledge.`,
       onFinish: async (result) => {
         // Save assistant response to database (only if user exists)
