@@ -32,7 +32,7 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
   const [currentConversationId, setCurrentConversationId] = useState<string | undefined>()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
@@ -132,6 +132,21 @@ export default function ChatPage() {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [handleNewConversation])
+
+  // Auto-close sidebar on mobile when screen size changes
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    // Set initial state based on screen size
+    handleResize()
+
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Load conversation when conversation ID changes
   useEffect(() => {
@@ -237,20 +252,40 @@ export default function ChatPage() {
       <div className="flex h-screen">
       {/* Sidebar */}
       {sidebarOpen && (
-        <div className="w-80 border-r">
-          <ConversationSidebar
-            currentConversationId={currentConversationId}
-            onConversationSelect={handleConversationSelect}
-            onNewConversation={handleNewConversation}
-            onSearch={handleSearch}
+        <>
+          {/* Mobile overlay */}
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setSidebarOpen(false)}
           />
-        </div>
+          <div className="w-80 border-r relative z-50 md:relative md:z-auto">
+            <ConversationSidebar
+              currentConversationId={currentConversationId}
+              onConversationSelect={(id) => {
+                handleConversationSelect(id)
+                // Auto-close on mobile after selection
+                if (window.innerWidth < 768) {
+                  setSidebarOpen(false)
+                }
+              }}
+              onNewConversation={() => {
+                handleNewConversation()
+                // Auto-close on mobile after new conversation
+                if (window.innerWidth < 768) {
+                  setSidebarOpen(false)
+                }
+              }}
+              onSearch={handleSearch}
+              onClose={() => setSidebarOpen(false)}
+            />
+          </div>
+        </>
       )}
       
       {/* Main Chat */}
-      <div className="flex-1 flex flex-col">
-        <div className="p-6">
-          <Card className="h-[calc(100vh-3rem)] flex flex-col">
+      <div className="flex-1 flex flex-col h-screen">
+        <div className="flex-1 flex flex-col p-6">
+          <Card className="flex-1 flex flex-col">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">

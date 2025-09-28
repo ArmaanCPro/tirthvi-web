@@ -40,13 +40,15 @@ interface ConversationSidebarProps {
   onConversationSelect: (conversationId: string) => void
   onNewConversation: () => void
   onSearch?: (query: string) => void
+  onClose?: () => void
 }
 
 export function ConversationSidebar({ 
   currentConversationId, 
   onConversationSelect, 
   onNewConversation,
-  onSearch
+  onSearch,
+  onClose
 }: ConversationSidebarProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
@@ -181,10 +183,22 @@ export function ConversationSidebar({
   }
 
   return (
-    <Card className="w-80 h-full flex flex-col">
+    <Card className="w-80 h-screen flex flex-col fixed md:relative top-0 left-0 z-50 md:z-auto">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between mb-3">
-          <CardTitle className="text-lg">Conversations</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-lg">Conversations</CardTitle>
+            {onClose && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={onClose}
+                className="h-8 w-8 p-0 md:hidden"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
           <Button
             size="sm"
             onClick={onNewConversation}
