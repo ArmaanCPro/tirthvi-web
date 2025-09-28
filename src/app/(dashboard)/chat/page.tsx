@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useUser, SignInButton } from '@clerk/nextjs'
 import { useChat } from '@ai-sdk/react'
 import { Conversation, ConversationContent } from '@/components/ui/shadcn-io/ai/conversation'
@@ -10,11 +10,48 @@ import { PromptInput, PromptInputTextarea } from '@/components/ui/shadcn-io/ai/p
 import { Loader } from '@/components/ui/shadcn-io/ai/loader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+
+interface UsageStats {
+  messagesCount: number
+  tokensUsed: number
+  messagesRemaining: number
+  tokensRemaining: number
+  isLimitReached: boolean
+}
 
 export default function ChatPage() {
   const { isLoaded, isSignedIn } = useUser()
   const [input, setInput] = useState('')
-  const { messages, sendMessage, status } = useChat()
+  const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
+  const { messages, sendMessage, status } = useChat({
+    onError: (error) => {
+      if (error.message.includes('429')) {
+        // Rate limit reached
+        setUsageStats(prev => prev ? { ...prev, isLimitReached: true } : null)
+      }
+      console.error('Chat error:', error)
+    }
+  })
+
+  // Fetch usage stats
+  useEffect(() => {
+    if (isSignedIn) {
+      fetchUsageStats()
+    }
+  }, [isSignedIn])
+
+  const fetchUsageStats = async () => {
+    try {
+      const response = await fetch('/api/usage')
+      if (response.ok) {
+        const stats = await response.json()
+        setUsageStats(stats)
+      }
+    } catch (error) {
+      console.error('Error fetching usage stats:', error)
+    }
+  }
 
   // Show loading state while Clerk is loading
   if (!isLoaded) {
@@ -69,10 +106,26 @@ export default function ChatPage() {
     <div className="container mx-auto p-6 max-w-4xl">
       <Card className="h-[600px] flex flex-col">
         <CardHeader>
-          <CardTitle>Hindu Philosophy Assistant</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Ask questions about Hindu philosophy, festivals, scriptures, and traditions
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Hindu Philosophy Assistant</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Ask questions about Hindu philosophy, festivals, scriptures, and traditions
+              </p>
+            </div>
+            {usageStats && (
+              <div className="flex gap-2">
+                <Badge variant={usageStats.isLimitReached ? "destructive" : "secondary"}>
+                  {usageStats.messagesRemaining} messages left
+                </Badge>
+                {usageStats.isLimitReached && (
+                  <Badge variant="destructive">
+                    Daily limit reached
+                  </Badge>
+                )}
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col">
           <Conversation className="flex-1">
@@ -111,8 +164,12 @@ export default function ChatPage() {
               <PromptInputTextarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about Hindu philosophy, festivals, or traditions..."
-                disabled={status === 'streaming'}
+                placeholder={
+                  usageStats?.isLimitReached 
+                    ? "Daily limit reached. Try again tomorrow." 
+                    : "Ask about Hindu philosophy, festivals, or traditions..."
+                }
+                disabled={status === 'streaming' || usageStats?.isLimitReached}
               />
             </PromptInput>
           </div>

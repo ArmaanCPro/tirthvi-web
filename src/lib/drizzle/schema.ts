@@ -76,6 +76,17 @@ export const userPreferences = pgTable('user_preferences', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 })
 
+// User usage tracking - track daily AI usage for rate limiting
+export const userUsage = pgTable('user_usage', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
+  date: timestamp('date', { withTimezone: true }).notNull(), // Date without time (YYYY-MM-DD)
+  aiMessagesCount: integer('ai_messages_count').default(0).notNull(),
+  aiTokensUsed: integer('ai_tokens_used').default(0).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+})
+
 // Define relations
 export const profilesRelations = relations(profiles, ({ many, one }) => ({
   eventSubscriptions: many(eventSubscriptions),
@@ -83,6 +94,7 @@ export const profilesRelations = relations(profiles, ({ many, one }) => ({
   chatConversations: many(chatConversations),
   donations: many(donations),
   preferences: one(userPreferences),
+  usage: many(userUsage),
 }))
 
 export const eventSubscriptionsRelations = relations(eventSubscriptions, ({ one }) => ({
@@ -124,6 +136,13 @@ export const donationsRelations = relations(donations, ({ one }) => ({
 export const userPreferencesRelations = relations(userPreferences, ({ one }) => ({
   user: one(profiles, {
     fields: [userPreferences.userId],
+    references: [profiles.id],
+  }),
+}))
+
+export const userUsageRelations = relations(userUsage, ({ one }) => ({
+  user: one(profiles, {
+    fields: [userUsage.userId],
     references: [profiles.id],
   }),
 }))
