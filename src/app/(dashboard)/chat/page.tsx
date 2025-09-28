@@ -363,7 +363,7 @@ export default function ChatPage() {
                         .join('')
 
                       return (
-                        <div key={message.id} className="w-full max-w-4xl mx-auto px-4">
+                        <div key={message.id} className="w-full max-w-4xl mx-auto px-2 md:px-4">
                           <Message from={message.role}>
                             <MessageContent>
                               {message.parts.map((part, index) => {
