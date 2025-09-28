@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       system: `You are a knowledgeable assistant specializing in Hindu philosophy, culture, and traditions. You help users understand Hindu concepts, festivals, scriptures, and spiritual practices. Provide accurate, respectful, and insightful responses about Hindu philosophy and knowledge.`
     })
 
-    return result.toDataStreamResponse()
+    return result.toTextStreamResponse()
   } catch (error) {
     console.error('Error in chat API:', error)
     return new Response('Internal server error', { status: 500 })

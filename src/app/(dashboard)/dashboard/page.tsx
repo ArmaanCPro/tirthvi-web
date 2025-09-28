@@ -5,6 +5,9 @@ import { SavedEventsList } from '@/components/saved-events-list'
 import { SubscribedEventsList } from '@/components/subscribed-events-list'
 import { DashboardStats } from '@/components/dashboard-stats'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Bot } from 'lucide-react'
+import Link from 'next/link'
 
 export default async function DashboardPage() {
   const { userId } = await auth()
@@ -27,6 +30,27 @@ export default async function DashboardPage() {
         <Suspense fallback={<DashboardStatsSkeleton />}>
           <DashboardStats />
         </Suspense>
+
+        {/* AI Chat Quick Access */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bot className="h-5 w-5" />
+              AI Wisdom Assistant
+            </CardTitle>
+            <CardDescription>
+              Get answers about Hindu philosophy, festivals, and traditions
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link href="/chat">
+                <Bot className="mr-2 h-4 w-4" />
+                Start Chatting
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Saved Events */}
         <Card>
