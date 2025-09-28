@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     const { messages } = await req.json()
 
     const result = streamText({
-      model: 'google/gemini-2.0-flash',
+      model: 'openai/gpt-oss-120b',
       messages,
       system: `You are a knowledgeable assistant specializing in Hindu philosophy, culture, and traditions. You help users understand Hindu concepts, festivals, scriptures, and spiritual practices. Provide accurate, respectful, and insightful responses about Hindu philosophy and knowledge.`
     })
