@@ -146,3 +146,54 @@ export const userUsageRelations = relations(userUsage, ({ one }) => ({
     references: [profiles.id],
   }),
 }))
+
+// RAG System Tables
+export const documents = pgTable('documents', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: text('title').notNull(),
+  source: text('source').notNull(), // e.g., 'Bhagavad Gita', 'Mahabharata'
+  chapter: integer('chapter'),
+  verse: integer('verse'),
+  content: text('content').notNull(),
+  metadata: jsonb('metadata').default('{}'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+})
+
+export const chunks = pgTable('chunks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  documentId: uuid('document_id').references(() => documents.id, { onDelete: 'cascade' }).notNull(),
+  chunkIndex: integer('chunk_index').notNull(), // Order within document
+  content: text('content').notNull(),
+  tokenCount: integer('token_count').default(0), // Approximate token count
+  metadata: jsonb('metadata').default('{}'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+})
+
+export const embeddings = pgTable('embeddings', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  chunkId: uuid('chunk_id').references(() => chunks.id, { onDelete: 'cascade' }).notNull(),
+  embedding: text('embedding'), // Will be stored as vector in database
+  model: text('model').default('text-embedding-3-small'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+})
+
+// RAG Relations
+export const documentsRelations = relations(documents, ({ many }) => ({
+  chunks: many(chunks),
+}))
+
+export const chunksRelations = relations(chunks, ({ one, many }) => ({
+  document: one(documents, {
+    fields: [chunks.documentId],
+    references: [documents.id],
+  }),
+  embeddings: many(embeddings),
+}))
+
+export const embeddingsRelations = relations(embeddings, ({ one }) => ({
+  chunk: one(chunks, {
+    fields: [embeddings.chunkId],
+    references: [chunks.id],
+  }),
+}))

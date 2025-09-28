@@ -6,6 +6,8 @@ import { profiles } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { canMakeAIRequest, recordAIUsage } from '@/lib/usage-tracking'
 import { getOrCreateConversation, addMessage } from '@/lib/chat-db'
+import { generateTextEmbedding } from '@/lib/embeddings'
+import { searchSimilarChunks, createRAGContext } from '@/lib/rag-utils'
 
 export async function POST(req: NextRequest) {
   try {
@@ -47,6 +49,25 @@ export async function POST(req: NextRequest) {
 
     const { messages, conversationId } = await req.json()
 
+    // Get the latest user message for RAG search
+    const lastUserMessage = messages[messages.length - 1]
+    const userQuery = lastUserMessage?.role === 'user' 
+      ? (lastUserMessage.content || lastUserMessage.parts?.[0]?.text || '')
+      : ''
+
+    // Generate RAG context if there's a user query
+    let ragContext = ''
+    if (userQuery && userQuery.trim()) {
+      try {
+        const queryEmbedding = await generateTextEmbedding(userQuery)
+        const searchResult = await searchSimilarChunks(queryEmbedding, 0.5, 5)
+        ragContext = createRAGContext(searchResult.chunks, 1500) // Limit context for GPT-4
+      } catch (ragError) {
+        console.error('RAG search error:', ragError)
+        // Continue without RAG context if search fails
+      }
+    }
+
     // Convert UI messages to model messages
     const modelMessages = messages.map((msg: { role: string; content?: string; parts?: Array<{ type: string; text?: string }> }) => {
       if (msg.role === 'user') {
@@ -84,10 +105,17 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Create enhanced system prompt with RAG context
+    const baseSystemPrompt = `You are a knowledgeable assistant specializing in Hindu philosophy, culture, and traditions. You help users understand Hindu concepts, festivals, scriptures, and spiritual practices. Provide accurate, respectful, and insightful responses about Hindu philosophy and knowledge.`
+    
+    const systemPrompt = ragContext 
+      ? `${baseSystemPrompt}\n\nUse the following context from Hindu scriptures to inform your response:\n${ragContext}\n\nWhen referencing specific verses or teachings, cite the source when possible.`
+      : baseSystemPrompt
+
     const result = streamText({
       model: 'openai/gpt-oss-120b',
       messages: modelMessages,
-      system: `You are a knowledgeable assistant specializing in Hindu philosophy, culture, and traditions. You help users understand Hindu concepts, festivals, scriptures, and spiritual practices. Provide accurate, respectful, and insightful responses about Hindu philosophy and knowledge.`,
+      system: systemPrompt,
       onFinish: async (result) => {
         // Save assistant response to database (only if user exists)
         if (user && convId && result.text) {
