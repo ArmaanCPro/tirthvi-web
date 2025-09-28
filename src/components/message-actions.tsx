@@ -86,42 +86,44 @@ export function MessageActions({
   }
 
   return (
-    <Actions>
-      {role === 'user' && onEdit && (
+    <div className="flex flex-col gap-2">
+      <Actions className="flex flex-wrap gap-2">
+        {role === 'user' && onEdit && (
+          <button
+            onClick={handleEdit}
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-muted"
+          >
+            <Edit3 className="h-3 w-3" />
+            Edit
+          </button>
+        )}
+        
+        {role === 'assistant' && onRegenerate && (
+          <button
+            onClick={onRegenerate}
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-muted"
+          >
+            <RotateCcw className="h-3 w-3" />
+            Regenerate
+          </button>
+        )}
+        
         <button
-          onClick={handleEdit}
-          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+          onClick={handleCopy}
+          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-muted"
         >
-          <Edit3 className="h-3 w-3" />
-          Edit
+          <Copy className="h-3 w-3" />
+          Copy
         </button>
-      )}
-      
-      {role === 'assistant' && onRegenerate && (
-        <button
-          onClick={onRegenerate}
-          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-        >
-          <RotateCcw className="h-3 w-3" />
-          Regenerate
-        </button>
-      )}
-      
-      <button
-        onClick={handleCopy}
-        className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-      >
-        <Copy className="h-3 w-3" />
-        Copy
-      </button>
+      </Actions>
       
       {onSearch && (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search in conversation..."
-            className="h-6 text-xs w-32"
+            className="h-8 text-xs flex-1"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleSearch()
@@ -132,12 +134,12 @@ export function MessageActions({
             size="sm"
             variant="ghost"
             onClick={handleSearch}
-            className="h-6 w-6 p-0"
+            className="h-8 w-8 p-0"
           >
             <Search className="h-3 w-3" />
           </Button>
         </div>
       )}
-    </Actions>
+    </div>
   )
 }

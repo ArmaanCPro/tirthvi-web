@@ -371,8 +371,10 @@ export default function ChatPage() {
                               return null
                             })}
                           </MessageContent>
-                          <div className="flex items-center justify-between mt-2">
-                            <MessageTimestamp timestamp={new Date()} />
+                          <div className="mt-2 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <MessageTimestamp timestamp={new Date()} />
+                            </div>
                             <MessageActions
                               messageId={message.id}
                               content={messageContent}
