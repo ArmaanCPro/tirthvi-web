@@ -344,7 +344,7 @@ export type CodeBlockFilenameProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 export const CodeBlockFilename = ({
-  className,
+  // className,
   icon,
   value,
   children,
