@@ -12,7 +12,8 @@ import {
   Edit3, 
   Check, 
   X,
-  MoreHorizontal
+  MoreHorizontal,
+  Search
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -38,17 +39,20 @@ interface ConversationSidebarProps {
   currentConversationId?: string
   onConversationSelect: (conversationId: string) => void
   onNewConversation: () => void
+  onSearch?: (query: string) => void
 }
 
 export function ConversationSidebar({ 
   currentConversationId, 
   onConversationSelect, 
-  onNewConversation 
+  onNewConversation,
+  onSearch
 }: ConversationSidebarProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Fetch conversations
   useEffect(() => {
@@ -145,6 +149,24 @@ export function ConversationSidebar({
     return content.length > 50 ? content.substring(0, 50) + '...' : content
   }
 
+  const handleSearch = () => {
+    if (searchQuery.trim() && onSearch) {
+      onSearch(searchQuery)
+    }
+  }
+
+  const filteredConversations = conversations.filter(conversation => {
+    if (!searchQuery.trim()) return true
+    
+    const searchLower = searchQuery.toLowerCase()
+    return (
+      conversation.title?.toLowerCase().includes(searchLower) ||
+      conversation.messages.some(msg => 
+        msg.content.toLowerCase().includes(searchLower)
+      )
+    )
+  })
+
   if (loading) {
     return (
       <Card className="w-80 h-full">
@@ -161,7 +183,7 @@ export function ConversationSidebar({
   return (
     <Card className="w-80 h-full flex flex-col">
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-3">
           <CardTitle className="text-lg">Conversations</CardTitle>
           <Button
             size="sm"
@@ -171,18 +193,39 @@ export function ConversationSidebar({
             <Plus className="h-4 w-4" />
           </Button>
         </div>
+        <div className="flex items-center gap-2">
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search conversations..."
+            className="h-8 text-sm"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch()
+              }
+            }}
+          />
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleSearch}
+            className="h-8 w-8 p-0"
+          >
+            <Search className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
       
       <CardContent className="flex-1 overflow-y-auto">
         <div className="space-y-2">
-          {conversations.length === 0 ? (
+          {filteredConversations.length === 0 ? (
             <div className="text-center py-8">
               <MessageSquare className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
               <p className="text-sm text-muted-foreground">No conversations yet</p>
               <p className="text-xs text-muted-foreground">Start a new chat to begin</p>
             </div>
           ) : (
-            conversations.map((conversation) => (
+            filteredConversations.map((conversation) => (
               <div
                 key={conversation.id}
                 className={`group relative p-3 rounded-lg border cursor-pointer transition-colors ${

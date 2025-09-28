@@ -8,7 +8,6 @@ import { Message, MessageContent } from '@/components/ui/shadcn-io/ai/message'
 import { Response } from '@/components/ui/shadcn-io/ai/response'
 import { PromptInput, PromptInputTextarea } from '@/components/ui/shadcn-io/ai/prompt-input'
 import { Loader } from '@/components/ui/shadcn-io/ai/loader'
-import { Actions } from '@/components/ui/shadcn-io/ai/actions'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -16,6 +15,9 @@ import { AlertTriangle } from 'lucide-react'
 import { ConversationSidebar } from '@/components/conversation-sidebar'
 import { ChatErrorBoundary } from '@/components/chat-error-boundary'
 import { TypingIndicator } from '@/components/typing-indicator'
+import { MessageActions } from '@/components/message-actions'
+import { MessageTimestamp } from '@/components/message-timestamp'
+import { KeyboardShortcuts } from '@/components/keyboard-shortcuts'
 
 interface UsageStats {
   messagesCount: number
@@ -87,10 +89,49 @@ export default function ChatPage() {
     }
   }, [setMessages])
 
+  const handleNewConversation = useCallback(() => {
+    setMessages([])
+    setCurrentConversationId(undefined)
+  }, [setMessages])
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl + K to focus search
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        // Focus search input in sidebar
+        const searchInput = document.querySelector('input[placeholder*="Search conversations"]') as HTMLInputElement
+        searchInput?.focus()
+      }
+      
+      // Cmd/Ctrl + N for new conversation
+      if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
+        e.preventDefault()
+        handleNewConversation()
+      }
+      
+      // Cmd/Ctrl + / to toggle sidebar
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault()
+        setSidebarOpen(prev => !prev)
+      }
+      
+      // Cmd/Ctrl + ? to show shortcuts
+      if ((e.metaKey || e.ctrlKey) && e.key === '?') {
+        e.preventDefault()
+        // This will be handled by KeyboardShortcuts component
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [handleNewConversation])
 
   // Load conversation when conversation ID changes
   useEffect(() => {
@@ -99,13 +140,24 @@ export default function ChatPage() {
     }
   }, [currentConversationId, loadConversation])
 
-  const handleNewConversation = () => {
-    setMessages([])
-    setCurrentConversationId(undefined)
-  }
 
   const handleConversationSelect = (conversationId: string) => {
     setCurrentConversationId(conversationId)
+  }
+
+  const handleMessageEdit = (messageId: string, newContent: string) => {
+    // Update the message in the current conversation
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId ? { ...msg, content: newContent } : msg
+    ))
+    
+    // TODO: Update in database
+    console.log('Message edited:', messageId, newContent)
+  }
+
+  const handleSearch = (query: string) => {
+    // TODO: Implement search highlighting
+    console.log('Searching for:', query)
   }
 
   const handleRetry = () => {
@@ -181,6 +233,7 @@ export default function ChatPage() {
 
   return (
     <ChatErrorBoundary>
+      <KeyboardShortcuts />
       <div className="flex h-screen">
       {/* Sidebar */}
       {sidebarOpen && (
@@ -189,6 +242,7 @@ export default function ChatPage() {
             currentConversationId={currentConversationId}
             onConversationSelect={handleConversationSelect}
             onNewConversation={handleNewConversation}
+            onSearch={handleSearch}
           />
         </div>
       )}
@@ -265,20 +319,30 @@ export default function ChatPage() {
                     </div>
                   </div>
                 )}
-              {messages.map((message) => (
-                <Message from={message.role} key={message.id}>
-                  <MessageContent>
-                    {message.parts.map((part, index) => {
-                      if (part.type === 'text') {
-                        return <Response key={index}>{part.text}</Response>
-                      }
-                      return null
-                    })}
-                  </MessageContent>
-                  {message.role === 'assistant' && (
-                    <Actions>
-                      <button
-                        onClick={() => {
+              {messages.map((message) => {
+                const messageContent = message.parts
+                  .filter(part => part.type === 'text' && 'text' in part)
+                  .map(part => (part as { text: string }).text)
+                  .join('')
+
+                return (
+                  <Message from={message.role} key={message.id}>
+                    <MessageContent>
+                      {message.parts.map((part, index) => {
+                        if (part.type === 'text') {
+                          return <Response key={index}>{part.text}</Response>
+                        }
+                        return null
+                      })}
+                    </MessageContent>
+                    <div className="flex items-center justify-between mt-2">
+                      <MessageTimestamp timestamp={new Date()} />
+                      <MessageActions
+                        messageId={message.id}
+                        content={messageContent}
+                        role={message.role as 'user' | 'assistant'}
+                        onEdit={message.role === 'user' ? handleMessageEdit : undefined}
+                        onRegenerate={message.role === 'assistant' ? () => {
                           // Regenerate response
                           const lastUserMessage = messages[messages.length - 2]
                           if (lastUserMessage?.role === 'user') {
@@ -290,26 +354,13 @@ export default function ChatPage() {
                               })
                             }
                           }
-                        }}
-                        className="text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        Regenerate
-                      </button>
-                      <button
-                        onClick={() => {
-                          const textParts = message.parts
-                            .filter(part => part.type === 'text' && 'text' in part)
-                            .map(part => (part as { text: string }).text)
-                          navigator.clipboard.writeText(textParts.join(''))
-                        }}
-                        className="text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        Copy
-                      </button>
-                    </Actions>
-                  )}
-                </Message>
-              ))}
+                        } : undefined}
+                        onSearch={handleSearch}
+                      />
+                    </div>
+                  </Message>
+                )
+              })}
               <TypingIndicator isTyping={status === 'streaming'} />
               <div ref={messagesEndRef} />
             </ConversationContent>
