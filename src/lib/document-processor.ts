@@ -3,6 +3,7 @@ import { documents, chunks } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { chunkText, estimateTokenCount, CHUNK_CONFIG } from './rag-utils'
 import { generateTextEmbedding, storeEmbedding } from './embeddings'
+// Dynamic imports to avoid build-time issues
 
 export interface ProcessedDocument {
   id: string
@@ -88,12 +89,73 @@ export async function processDocument(
 }
 
 /**
- * Process a PDF file (placeholder - you'll need to implement PDF parsing)
+ * Process a PDF file
  */
-export async function processPDF(): Promise<ProcessedDocument> {
-  // TODO: Implement PDF text extraction
-  // For now, this is a placeholder
-  throw new Error('PDF processing not yet implemented. Please provide text content directly.')
+export async function processPDF(
+  pdfBuffer: Buffer,
+  title: string,
+  source: string,
+  metadata: Record<string, unknown> = {}
+): Promise<ProcessedDocument> {
+  try {
+    // Dynamic import to avoid build-time issues
+    const pdf = (await import('pdf-parse')).default
+    // Extract text from PDF
+    const pdfData = await pdf(pdfBuffer)
+    const content = pdfData.text
+
+    if (!content || content.trim().length === 0) {
+      throw new Error('No text content found in PDF')
+    }
+
+    // Process the extracted text
+    return await processDocument(title, source, content, {
+      ...metadata,
+      pageCount: pdfData.numpages,
+      pdfInfo: {
+        title: pdfData.info?.Title,
+        author: pdfData.info?.Author,
+        subject: pdfData.info?.Subject,
+        creator: pdfData.info?.Creator,
+      },
+    })
+  } catch (error) {
+    console.error('Error processing PDF:', error)
+    throw new Error(`Failed to process PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
+/**
+ * Process a Word document (.docx)
+ */
+export async function processWordDocument(
+  docxBuffer: Buffer,
+  title: string,
+  source: string,
+  metadata: Record<string, unknown> = {}
+): Promise<ProcessedDocument> {
+  try {
+    // Dynamic import to avoid build-time issues
+    const mammoth = (await import('mammoth')).default
+    // Extract text from Word document
+    const result = await mammoth.extractRawText({ buffer: docxBuffer })
+    const content = result.value
+
+    if (!content || content.trim().length === 0) {
+      throw new Error('No text content found in Word document')
+    }
+
+    // Process the extracted text
+    return await processDocument(title, source, content, {
+      ...metadata,
+      wordInfo: {
+        messages: result.messages,
+      },
+    })
+  } catch (error) {
+    console.error('Error processing Word document:', error)
+    throw new Error(`Failed to process Word document: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
 }
 
 /**
