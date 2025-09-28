@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
-import { Calendar, BookOpen, Bot, Heart, User, Menu, X } from "lucide-react";
+import { Calendar, BookOpen, Bot, Heart, User, Menu, X, Upload } from "lucide-react";
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export function Navigation() {
@@ -59,6 +59,15 @@ export function Navigation() {
                 <Link href="/chat" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
                   <Bot className="h-4 w-4" />
                   AI Wisdom
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link href="/upload" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
+                  <Upload className="h-4 w-4" />
+                  Upload
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -134,6 +143,13 @@ export function Navigation() {
               <Link href="/chat" onClick={() => setIsMobileMenuOpen(false)}>
                 <Bot className="mr-2 h-4 w-4" />
                 AI Wisdom
+              </Link>
+            </Button>
+            
+            <Button variant="ghost" className="w-full justify-start" asChild>
+              <Link href="/upload" onClick={() => setIsMobileMenuOpen(false)}>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Documents
               </Link>
             </Button>
 
