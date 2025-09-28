@@ -364,40 +364,46 @@ export default function ChatPage() {
 
                       return (
                         <div key={message.id} className="w-full max-w-4xl mx-auto px-2 md:px-4">
-                          <Message from={message.role}>
-                            <MessageContent>
-                              {message.parts.map((part, index) => {
-                                if (part.type === 'text') {
-                                  return <Response key={index}>{part.text}</Response>
-                                }
-                                return null
-                              })}
-                            </MessageContent>
-                          </Message>
-                          <div className="mt-3 space-y-3">
-                            <div className="flex items-center justify-between">
-                              <MessageTimestamp timestamp={new Date()} />
+                          <div className={`flex w-full items-end gap-2 py-4 ${message.role === 'user' ? 'justify-end' : 'flex-row-reverse justify-end'}`}>
+                            <div className="max-w-[80%]">
+                              <Message from={message.role}>
+                                <MessageContent>
+                                  {message.parts.map((part, index) => {
+                                    if (part.type === 'text') {
+                                      return <Response key={index}>{part.text}</Response>
+                                    }
+                                    return null
+                                  })}
+                                </MessageContent>
+                              </Message>
+                              <div className="mt-3 space-y-3">
+                                <div className={`flex items-center ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                  <MessageTimestamp timestamp={new Date()} />
+                                </div>
+                                <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                  <MessageActions
+                                    messageId={message.id}
+                                    content={messageContent}
+                                    role={message.role as 'user' | 'assistant'}
+                                    onEdit={message.role === 'user' ? handleMessageEdit : undefined}
+                                    onRegenerate={message.role === 'assistant' ? () => {
+                                      // Regenerate response
+                                      const lastUserMessage = messages[messages.length - 2]
+                                      if (lastUserMessage?.role === 'user') {
+                                        const textPart = lastUserMessage.parts.find(part => part.type === 'text')
+                                        if (textPart && 'text' in textPart) {
+                                          sendMessage({
+                                            role: 'user',
+                                            parts: [{ type: 'text', text: textPart.text }]
+                                          })
+                                        }
+                                      }
+                                    } : undefined}
+                                    onSearch={handleSearch}
+                                  />
+                                </div>
+                              </div>
                             </div>
-                            <MessageActions
-                              messageId={message.id}
-                              content={messageContent}
-                              role={message.role as 'user' | 'assistant'}
-                              onEdit={message.role === 'user' ? handleMessageEdit : undefined}
-                              onRegenerate={message.role === 'assistant' ? () => {
-                                // Regenerate response
-                                const lastUserMessage = messages[messages.length - 2]
-                                if (lastUserMessage?.role === 'user') {
-                                  const textPart = lastUserMessage.parts.find(part => part.type === 'text')
-                                  if (textPart && 'text' in textPart) {
-                                    sendMessage({
-                                      role: 'user',
-                                      parts: [{ type: 'text', text: textPart.text }]
-                                    })
-                                  }
-                                }
-                              } : undefined}
-                              onSearch={handleSearch}
-                            />
                           </div>
                         </div>
                       )
