@@ -283,9 +283,9 @@ export default function ChatPage() {
       )}
       
       {/* Main Chat */}
-      <div className="flex-1 flex flex-col h-screen">
-        <div className="flex-1 flex flex-col p-6">
-          <Card className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col p-6 min-h-0">
+          <Card className="flex-1 flex flex-col min-h-0">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -319,102 +319,104 @@ export default function ChatPage() {
                 )}
               </div>
             </CardHeader>
-        <CardContent className="flex-1 flex flex-col">
-          <Conversation className="flex-1">
-            <ConversationContent>
-                {messages.length === 0 && (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    <div className="text-center">
-                      <h3 className="text-lg font-medium mb-2">Welcome to the Hindu Philosophy Assistant</h3>
-                      <p className="text-sm">Ask me anything about Hindu philosophy, festivals, or traditions.</p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Error Display */}
-                {error && (
-                  <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-destructive" />
-                        <span className="text-sm text-destructive">
-                          {error.includes('429') 
-                            ? 'Daily limit reached. Try again tomorrow.' 
-                            : error.includes('Network') 
-                            ? 'Network error. Please check your connection.'
-                            : 'Something went wrong. Please try again.'
-                          }
-                        </span>
+            <CardContent className="flex-1 flex flex-col min-h-0">
+              <div className="flex-1 flex flex-col min-h-0">
+                <Conversation className="flex-1 min-h-0">
+                  <ConversationContent className="flex-1 min-h-0">
+                    {messages.length === 0 && (
+                      <div className="flex items-center justify-center h-full text-muted-foreground">
+                        <div className="text-center">
+                          <h3 className="text-lg font-medium mb-2">Welcome to the Hindu Philosophy Assistant</h3>
+                          <p className="text-sm">Ask me anything about Hindu philosophy, festivals, or traditions.</p>
+                        </div>
                       </div>
-                      {error.includes('Network') && (
-                        <Button size="sm" variant="outline" onClick={handleRetry}>
-                          Retry
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
-              {messages.map((message) => {
-                const messageContent = message.parts
-                  .filter(part => part.type === 'text' && 'text' in part)
-                  .map(part => (part as { text: string }).text)
-                  .join('')
+                    )}
+                    
+                    {/* Error Display */}
+                    {error && (
+                      <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <AlertTriangle className="h-4 w-4 text-destructive" />
+                            <span className="text-sm text-destructive">
+                              {error.includes('429') 
+                                ? 'Daily limit reached. Try again tomorrow.' 
+                                : error.includes('Network') 
+                                ? 'Network error. Please check your connection.'
+                                : 'Something went wrong. Please try again.'
+                              }
+                            </span>
+                          </div>
+                          {error.includes('Network') && (
+                            <Button size="sm" variant="outline" onClick={handleRetry}>
+                              Retry
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {messages.map((message) => {
+                      const messageContent = message.parts
+                        .filter(part => part.type === 'text' && 'text' in part)
+                        .map(part => (part as { text: string }).text)
+                        .join('')
 
-                return (
-                  <Message from={message.role} key={message.id}>
-                    <MessageContent>
-                      {message.parts.map((part, index) => {
-                        if (part.type === 'text') {
-                          return <Response key={index}>{part.text}</Response>
-                        }
-                        return null
-                      })}
-                    </MessageContent>
-                    <div className="flex items-center justify-between mt-2">
-                      <MessageTimestamp timestamp={new Date()} />
-                      <MessageActions
-                        messageId={message.id}
-                        content={messageContent}
-                        role={message.role as 'user' | 'assistant'}
-                        onEdit={message.role === 'user' ? handleMessageEdit : undefined}
-                        onRegenerate={message.role === 'assistant' ? () => {
-                          // Regenerate response
-                          const lastUserMessage = messages[messages.length - 2]
-                          if (lastUserMessage?.role === 'user') {
-                            const textPart = lastUserMessage.parts.find(part => part.type === 'text')
-                            if (textPart && 'text' in textPart) {
-                              sendMessage({
-                                role: 'user',
-                                parts: [{ type: 'text', text: textPart.text }]
-                              })
-                            }
-                          }
-                        } : undefined}
-                        onSearch={handleSearch}
-                      />
-                    </div>
-                  </Message>
-                )
-              })}
-              <TypingIndicator isTyping={status === 'streaming'} />
-              <div ref={messagesEndRef} />
-            </ConversationContent>
-          </Conversation>
-          <div className="mt-4">
-            <PromptInput onSubmit={handleSubmit}>
-              <PromptInputTextarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={
-                  usageStats?.isLimitReached 
-                    ? "Daily limit reached. Try again tomorrow." 
-                    : "Ask about Hindu philosophy, festivals, or traditions... (Enter to send, Shift+Enter for new line)"
-                }
-                disabled={status === 'streaming' || usageStats?.isLimitReached}
-              />
-            </PromptInput>
-          </div>
+                      return (
+                        <Message from={message.role} key={message.id}>
+                          <MessageContent>
+                            {message.parts.map((part, index) => {
+                              if (part.type === 'text') {
+                                return <Response key={index}>{part.text}</Response>
+                              }
+                              return null
+                            })}
+                          </MessageContent>
+                          <div className="flex items-center justify-between mt-2">
+                            <MessageTimestamp timestamp={new Date()} />
+                            <MessageActions
+                              messageId={message.id}
+                              content={messageContent}
+                              role={message.role as 'user' | 'assistant'}
+                              onEdit={message.role === 'user' ? handleMessageEdit : undefined}
+                              onRegenerate={message.role === 'assistant' ? () => {
+                                // Regenerate response
+                                const lastUserMessage = messages[messages.length - 2]
+                                if (lastUserMessage?.role === 'user') {
+                                  const textPart = lastUserMessage.parts.find(part => part.type === 'text')
+                                  if (textPart && 'text' in textPart) {
+                                    sendMessage({
+                                      role: 'user',
+                                      parts: [{ type: 'text', text: textPart.text }]
+                                    })
+                                  }
+                                }
+                              } : undefined}
+                              onSearch={handleSearch}
+                            />
+                          </div>
+                        </Message>
+                      )
+                    })}
+                    <TypingIndicator isTyping={status === 'streaming'} />
+                    <div ref={messagesEndRef} />
+                  </ConversationContent>
+                </Conversation>
+              </div>
+              <div className="mt-4 flex-shrink-0">
+                <PromptInput onSubmit={handleSubmit}>
+                  <PromptInputTextarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={
+                      usageStats?.isLimitReached 
+                        ? "Daily limit reached. Try again tomorrow." 
+                        : "Ask about Hindu philosophy, festivals, or traditions... (Enter to send, Shift+Enter for new line)"
+                    }
+                    disabled={status === 'streaming' || usageStats?.isLimitReached}
+                  />
+                </PromptInput>
+              </div>
         </CardContent>
       </Card>
     </div>

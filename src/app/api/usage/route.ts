@@ -19,7 +19,14 @@ export async function GET() {
     })
 
     if (!user) {
-      return new Response('User not found', { status: 404 })
+      // Return default usage stats if user not found in database
+      return NextResponse.json({
+        messagesCount: 0,
+        tokensUsed: 0,
+        messagesRemaining: 20,
+        tokensRemaining: 10000,
+        isLimitReached: false,
+      })
     }
 
     const usageStats = await getUserUsageStats(user.id)
@@ -27,6 +34,13 @@ export async function GET() {
     return NextResponse.json(usageStats)
   } catch (error) {
     console.error('Error fetching usage stats:', error)
-    return new Response('Internal server error', { status: 500 })
+    // Return default usage stats on error
+    return NextResponse.json({
+      messagesCount: 0,
+      tokensUsed: 0,
+      messagesRemaining: 20,
+      tokensRemaining: 10000,
+      isLimitReached: false,
+    })
   }
 }

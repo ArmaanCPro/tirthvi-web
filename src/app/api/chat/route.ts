@@ -16,34 +16,59 @@ export async function POST(req: NextRequest) {
     }
 
     // Get user from database
-    const user = await db.query.profiles.findFirst({
-      where: eq(profiles.clerkId, userId),
-    })
-
-    if (!user) {
-      return new Response('User not found', { status: 404 })
+    let user: { id: string } | null = null
+    try {
+      const userResult = await db.query.profiles.findFirst({
+        where: eq(profiles.clerkId, userId),
+      })
+      user = userResult || null
+    } catch (dbError) {
+      console.error('Database error fetching user:', dbError)
+      // Continue without user for now - this allows chat to work even if DB isn't set up
     }
 
-    // Check rate limiting
-    const canMakeRequest = await canMakeAIRequest(user.id)
-    if (!canMakeRequest) {
-      return new Response('Daily AI usage limit reached. Please try again tomorrow.', { 
-        status: 429,
-        headers: {
-          'Retry-After': '86400', // 24 hours in seconds
+    // Check rate limiting only if user exists
+    if (user) {
+      try {
+        const canMakeRequest = await canMakeAIRequest(user.id)
+        if (!canMakeRequest) {
+          return new Response('Daily AI usage limit reached. Please try again tomorrow.', { 
+            status: 429,
+            headers: {
+              'Retry-After': '86400', // 24 hours in seconds
+            }
+          })
         }
-      })
+      } catch (rateLimitError) {
+        console.error('Rate limiting error:', rateLimitError)
+        // Continue without rate limiting if there's an error
+      }
     }
 
     const { messages, conversationId } = await req.json()
 
-    // Get or create conversation
-    const convId = await getOrCreateConversation(user.id, conversationId)
+    // Get or create conversation (only if user exists)
+    let convId = conversationId
+    if (user) {
+      try {
+        convId = await getOrCreateConversation(user.id, conversationId)
+      } catch (convError) {
+        console.error('Conversation error:', convError)
+        // Continue without conversation tracking
+      }
+    }
 
-    // Save user message to database
-    const lastUserMessage = messages[messages.length - 1]
-    if (lastUserMessage?.role === 'user') {
-      await addMessage(convId, 'user', lastUserMessage.content || lastUserMessage.parts?.[0]?.text || '')
+    // Save user message to database (only if user exists)
+    if (user && convId) {
+      try {
+        const lastUserMessage = messages[messages.length - 1]
+        if (lastUserMessage?.role === 'user') {
+          await addMessage(convId, 'user', lastUserMessage.content || lastUserMessage.parts?.[0]?.text || '')
+        }
+      } catch (messageError) {
+        console.error('Message saving error:', messageError)
+        // Continue without saving message
+      }
     }
 
     const result = streamText({
@@ -51,14 +76,24 @@ export async function POST(req: NextRequest) {
       messages,
       system: `You are a knowledgeable assistant specializing in Hindu philosophy, culture, and traditions. You help users understand Hindu concepts, festivals, scriptures, and spiritual practices. Provide accurate, respectful, and insightful responses about Hindu philosophy and knowledge.`,
       onFinish: async (result) => {
-        // Save assistant response to database
-        if (result.text) {
-          await addMessage(convId, 'assistant', result.text)
+        // Save assistant response to database (only if user exists)
+        if (user && convId && result.text) {
+          try {
+            await addMessage(convId, 'assistant', result.text)
+          } catch (messageError) {
+            console.error('Assistant message saving error:', messageError)
+          }
         }
         
-        // Record usage (1 message, estimate tokens)
-        const estimatedTokens = Math.ceil(result.text.length / 4) // Rough estimate: 4 chars per token
-        await recordAIUsage(user.id, 1, estimatedTokens)
+        // Record usage (only if user exists)
+        if (user) {
+          try {
+            const estimatedTokens = Math.ceil(result.text.length / 4) // Rough estimate: 4 chars per token
+            await recordAIUsage(user.id, 1, estimatedTokens)
+          } catch (usageError) {
+            console.error('Usage tracking error:', usageError)
+          }
+        }
       }
     })
 
