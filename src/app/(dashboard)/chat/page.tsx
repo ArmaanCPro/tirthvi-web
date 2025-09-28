@@ -283,30 +283,31 @@ export default function ChatPage() {
       )}
       
       {/* Main Chat */}
-      <div className="flex-1 flex flex-col min-h-0">
-        <div className="flex-1 flex flex-col p-6 min-h-0">
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="flex-1 flex flex-col p-4 md:p-6 min-h-0">
           <Card className="flex-1 flex flex-col min-h-0">
-            <CardHeader>
-              <div className="flex items-center justify-between">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-4">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className="md:hidden"
                   >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                   </Button>
                   <div>
-                    <CardTitle>Hindu Philosophy Assistant</CardTitle>
+                    <CardTitle className="text-lg">Hindu Philosophy Assistant</CardTitle>
                     <p className="text-sm text-muted-foreground">
                       Ask questions about Hindu philosophy, festivals, scriptures, and traditions
                     </p>
                   </div>
                 </div>
                 {usageStats && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Badge variant={usageStats.isLimitReached ? "destructive" : "secondary"}>
                       {usageStats.messagesRemaining} messages left
                     </Badge>
@@ -319,10 +320,10 @@ export default function ChatPage() {
                 )}
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col min-h-0">
-              <div className="flex-1 flex flex-col min-h-0">
+            <CardContent className="flex-1 flex flex-col min-h-0 p-4 md:p-6">
+              <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
                 <Conversation className="flex-1 min-h-0">
-                  <ConversationContent className="flex-1 min-h-0">
+                  <ConversationContent className="flex-1 min-h-0 overflow-y-auto">
                     {messages.length === 0 && (
                       <div className="flex items-center justify-center h-full text-muted-foreground">
                         <div className="text-center">
@@ -362,16 +363,18 @@ export default function ChatPage() {
                         .join('')
 
                       return (
-                        <Message from={message.role} key={message.id}>
-                          <MessageContent>
-                            {message.parts.map((part, index) => {
-                              if (part.type === 'text') {
-                                return <Response key={index}>{part.text}</Response>
-                              }
-                              return null
-                            })}
-                          </MessageContent>
-                          <div className="mt-2 space-y-2">
+                        <div key={message.id} className="w-full max-w-4xl mx-auto px-4">
+                          <Message from={message.role}>
+                            <MessageContent>
+                              {message.parts.map((part, index) => {
+                                if (part.type === 'text') {
+                                  return <Response key={index}>{part.text}</Response>
+                                }
+                                return null
+                              })}
+                            </MessageContent>
+                          </Message>
+                          <div className="mt-3 space-y-3">
                             <div className="flex items-center justify-between">
                               <MessageTimestamp timestamp={new Date()} />
                             </div>
@@ -396,7 +399,7 @@ export default function ChatPage() {
                               onSearch={handleSearch}
                             />
                           </div>
-                        </Message>
+                        </div>
                       )
                     })}
                     <TypingIndicator isTyping={status === 'streaming'} />
@@ -404,8 +407,8 @@ export default function ChatPage() {
                   </ConversationContent>
                 </Conversation>
               </div>
-              <div className="mt-4 flex-shrink-0">
-                <PromptInput onSubmit={handleSubmit}>
+              <div className="mt-4 flex-shrink-0 w-full">
+                <PromptInput onSubmit={handleSubmit} className="w-full">
                   <PromptInputTextarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
@@ -416,6 +419,7 @@ export default function ChatPage() {
                         : "Ask about Hindu philosophy, festivals, or traditions... (Enter to send, Shift+Enter for new line)"
                     }
                     disabled={status === 'streaming' || usageStats?.isLimitReached}
+                    className="w-full resize-none"
                   />
                 </PromptInput>
               </div>

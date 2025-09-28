@@ -11,7 +11,7 @@ import {
   X,
   Search
 } from 'lucide-react'
-import { Actions } from '@/components/ui/shadcn-io/ai/actions'
+// import { Actions } from '@/components/ui/shadcn-io/ai/actions'
 
 interface MessageActionsProps {
   messageId: string
@@ -86,12 +86,12 @@ export function MessageActions({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <Actions className="flex flex-wrap gap-2">
+    <div className="w-full">
+      <div className="flex flex-wrap gap-2 mb-3">
         {role === 'user' && onEdit && (
           <button
             onClick={handleEdit}
-            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-muted"
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-muted transition-colors"
           >
             <Edit3 className="h-3 w-3" />
             Edit
@@ -101,7 +101,7 @@ export function MessageActions({
         {role === 'assistant' && onRegenerate && (
           <button
             onClick={onRegenerate}
-            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-muted"
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-muted transition-colors"
           >
             <RotateCcw className="h-3 w-3" />
             Regenerate
@@ -110,20 +110,20 @@ export function MessageActions({
         
         <button
           onClick={handleCopy}
-          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-muted"
+          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover:bg-muted transition-colors"
         >
           <Copy className="h-3 w-3" />
           Copy
         </button>
-      </Actions>
+      </div>
       
       {onSearch && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full">
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search in conversation..."
-            className="h-8 text-xs flex-1"
+            className="h-8 text-xs flex-1 min-w-0"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleSearch()
@@ -134,7 +134,7 @@ export function MessageActions({
             size="sm"
             variant="ghost"
             onClick={handleSearch}
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 flex-shrink-0"
           >
             <Search className="h-3 w-3" />
           </Button>
