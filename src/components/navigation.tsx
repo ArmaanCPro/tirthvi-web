@@ -40,7 +40,7 @@ export function Navigation() {
               <NavigationMenuLink asChild>
                 <Link href="/calendar" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
                   <Calendar className="h-4 w-4" />
-                  Sacred Calendar
+                  Events Calendar
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -119,7 +119,7 @@ export function Navigation() {
             <Button variant="ghost" className="w-full justify-start" asChild>
               <Link href="/calendar" onClick={() => setIsMobileMenuOpen(false)}>
                 <Calendar className="mr-2 h-4 w-4" />
-                Sacred Calendar
+                Events Calendar
               </Link>
             </Button>
             

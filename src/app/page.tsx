@@ -51,7 +51,7 @@ export default function Home() {
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <Calendar className="h-12 w-12 text-primary mb-4" />
-                <CardTitle>Sacred Calendar</CardTitle>
+                <CardTitle>Events Calendar</CardTitle>
                 <CardDescription>
                   Track Hindu festivals, observances, and auspicious dates with our comprehensive calendar
                 </CardDescription>

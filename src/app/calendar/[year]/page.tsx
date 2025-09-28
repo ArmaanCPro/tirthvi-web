@@ -18,7 +18,7 @@ export default async function CalendarYearPage({ params }: CalendarYearPageProps
   
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Hindu Calendar - {year}</h1>
+      <h1 className="text-3xl font-bold mb-8">Events Calendar - {year}</h1>
       <CalendarView events={events} defaultYear={year} />
     </div>
   );
