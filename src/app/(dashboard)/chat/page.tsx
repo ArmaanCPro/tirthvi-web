@@ -304,7 +304,7 @@ export default function ChatPage() {
             className="fixed inset-0 bg-black/50 z-40 md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="w-80 border-r relative z-50 md:relative md:z-auto">
+          <div className="fixed inset-y-0 left-0 w-80 border-r bg-background shadow-lg z-50 md:relative md:inset-auto md:shadow-none md:z-auto">
             <ConversationSidebar
               key={currentConversationId || 'sidebar'}
               currentConversationId={currentConversationId}
@@ -345,6 +345,17 @@ export default function ChatPage() {
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSidebarOpen(true)}
+                    className="md:hidden"
+                  >
+                    <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    History
                   </Button>
                   <div>
                     <CardTitle className="text-lg">Hindu Philosophy Assistant</CardTitle>
