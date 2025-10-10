@@ -1,5 +1,5 @@
 import { db } from '@/lib/drizzle'
-import { userUsage } from '@/lib/drizzle/schema'
+import { userUsage, profiles } from '@/lib/drizzle/schema'
 import { eq, and, gte, lt } from 'drizzle-orm'
 
 // Daily limits for free users
@@ -40,13 +40,29 @@ export async function getUserUsageStats(userId: string): Promise<UsageStats> {
 
   const messagesCount = usage?.aiMessagesCount || 0
   const tokensUsed = usage?.aiTokensUsed || 0
+
+  // Admins have no limits
+  const profile = await db.query.profiles.findFirst({
+    where: eq(profiles.id, userId),
+    columns: { isAdmin: true },
+  })
+  if (profile?.isAdmin) {
+    return {
+      messagesCount,
+      tokensUsed,
+      messagesRemaining: Number.MAX_SAFE_INTEGER,
+      tokensRemaining: Number.MAX_SAFE_INTEGER,
+      isLimitReached: false,
+    }
+  }
   
   return {
     messagesCount,
     tokensUsed,
     messagesRemaining: Math.max(0, DAILY_LIMITS.AI_MESSAGES - messagesCount),
     tokensRemaining: Math.max(0, DAILY_LIMITS.AI_TOKENS - tokensUsed),
-    isLimitReached: messagesCount >= DAILY_LIMITS.AI_MESSAGES || tokensUsed >= DAILY_LIMITS.AI_TOKENS,
+    // Only enforce message count limit to avoid confusing token-based lockouts
+    isLimitReached: messagesCount >= DAILY_LIMITS.AI_MESSAGES,
   }
 }
 
