@@ -331,7 +331,7 @@ export default function ChatPage() {
       
       {/* Main Chat */}
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <div className="flex-1 flex flex-col p-4 md:p-6 min-h-0">
+        <div className="flex-1 flex flex-col p-0 md:p-6 min-h-0">
           <Card className="flex-1 flex flex-col min-h-0">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between flex-wrap gap-4">
@@ -378,7 +378,7 @@ export default function ChatPage() {
                 )}
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col min-h-0 p-4 md:p-6">
+            <CardContent className="flex-1 flex flex-col min-h-0 p-0 md:p-6">
               <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
                 <Conversation className="flex-1 min-h-0">
                   <ConversationContent className="flex-1 min-h-0 overflow-y-auto">
@@ -418,9 +418,9 @@ export default function ChatPage() {
                       const messageContent = extractMessageText(message as UIMessage)
 
                       return (
-                        <div key={message.id} className="w-full max-w-4xl mx-auto px-2 md:px-4">
+                        <div key={message.id} className="w-full max-w-none md:max-w-7xl mx-auto px-0 md:px-4">
                           <div className={`flex w-full items-end gap-2 py-4 ${message.role === 'user' ? 'justify-end' : 'flex-row-reverse justify-end'}`}>
-                            <div className="max-w-[80%]">
+                            <div className="w-full md:max-w-[95%] xl:max-w-[90%]">
                               <Message from={message.role}>
                                 <MessageContent>
                                   <Response parseIncompleteMarkdown>
