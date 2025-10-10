@@ -1,4 +1,4 @@
-import { processDocument, processPDF, processWordDocument, ProcessedDocument } from './document-processor'
+import { processDocument, processPDF, ProcessedDocument } from './document-processor'
 import { generateBatchEmbeddings } from './embeddings'
 import { db } from '@/lib/drizzle'
 import { embeddings as embeddingsTable } from '@/lib/drizzle/schema'
@@ -12,11 +12,11 @@ export interface BatchProcessingOptions {
 
 export interface DocumentInput {
   id: string
+  type: 'text' | 'pdf'
   title: string
   source: string
   content?: string
   pdfBuffer?: Buffer
-  docxBuffer?: Buffer
   metadata?: Record<string, unknown>
 }
 
@@ -47,10 +47,8 @@ export async function processDocumentsBatch(
             return await processDocument(doc.title, doc.source, doc.content, doc.metadata)
           } else if (doc.pdfBuffer) {
             return await processPDF(doc.pdfBuffer, doc.title, doc.source, doc.metadata)
-          } else if (doc.docxBuffer) {
-            return await processWordDocument(doc.docxBuffer, doc.title, doc.source, doc.metadata)
           } else {
-            throw new Error('No content, PDF buffer, or Word buffer provided')
+            throw new Error('No content or PDF buffer provided')
           }
         })
       )

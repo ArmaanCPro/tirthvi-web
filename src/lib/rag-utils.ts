@@ -27,35 +27,61 @@ export const CHUNK_CONFIG = {
  * Split text into fixed-size chunks with overlap
  */
 export function chunkText(text: string, maxSize: number = CHUNK_CONFIG.MAX_CHUNK_SIZE, overlap: number = CHUNK_CONFIG.OVERLAP_SIZE): string[] {
+  // Basic input sanity checks
+  if (!text) return []
+  if (maxSize <= 0 || !Number.isFinite(maxSize)) maxSize = 500
+  if (overlap < 0 || !Number.isFinite(overlap)) overlap = 0
+  if (overlap >= maxSize) {
+    // keep some forward progress even for small trailing chunks
+    overlap = Math.floor(maxSize / 4)
+  }
+
   if (text.length <= maxSize) {
-    return [text]
+    return [text.trim()]
   }
 
   const chunks: string[] = []
   let start = 0
+  const totalLen = text.length
 
-  while (start < text.length) {
-    const end = Math.min(start + maxSize, text.length)
-    let chunk = text.slice(start, end)
+  while (start < totalLen) {
+    const windowEnd = Math.min(start + maxSize, totalLen)
+    let chunk = text.slice(start, windowEnd)
 
-    // Try to break at sentence boundaries
-    if (end < text.length) {
+    // Try to break at sentence boundaries within the window
+    if (windowEnd < totalLen) {
       const lastSentenceEnd = chunk.lastIndexOf('.')
       const lastQuestionEnd = chunk.lastIndexOf('?')
       const lastExclamationEnd = chunk.lastIndexOf('!')
-      
       const lastBreak = Math.max(lastSentenceEnd, lastQuestionEnd, lastExclamationEnd)
-      
-      if (lastBreak > start + maxSize * 0.5) { // Only break if we're not too far back
-        chunk = text.slice(start, start + lastBreak + 1)
+
+      if (lastBreak >= Math.floor(maxSize * 0.5)) {
+        chunk = chunk.slice(0, lastBreak + 1)
       }
     }
 
-    chunks.push(chunk.trim())
-    start = start + chunk.length - overlap
+    const trimmed = chunk.trim()
+    if (trimmed.length > 0) {
+      chunks.push(trimmed)
+    }
+
+    if (windowEnd >= totalLen) {
+      break
+    }
+
+    // Ensure forward progress: when chunk is shorter than overlap, still advance
+    const advanceBy = Math.max(1, chunk.length - overlap)
+    const nextStart = start + advanceBy
+
+    if (nextStart <= start) {
+      // Fallback to avoid infinite loops
+      start = Math.min(start + Math.max(1, maxSize - overlap), totalLen)
+    } else {
+      start = nextStart
+    }
   }
 
-  return chunks.filter(chunk => chunk.length > 0)
+  return chunks
 }
 
 /**

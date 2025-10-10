@@ -126,13 +126,13 @@ export default function UploadPage() {
               <Input
                 id="file-input"
                 type="file"
-                accept=".pdf,.docx,.txt"
+                accept=".pdf,.txt"
                 onChange={handleFileChange}
                 required
                 className="mt-1"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Supported formats: PDF, Word (.docx), Text (.txt)
+                Supported formats: PDF, Text (.txt)
               </p>
             </div>
 

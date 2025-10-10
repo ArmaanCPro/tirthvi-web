@@ -3,7 +3,7 @@ import { documents, chunks } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { chunkText, estimateTokenCount, CHUNK_CONFIG } from './rag-utils'
 import { generateTextEmbedding, storeEmbedding } from './embeddings'
-// Dynamic imports to avoid build-time issues
+import { extractTextFromPDF } from './pdf-utils'
 
 export interface ProcessedDocument {
   id: string
@@ -98,10 +98,8 @@ export async function processPDF(
   metadata: Record<string, unknown> = {}
 ): Promise<ProcessedDocument> {
   try {
-    // Dynamic import to avoid build-time issues
-    const pdf = (await import('pdf-parse')).default
-    // Extract text from PDF
-    const pdfData = await pdf(pdfBuffer)
+    // Extract text from PDF using lazy-loaded parser
+    const pdfData = await extractTextFromPDF(pdfBuffer)
     const content = pdfData.text
 
     if (!content || content.trim().length === 0) {
@@ -125,38 +123,6 @@ export async function processPDF(
   }
 }
 
-/**
- * Process a Word document (.docx)
- */
-export async function processWordDocument(
-  docxBuffer: Buffer,
-  title: string,
-  source: string,
-  metadata: Record<string, unknown> = {}
-): Promise<ProcessedDocument> {
-  try {
-    // Dynamic import to avoid build-time issues
-    const mammoth = (await import('mammoth')).default
-    // Extract text from Word document
-    const result = await mammoth.extractRawText({ buffer: docxBuffer })
-    const content = result.value
-
-    if (!content || content.trim().length === 0) {
-      throw new Error('No text content found in Word document')
-    }
-
-    // Process the extracted text
-    return await processDocument(title, source, content, {
-      ...metadata,
-      wordInfo: {
-        messages: result.messages,
-      },
-    })
-  } catch (error) {
-    console.error('Error processing Word document:', error)
-    throw new Error(`Failed to process Word document: ${error instanceof Error ? error.message : 'Unknown error'}`)
-  }
-}
 
 /**
  * Get all documents with their chunk counts

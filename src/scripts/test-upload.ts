@@ -96,6 +96,7 @@ async function testBatchUpload() {
   
   const documents = [
     {
+      id: crypto.randomUUID(),
       type: 'text' as const,
       content: 'The mind is everything. What you think you become. - Buddha',
       title: 'Buddha Quote 1',
@@ -103,6 +104,7 @@ async function testBatchUpload() {
       metadata: { type: 'quote', author: 'Buddha' }
     },
     {
+      id: crypto.randomUUID(),
       type: 'text' as const,
       content: 'Peace comes from within. Do not seek it without. - Buddha',
       title: 'Buddha Quote 2', 
@@ -110,6 +112,7 @@ async function testBatchUpload() {
       metadata: { type: 'quote', author: 'Buddha' }
     },
     {
+      id: crypto.randomUUID(),
       type: 'text' as const,
       content: 'Happiness is not something ready made. It comes from your own actions. - Dalai Lama',
       title: 'Dalai Lama Quote',

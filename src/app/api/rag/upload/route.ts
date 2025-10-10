@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { processPDF, processWordDocument, processDocument } from '@/lib/document-processor'
+import { processPDF, processDocument } from '@/lib/document-processor'
 import { processDocumentsBatch } from '@/lib/batch-processor'
+import { checkRAGTables } from '@/lib/db-init'
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,6 +10,18 @@ export async function POST(req: NextRequest) {
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
+    }
+
+    // Check if RAG tables are initialized
+    const tablesExist = await checkRAGTables()
+    if (!tablesExist) {
+      return NextResponse.json(
+        { 
+          error: 'RAG system not initialized. Please run database migrations first.',
+          details: 'Run: supabase db push or apply migration 008_rag_vector_setup.sql'
+        },
+        { status: 503 }
+      )
     }
 
     const formData = await req.formData()
@@ -33,16 +46,13 @@ export async function POST(req: NextRequest) {
       case 'pdf':
         processedDocument = await processPDF(buffer, title, source, metadata)
         break
-      case 'docx':
-        processedDocument = await processWordDocument(buffer, title, source, metadata)
-        break
       case 'txt':
         const content = buffer.toString('utf-8')
         processedDocument = await processDocument(title, source, content, metadata)
         break
       default:
         return NextResponse.json(
-          { error: `Unsupported file type: ${fileExtension}. Supported types: pdf, docx, txt` },
+          { error: `Unsupported file type: ${fileExtension}. Supported types: pdf, txt` },
           { status: 400 }
         )
     }
