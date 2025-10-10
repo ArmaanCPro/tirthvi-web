@@ -5,6 +5,10 @@ import { processDocumentsBatch } from '@/lib/batch-processor'
 import { checkRAGTables } from '@/lib/db-init'
 import { isAdmin } from '@/lib/auth'
 
+// Ensure Node.js runtime for pdf-parse compatibility
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth()
