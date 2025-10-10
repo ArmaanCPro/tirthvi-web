@@ -2,14 +2,26 @@
  * PDF processing utilities with lazy loading to avoid build-time issues
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let pdfParse: any = null
+type PdfParseModule = {
+  default?: (buffer: Buffer) => Promise<{
+    text: string
+    numpages: number
+    info?: Record<string, string>
+  }>
+  (buffer: Buffer): Promise<{
+    text: string
+    numpages: number
+    info?: Record<string, string>
+  }>
+}
+
+let pdfParse: PdfParseModule | null = null
 
 async function getPdfParser() {
   if (!pdfParse) {
     // Use eval to import to avoid bundler/static analysis side-effects that can trigger
     // library test/debug modes trying to access local fixture files.
-    const pdfModule = await (eval('import("pdf-parse")') as Promise<any>)
+    const pdfModule = await (eval('import("pdf-parse")') as Promise<PdfParseModule>)
     pdfParse = pdfModule.default || pdfModule
   }
   return pdfParse

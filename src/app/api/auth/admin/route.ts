@@ -13,7 +13,7 @@ export async function GET() {
 
     const admin = await isAdmin(userId)
     return NextResponse.json({ isAdmin: admin })
-  } catch (error) {
+  } catch {
     // On any error, default to not admin
     return NextResponse.json({ isAdmin: false })
   }
