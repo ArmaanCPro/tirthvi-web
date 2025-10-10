@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useUser, SignInButton } from '@clerk/nextjs'
 import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport, type UIMessage } from 'ai'
 import { Conversation, ConversationContent } from '@/components/ui/shadcn-io/ai/conversation'
 import { Message, MessageContent } from '@/components/ui/shadcn-io/ai/message'
 import { Response } from '@/components/ui/shadcn-io/ai/response'
@@ -27,6 +28,29 @@ interface UsageStats {
   isLimitReached: boolean
 }
 
+// Type guard for text parts in UIMessage.parts
+function isTextPart(part: unknown): part is { type: 'text'; text: string } {
+  if (typeof part !== 'object' || part === null) return false
+  const obj = part as Record<string, unknown>
+  return obj.type === 'text' && typeof obj.text === 'string'
+}
+
+type UIMessageWithContent = UIMessage & {
+  content?: string;
+  parts?: Array<{ type: string; text?: string }>;
+};
+
+function extractMessageText(message: UIMessage): string {
+  const m = message as UIMessageWithContent;
+  if (typeof m.content === 'string' && m.content.length > 0) {
+    return m.content;
+  }
+  if (Array.isArray(m.parts)) {
+    return m.parts.filter(isTextPart).map((p) => p.text).join('');
+  }
+  return '';
+}
+
 export default function ChatPage() {
   const { isLoaded, isSignedIn } = useUser()
   const [input, setInput] = useState('')
@@ -37,6 +61,16 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
   const { messages, sendMessage, status, setMessages } = useChat({
+    transport: new DefaultChatTransport({
+      api: '/api/chat',
+      body: { conversationId: currentConversationId }
+    }),
+    onData: (data) => {
+      // Capture conversation ID from data stream
+      if ('conversationId' in data && data.conversationId && data.conversationId !== currentConversationId) {
+        setCurrentConversationId(data.conversationId as string)
+      }
+    },
     onError: (error) => {
       console.error('Chat error:', error)
       setError(error.message)
@@ -180,11 +214,10 @@ export default function ChatPage() {
     // Retry the last message
     const lastUserMessage = messages[messages.length - 1]
     if (lastUserMessage?.role === 'user') {
-      const textPart = lastUserMessage.parts.find(part => part.type === 'text')
-      if (textPart && 'text' in textPart) {
+      const content = extractMessageText(lastUserMessage as UIMessage)
+      if (content) {
         sendMessage({
-          role: 'user',
-          parts: [{ type: 'text', text: textPart.text }]
+          text: content
         })
       }
     }
@@ -232,8 +265,7 @@ export default function ChatPage() {
     e.preventDefault()
     if (input.trim() && !usageStats?.isLimitReached) {
       sendMessage({
-        role: 'user',
-        parts: [{ type: 'text', text: input }]
+        text: input
       })
       setInput('')
     }
@@ -357,10 +389,7 @@ export default function ChatPage() {
                       </div>
                     )}
                     {messages.map((message) => {
-                      const messageContent = message.parts
-                        .filter(part => part.type === 'text' && 'text' in part)
-                        .map(part => (part as { text: string }).text)
-                        .join('')
+                      const messageContent = extractMessageText(message as UIMessage)
 
                       return (
                         <div key={message.id} className="w-full max-w-4xl mx-auto px-2 md:px-4">
@@ -368,12 +397,9 @@ export default function ChatPage() {
                             <div className="max-w-[80%]">
                               <Message from={message.role}>
                                 <MessageContent>
-                                  {message.parts.map((part, index) => {
-                                    if (part.type === 'text') {
-                                      return <Response key={index}>{part.text}</Response>
-                                    }
-                                    return null
-                                  })}
+                                  <Response parseIncompleteMarkdown>
+                                    {extractMessageText(message as UIMessage)}
+                                  </Response>
                                 </MessageContent>
                               </Message>
                               <div className="mt-3 space-y-3">
@@ -390,11 +416,10 @@ export default function ChatPage() {
                                       // Regenerate response
                                       const lastUserMessage = messages[messages.length - 2]
                                       if (lastUserMessage?.role === 'user') {
-                                        const textPart = lastUserMessage.parts.find(part => part.type === 'text')
-                                        if (textPart && 'text' in textPart) {
+                                        const content = extractMessageText(lastUserMessage as UIMessage)
+                                        if (content) {
                                           sendMessage({
-                                            role: 'user',
-                                            parts: [{ type: 'text', text: textPart.text }]
+                                            text: content
                                           })
                                         }
                                       }

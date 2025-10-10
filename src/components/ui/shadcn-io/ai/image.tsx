@@ -1,6 +1,5 @@
 import { cn } from '@/lib/utils';
 import type { Experimental_GeneratedImage } from 'ai';
-import NextImage from 'next/image';
 
 export type ImageProps = Experimental_GeneratedImage & {
   className?: string;
@@ -13,9 +12,10 @@ export const Image = ({
   mediaType = 'image/png',
   ...props
 }: ImageProps) => {
-  // Use native img for base64 data URIs as Next.js Image doesn't support them efficiently
-  // eslint-disable-next-line @next/next/no-img-element
+  // Use native img for base64 data URIs as Next.js Image doesn't optimize them the same way.
+  // This is intentional for generated images; we include a rule override with justification.
   return (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       {...props}
       alt={props.alt || 'Generated AI image'}
@@ -24,6 +24,8 @@ export const Image = ({
         props.className
       )}
       src={`data:${mediaType};base64,${base64}`}
+      decoding="async"
+      loading="lazy"
     />
   );
 };

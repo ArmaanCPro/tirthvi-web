@@ -138,7 +138,13 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    return result.toTextStreamResponse()
+    const response = result.toTextStreamResponse()
+    if (convId) {
+      try {
+        response.headers.set('x-conversation-id', String(convId))
+      } catch {}
+    }
+    return response
   } catch (error) {
     console.error('Error in chat API:', error)
     return new Response('Internal server error', { status: 500 })
