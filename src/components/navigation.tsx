@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
 import { Calendar, BookOpen, Bot, Heart, User, Menu, X, Upload } from "lucide-react";
@@ -9,6 +9,20 @@ import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@cl
 
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    let active = true
+    fetch('/api/auth/admin')
+      .then((res) => res.json())
+      .then((data) => {
+        if (active) setIsAdmin(!!data?.isAdmin)
+      })
+      .catch(() => {
+        if (active) setIsAdmin(false)
+      })
+    return () => { active = false }
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -63,6 +77,7 @@ export function Navigation() {
               </NavigationMenuLink>
             </NavigationMenuItem>
             
+            {isAdmin && (
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link href="/upload" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
@@ -71,6 +86,7 @@ export function Navigation() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
 
@@ -146,12 +162,14 @@ export function Navigation() {
               </Link>
             </Button>
             
+            {isAdmin && (
             <Button variant="ghost" className="w-full justify-start" asChild>
               <Link href="/upload" onClick={() => setIsMobileMenuOpen(false)}>
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Documents
               </Link>
             </Button>
+            )}
 
             <div className="pt-2 border-t">
               <Button variant="ghost" className="w-full justify-start" asChild>

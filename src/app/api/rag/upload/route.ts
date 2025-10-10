@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { processPDF, processDocument } from '@/lib/document-processor'
 import { processDocumentsBatch } from '@/lib/batch-processor'
 import { checkRAGTables } from '@/lib/db-init'
+import { isAdmin } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,6 +11,11 @@ export async function POST(req: NextRequest) {
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
+    }
+
+    const admin = await isAdmin(userId)
+    if (!admin) {
+      return new Response('Forbidden', { status: 403 })
     }
 
     // Check if RAG tables are initialized
@@ -77,6 +83,11 @@ export async function PUT(req: NextRequest) {
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
+    }
+
+    const admin = await isAdmin(userId)
+    if (!admin) {
+      return new Response('Forbidden', { status: 403 })
     }
 
     const { documents, options } = await req.json()

@@ -6,8 +6,9 @@ import { SubscribedEventsList } from '@/components/subscribed-events-list'
 import { DashboardStats } from '@/components/dashboard-stats'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Bot } from 'lucide-react'
+import { Bot, Upload } from 'lucide-react'
 import Link from 'next/link'
+import { isAdmin } from '@/lib/auth'
 
 export default async function DashboardPage() {
   const { userId } = await auth()
@@ -16,13 +17,27 @@ export default async function DashboardPage() {
     redirect('/')
   }
 
+  const admin = await isAdmin(userId)
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Manage your saved events, subscriptions, and preferences
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Manage your saved events, subscriptions, and preferences
+            </p>
+          </div>
+          {admin && (
+            <Button asChild>
+              <Link href="/upload">
+                <Upload className="mr-2 h-4 w-4" />
+                Upload
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-6">
