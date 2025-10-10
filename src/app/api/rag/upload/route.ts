@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       document: processedDocument,
-      message: `Successfully processed ${processedDocument.chunks.length} chunks from ${file.name}`,
+      message: `Successfully processed ${processedDocument.chunks.length} chunks from ${filename}`,
     })
   } catch (error) {
     console.error('Error processing uploaded document:', error)

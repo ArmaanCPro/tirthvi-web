@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import type { ComponentProps, HTMLAttributes } from 'react';
+import { useDeferredValue } from 'react';
 import { isValidElement, memo } from 'react';
 import ReactMarkdown, { type Options } from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
@@ -358,11 +359,14 @@ export const Response = memo(
     parseIncompleteMarkdown: shouldParseIncompleteMarkdown = true,
     ...props
   }: ResponseProps) => {
+    // Defer rendering of rapidly changing streamed content to keep UI responsive
+    const deferredChildren = useDeferredValue(children);
+
     // Parse the children to remove incomplete markdown tokens if enabled
     const parsedChildren =
-      typeof children === 'string' && shouldParseIncompleteMarkdown
-        ? parseIncompleteMarkdown(children)
-        : children;
+      typeof deferredChildren === 'string' && shouldParseIncompleteMarkdown
+        ? parseIncompleteMarkdown(deferredChildren)
+        : deferredChildren;
 
     return (
       <div
