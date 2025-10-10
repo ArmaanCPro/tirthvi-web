@@ -138,12 +138,9 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    const response = result.toTextStreamResponse()
-    if (convId) {
-      try {
-        response.headers.set('x-conversation-id', String(convId))
-      } catch {}
-    }
+    const response = result.toUIMessageStreamResponse({
+      headers: convId ? { 'x-conversation-id': String(convId) } : undefined
+    })
     return response
   } catch (error) {
     console.error('Error in chat API:', error)

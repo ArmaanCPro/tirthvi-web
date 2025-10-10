@@ -63,12 +63,23 @@ export default function ChatPage() {
   const { messages, sendMessage, status, setMessages } = useChat({
     transport: new DefaultChatTransport({
       api: '/api/chat',
-      body: { conversationId: currentConversationId }
+      body: () => ({ conversationId: currentConversationId }),
+      fetch: async (input, init) => {
+        const res = await fetch(input as RequestInfo, init as RequestInit)
+        const cid = res.headers.get('x-conversation-id') || undefined
+        if (cid && cid !== currentConversationId) {
+          setCurrentConversationId(cid)
+        }
+        return res
+      },
     }),
     onData: (data) => {
-      // Capture conversation ID from data stream
-      if ('conversationId' in data && data.conversationId && data.conversationId !== currentConversationId) {
-        setCurrentConversationId(data.conversationId as string)
+      // Optional: future compatibility if server sends data parts
+      if (data && typeof data === 'object' && 'conversationId' in data) {
+        const cid = (data as { conversationId?: string }).conversationId
+        if (cid && cid !== currentConversationId) {
+          setCurrentConversationId(cid)
+        }
       }
     },
     onError: (error) => {
@@ -182,16 +193,19 @@ export default function ChatPage() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Load conversation when conversation ID changes
+  // Load conversation when conversation ID changes, but avoid overwriting active streaming state
   useEffect(() => {
-    if (currentConversationId) {
+    if (currentConversationId && messages.length === 0) {
       loadConversation(currentConversationId)
     }
-  }, [currentConversationId, loadConversation])
+  }, [currentConversationId, loadConversation, messages.length])
 
 
   const handleConversationSelect = (conversationId: string) => {
+    setMessages([])
     setCurrentConversationId(conversationId)
+    // Proactively load messages for the selected conversation
+    loadConversation(conversationId)
   }
 
   const handleMessageEdit = (messageId: string, newContent: string) => {
@@ -292,6 +306,7 @@ export default function ChatPage() {
           />
           <div className="w-80 border-r relative z-50 md:relative md:z-auto">
             <ConversationSidebar
+              key={currentConversationId || 'sidebar'}
               currentConversationId={currentConversationId}
               onConversationSelect={(id) => {
                 handleConversationSelect(id)
