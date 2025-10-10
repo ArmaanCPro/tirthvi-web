@@ -35,20 +35,97 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData()
-    const file = formData.get('file') as File
+
+    // Required fields
     const title = formData.get('title') as string
     const source = formData.get('source') as string
-    const metadata = formData.get('metadata') ? JSON.parse(formData.get('metadata') as string) : {}
 
-    if (!file || !title || !source) {
+    // Metadata is optional, but must be valid JSON when provided
+    let metadata: Record<string, unknown> = {}
+    const metadataRaw = formData.get('metadata')
+    if (typeof metadataRaw === 'string') {
+      try {
+        metadata = JSON.parse(metadataRaw)
+      } catch (e) {
+        return NextResponse.json(
+          { error: 'Invalid metadata JSON' },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Prefer direct file uploads, but also support URL uploads to avoid 413s in serverless environments
+    const fileInput = formData.get('file')
+    const fileUrl = formData.get('fileUrl') as string | null
+
+    if (!fileInput && !fileUrl) {
       return NextResponse.json(
-        { error: 'Missing required fields: file, title, source' },
+        { error: 'Missing file. Provide either a file or fileUrl.' },
         { status: 400 }
       )
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const fileExtension = file.name.split('.').pop()?.toLowerCase()
+    if (!title || !source) {
+      return NextResponse.json(
+        { error: 'Missing required fields: title, source' },
+        { status: 400 }
+      )
+    }
+
+    // Detect if an upstream 413 error was posted as a string field instead of a File
+    if (fileInput && !(fileInput instanceof File)) {
+      const text = String(fileInput)
+      if (text.startsWith('Request Entity Too Large')) {
+        return NextResponse.json(
+          { error: 'Upload too large for serverless function. Use fileUrl to upload large files, or reduce file size.' },
+          { status: 413 }
+        )
+      }
+      return NextResponse.json(
+        { error: 'Invalid file field' },
+        { status: 400 }
+      )
+    }
+
+    // Load file buffer from either direct upload or URL fetch
+    let buffer: Buffer
+    let filename = 'upload'
+
+    if (fileInput && fileInput instanceof File) {
+      const file = fileInput as File
+      buffer = Buffer.from(await file.arrayBuffer())
+      filename = file.name || 'upload'
+    } else {
+      // Fetch from URL (must be publicly accessible or signed)
+      try {
+        const res = await fetch(fileUrl as string, { cache: 'no-store' })
+        if (!res.ok) {
+          return NextResponse.json(
+            { error: `Failed to fetch file from URL: ${res.status} ${res.statusText}` },
+            { status: 400 }
+          )
+        }
+        const ab = await res.arrayBuffer()
+        buffer = Buffer.from(ab)
+        filename = (fileUrl as string).split('?')[0].split('#')[0].split('/').pop() || 'upload'
+      } catch (err) {
+        return NextResponse.json(
+          { error: 'Could not download file from provided URL' },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Optional safeguard to avoid processing extremely large files
+    const MAX_BYTES = 25 * 1024 * 1024 // 25 MB
+    if (buffer.byteLength > MAX_BYTES) {
+      return NextResponse.json(
+        { error: `File too large (${(buffer.byteLength / (1024*1024)).toFixed(1)} MB). Max allowed is 25 MB.` },
+        { status: 413 }
+      )
+    }
+
+    const fileExtension = filename.split('.').pop()?.toLowerCase()
 
     let processedDocument
 
