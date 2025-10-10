@@ -4,6 +4,7 @@ import { processPDF, processDocument } from '@/lib/document-processor'
 import { processDocumentsBatch } from '@/lib/batch-processor'
 import { checkRAGTables } from '@/lib/db-init'
 import { isAdmin } from '@/lib/auth'
+import { supabaseAdmin } from '@/lib/db'
 
 // Ensure Node.js runtime for pdf-parse compatibility
 export const runtime = 'nodejs'
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
       try {
         metadata = JSON.parse(metadataRaw)
       } catch (e) {
+        console.error('Invalid metadata JSON parse error:', e)
         return NextResponse.json(
           { error: 'Invalid metadata JSON' },
           { status: 400 }
@@ -56,7 +58,39 @@ export async function POST(req: NextRequest) {
 
     // Prefer direct file uploads, but also support URL uploads to avoid 413s in serverless environments
     const fileInput = formData.get('file')
-    const fileUrl = formData.get('fileUrl') as string | null
+    let fileUrl = formData.get('fileUrl') as string | null
+
+    // Optional provider-based resolution for remote files
+    const provider = (formData.get('provider') as string | null)?.toLowerCase() || null
+    if (!fileInput && !fileUrl && provider === 'supabase') {
+      const bucket = formData.get('bucket') as string | null
+      const path = formData.get('path') as string | null
+      const expiresIn = parseInt(String(formData.get('expiresIn') ?? '600'), 10)
+
+      if (!bucket || !path) {
+        return NextResponse.json(
+          { error: 'For provider "supabase", bucket and path are required.' },
+          { status: 400 }
+        )
+      }
+
+      try {
+        const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(path, expiresIn)
+        if (error || !data?.signedUrl) {
+          return NextResponse.json(
+            { error: `Failed to create signed URL: ${error?.message || 'Unknown error'}` },
+            { status: 400 }
+          )
+        }
+        fileUrl = data.signedUrl
+      } catch (e) {
+        console.error('Error creating signed URL for Supabase Storage:', e)
+        return NextResponse.json(
+          { error: 'Could not create signed URL for Supabase Storage' },
+          { status: 400 }
+        )
+      }
+    }
 
     if (!fileInput && !fileUrl) {
       return NextResponse.json(
@@ -109,6 +143,7 @@ export async function POST(req: NextRequest) {
         buffer = Buffer.from(ab)
         filename = (fileUrl as string).split('?')[0].split('#')[0].split('/').pop() || 'upload'
       } catch (err) {
+        console.error('Error fetching file from URL:', err)
         return NextResponse.json(
           { error: 'Could not download file from provided URL' },
           { status: 400 }
@@ -117,10 +152,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Optional safeguard to avoid processing extremely large files
-    const MAX_BYTES = 25 * 1024 * 1024 // 25 MB
-    if (buffer.byteLength > MAX_BYTES) {
+    const isDirectUpload = !!(fileInput && fileInput instanceof File)
+    const MAX_BYTES_DIRECT = 25 * 1024 * 1024 // 25 MB for direct uploads to avoid serverless 413
+    const MAX_BYTES_URL = 250 * 1024 * 1024 // 250 MB for remote URLs (Supabase/Vercel Blob)
+    const LIMIT = isDirectUpload ? MAX_BYTES_DIRECT : MAX_BYTES_URL
+
+    if (buffer.byteLength > LIMIT) {
+      const maxMb = (LIMIT / (1024 * 1024)).toFixed(0)
       return NextResponse.json(
-        { error: `File too large (${(buffer.byteLength / (1024*1024)).toFixed(1)} MB). Max allowed is 25 MB.` },
+        { error: `File too large (${(buffer.byteLength / (1024*1024)).toFixed(1)} MB). Max allowed is ${maxMb} MB${isDirectUpload ? ' for direct uploads. Try using a fileUrl or provider-based URL for larger files.' : ''}.` },
         { status: 413 }
       )
     }

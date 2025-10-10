@@ -2,7 +2,7 @@ import { db } from '@/lib/drizzle'
 import { documents, chunks } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { chunkText, estimateTokenCount, CHUNK_CONFIG } from './rag-utils'
-import { generateTextEmbedding, storeEmbedding } from './embeddings'
+import { storeEmbedding } from './embeddings'
 import { extractTextFromPDF } from './pdf-utils'
 
 export interface ProcessedDocument {
@@ -62,18 +62,23 @@ export async function processDocument(
       })
     )
 
-    // Generate and store embeddings for each chunk
-    await Promise.all(
-      chunkRecords.map(async (chunk) => {
+    // Generate and store embeddings for chunks in controllable batches
+    try {
+      const embeddings = await (await import('./embeddings')).generateEmbeddingsInBatches(
+        chunkRecords.map(c => c.content),
+        { batchSize: 64 }
+      )
+
+      for (let i = 0; i < chunkRecords.length; i++) {
         try {
-          const embedding = await generateTextEmbedding(chunk.content)
-          await storeEmbedding(chunk.id, embedding)
-        } catch (error) {
-          console.error(`Error processing chunk ${chunk.index}:`, error)
-          // Continue with other chunks even if one fails
+          await storeEmbedding(chunkRecords[i].id, embeddings[i])
+        } catch (err) {
+          console.error(`Error storing embedding for chunk ${chunkRecords[i].index}:`, err)
         }
-      })
-    )
+      }
+    } catch (error) {
+      console.error('Error generating embeddings for document chunks:', error)
+    }
 
     return {
       id: newDocument.id,
