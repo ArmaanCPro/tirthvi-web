@@ -1,5 +1,4 @@
 import { db } from '@/lib/drizzle'
-import { documents, chunks, embeddings } from '@/lib/drizzle/schema'
 
 // Types for RAG system
 export interface DocumentChunk {

@@ -2,27 +2,28 @@
  * PDF processing utilities with lazy loading to avoid build-time issues
  */
 
-type PdfParseModule = {
-  default?: (buffer: Buffer) => Promise<{
-    text: string
-    numpages: number
-    info?: Record<string, string>
-  }>
-  (buffer: Buffer): Promise<{
-    text: string
-    numpages: number
-    info?: Record<string, string>
-  }>
+type PdfMetadata = {
+  Title?: string
+  Author?: string
+  Subject?: string
+  Creator?: string
 }
 
-let pdfParse: PdfParseModule | null = null
+type PdfParseResult = {
+  text: string
+  numpages: number
+  info?: PdfMetadata | Record<string, unknown>
+}
 
-async function getPdfParser() {
+type PdfParseFn = (buffer: Buffer) => Promise<PdfParseResult>
+
+let pdfParse: PdfParseFn | null = null
+
+async function getPdfParser(): Promise<PdfParseFn> {
   if (!pdfParse) {
-    // Use eval to import to avoid bundler/static analysis side-effects that can trigger
-    // library test/debug modes trying to access local fixture files.
-    const pdfModule = await (eval('import("pdf-parse")') as Promise<PdfParseModule>)
-    pdfParse = pdfModule.default || pdfModule
+    // Use a dynamic import so Next/Vercel can statically detect the dependency and include it in the deployment bundle.
+    const mod = (await import('pdf-parse')) as { default: PdfParseFn }
+    pdfParse = mod.default
   }
   return pdfParse
 }
