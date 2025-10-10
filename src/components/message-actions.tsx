@@ -86,7 +86,7 @@ export function MessageActions({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full md:w-auto">
       <div className="flex flex-wrap gap-2 mb-3">
         {role === 'user' && onEdit && (
           <button
@@ -123,7 +123,7 @@ export function MessageActions({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search in conversation..."
-            className="h-8 text-xs flex-1 min-w-0"
+            className="h-8 text-xs w-full md:w-64"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleSearch()
