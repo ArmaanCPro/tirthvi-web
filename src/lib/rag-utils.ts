@@ -101,34 +101,28 @@ export async function searchSimilarChunks(
   limit: number = 5
 ): Promise<RAGSearchResult> {
   try {
-    // Use raw SQL for vector similarity search
+    // Prefer calling the Supabase SQL function for optimized vector search.
+    // This works whether the embeddings column is native vector or stored as text (the function uses the proper type).
     const result = await db.$client<{
-        chunk_id: string
-        content: string
-        similarity: number | number
-        document_title: string
-        document_source: string
-        chunk_metadata: Record<string, unknown>
+      chunk_id: string
+      content: string
+      similarity: number
+      document_title: string
+      document_source: string
+      chunk_metadata: Record<string, unknown>
     }[]>`
-      SELECT 
-        c.id as chunk_id,
-        c.content,
-        1 - (e.embedding <=> ${JSON.stringify(queryEmbedding)}::vector) as similarity,
-        d.title as document_title,
-        d.source as document_source,
-        c.metadata as chunk_metadata
-      FROM embeddings e
-      JOIN chunks c ON e.chunk_id = c.id
-      JOIN documents d ON c.document_id = d.id
-      WHERE 1 - (e.embedding <=> ${JSON.stringify(queryEmbedding)}::vector) > ${threshold}
-      ORDER BY e.embedding <=> ${JSON.stringify(queryEmbedding)}::vector
-      LIMIT ${limit}
+      SELECT *
+      FROM search_similar_chunks(
+        ${JSON.stringify(queryEmbedding)}::vector,
+        ${threshold},
+        ${limit}
+      )
     `
 
     const chunks: DocumentChunk[] = result.map(row => ({
       id: row.chunk_id,
       content: row.content,
-      similarity: typeof row.similarity === 'number' ? row.similarity : parseFloat(row.similarity as string),
+      similarity: typeof row.similarity === 'number' ? row.similarity : parseFloat(String(row.similarity)),
       documentTitle: row.document_title,
       documentSource: row.document_source,
       metadata: row.chunk_metadata ?? {},
@@ -149,16 +143,17 @@ export async function searchSimilarChunks(
  */
 export async function getDocumentStats() {
   try {
-    const [docCount, chunkCount, embeddingCount] = await Promise.all([
-      db.select({ count: documents.id }).from(documents),
-      db.select({ count: chunks.id }).from(chunks),
-      db.select({ count: embeddings.id }).from(embeddings),
-    ])
+    const [row] = await db.$client<{
+      total_documents: number
+      total_chunks: number
+      total_embeddings: number
+      sources: string[]
+    }[]>`SELECT * FROM get_document_stats()`
 
     return {
-      totalDocuments: docCount.length,
-      totalChunks: chunkCount.length,
-      totalEmbeddings: embeddingCount.length,
+      totalDocuments: row?.total_documents ?? 0,
+      totalChunks: row?.total_chunks ?? 0,
+      totalEmbeddings: row?.total_embeddings ?? 0,
     }
   } catch (error) {
     console.error('Error getting document stats:', error)
