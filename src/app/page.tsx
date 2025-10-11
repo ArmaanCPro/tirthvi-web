@@ -17,7 +17,7 @@ export default function Home() {
               width={96}
               height={96}
               priority
-              className="mx-auto mb-6 h-24 w-24"
+              className="mx-auto mb-6 h-24 w-24 rounded-xl"
             />
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
               Welcome to <span className="text-primary">Tirthvi</span>

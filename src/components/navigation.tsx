@@ -50,7 +50,7 @@ export function Navigation() {
             width={28}
             height={28}
             priority
-            className="h-7 w-7"
+            className="h-7 w-7 rounded-md"
           />
           <span className="text-xl font-bold">Tirthvi</span>
         </Link>
