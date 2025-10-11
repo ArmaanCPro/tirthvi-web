@@ -5,6 +5,7 @@ import { dark } from "@clerk/themes";
 import "@/styles/globals.css";
 import { Navigation } from "@/components/navigation";
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "@/components/ui/sonner"
 
 const geistSans = Geist({
@@ -51,6 +52,7 @@ export default function RootLayout({
             {children}
           </main>
           <Analytics />
+          <SpeedInsights />
           <Toaster />
         </body>
       </html>
