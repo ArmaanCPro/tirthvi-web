@@ -1,6 +1,7 @@
 import { db } from '@/lib/drizzle'
 import { userUsage, profiles } from '@/lib/drizzle/schema'
 import { eq, and, gte, lt } from 'drizzle-orm'
+import { isPremium } from '@/lib/premium'
 
 // Daily limits for free users
 export const DAILY_LIMITS = {
@@ -41,10 +42,10 @@ export async function getUserUsageStats(userId: string): Promise<UsageStats> {
   const messagesCount = usage?.aiMessagesCount || 0
   const tokensUsed = usage?.aiTokensUsed || 0
 
-  // Admins have no limits
+  // Admins have no limits and determine plan-based limits
   const profile = await db.query.profiles.findFirst({
     where: eq(profiles.id, userId),
-    columns: { isAdmin: true },
+    columns: { isAdmin: true, clerkId: true },
   })
   if (profile?.isAdmin) {
     return {
@@ -55,14 +56,25 @@ export async function getUserUsageStats(userId: string): Promise<UsageStats> {
       isLimitReached: false,
     }
   }
+
+  // Determine overall daily message cap based on plan
+  let maxMessages = DAILY_LIMITS.AI_MESSAGES // Free default
+  if (profile?.clerkId) {
+    try {
+      const premium = await isPremium(profile.clerkId)
+      if (premium) {
+        maxMessages = 45 // Premium: 15 HQ + 30 fallback
+      }
+    } catch {}
+  }
   
   return {
     messagesCount,
     tokensUsed,
-    messagesRemaining: Math.max(0, DAILY_LIMITS.AI_MESSAGES - messagesCount),
+    messagesRemaining: Math.max(0, maxMessages - messagesCount),
     tokensRemaining: Math.max(0, DAILY_LIMITS.AI_TOKENS - tokensUsed),
     // Only enforce message count limit to avoid confusing token-based lockouts
-    isLimitReached: messagesCount >= DAILY_LIMITS.AI_MESSAGES,
+    isLimitReached: messagesCount >= maxMessages,
   }
 }
 

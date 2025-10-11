@@ -5,9 +5,10 @@ import { db } from '@/lib/drizzle'
 import { profiles } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { canMakeAIRequest, recordAIUsage } from '@/lib/usage-tracking'
-import { getOrCreateConversation, addMessage } from '@/lib/chat-db'
+import { getOrCreateConversation, addMessage, pruneOldConversations } from '@/lib/chat-db'
 import { generateTextEmbedding } from '@/lib/embeddings'
 import { searchSimilarChunks, createRAGContext } from '@/lib/rag-utils'
+import { getUserPlan, chooseModelForUser } from '@/lib/ai-plans'
 
 export async function POST(req: NextRequest) {
   try {
@@ -55,13 +56,27 @@ export async function POST(req: NextRequest) {
       ? (lastUserMessage.content || lastUserMessage.parts?.[0]?.text || '')
       : ''
 
+    // Determine user's plan (by Clerk ID), prune old conversations for free users, and set context size
+    const plan = await getUserPlan(userId)
+
+    if (user && typeof plan.retentionDays === 'number') {
+      // Opportunistically prune old conversations for free plan
+      try {
+        await pruneOldConversations(user.id, plan.retentionDays)
+      } catch (e) {
+        console.error('Conversation prune error:', e)
+      }
+    }
+
     // Generate RAG context if there's a user query
     let ragContext = ''
     if (userQuery && userQuery.trim()) {
       try {
         const queryEmbedding = await generateTextEmbedding(userQuery)
         const searchResult = await searchSimilarChunks(queryEmbedding, 0.5, 5)
-        ragContext = createRAGContext(searchResult.chunks, 1500) // Limit context for GPT-4
+        const reserveForChat = 4000 // leave room for system + chat history
+        const ragMaxTokens = Math.max(1000, (plan.contextTokens - reserveForChat))
+        ragContext = createRAGContext(searchResult.chunks, ragMaxTokens)
       } catch (ragError) {
         console.error('RAG search error:', ragError)
         // Continue without RAG context if search fails
@@ -112,15 +127,28 @@ export async function POST(req: NextRequest) {
       ? `${baseSystemPrompt}\n\nUse the following context from Hindu scriptures to inform your response:\n${ragContext}\n\nWhen referencing specific verses or teachings, cite the source when possible.`
       : baseSystemPrompt
 
+    // Select model with per-plan limits and fallback
+    let selectedModel: string = 'openai/gpt-oss-120b'
+    if (user) {
+      const model = await chooseModelForUser(user.id, userId)
+      if (!model) {
+        return new Response('Daily AI usage for your plan has been reached. Please try again tomorrow.', {
+          status: 429,
+          headers: { 'Retry-After': '86400' },
+        })
+      }
+      selectedModel = model
+    }
+
     const result = streamText({
-      model: 'openai/gpt-oss-120b',
+      model: selectedModel,
       messages: modelMessages,
       system: systemPrompt,
       onFinish: async (result) => {
         // Save assistant response to database (only if user exists)
         if (user && convId && result.text) {
           try {
-            await addMessage(convId, 'assistant', result.text)
+            await addMessage(convId, 'assistant', result.text, { model: selectedModel })
           } catch (messageError) {
             console.error('Assistant message saving error:', messageError)
           }
@@ -139,7 +167,7 @@ export async function POST(req: NextRequest) {
     })
 
     const response = result.toUIMessageStreamResponse({
-      headers: convId ? { 'x-conversation-id': String(convId) } : undefined
+      headers: convId ? { 'x-conversation-id': String(convId), 'x-selected-model': selectedModel } : { 'x-selected-model': selectedModel }
     })
     return response
   } catch (error) {

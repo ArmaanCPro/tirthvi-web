@@ -1,6 +1,6 @@
 import { db } from '@/lib/drizzle'
 import { chatConversations, chatMessages } from '@/lib/drizzle/schema'
-import { eq, and } from 'drizzle-orm'
+import { eq, and, lt } from 'drizzle-orm'
 
 export interface ChatMessage {
   id: string
@@ -173,4 +173,23 @@ export async function getOrCreateConversation(userId: string, conversationId?: s
   
   // Create new conversation
   return await createConversation(userId)
+}
+
+
+/**
+ * Prune conversations older than N days for a user (based on updatedAt)
+ */
+export async function pruneOldConversations(userId: string, days: number): Promise<void> {
+  if (!Number.isFinite(days) || days <= 0) return
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+  try {
+    await db
+      .delete(chatConversations)
+      .where(and(
+        eq(chatConversations.userId, userId),
+        lt(chatConversations.updatedAt, cutoff as any)
+      ))
+  } catch (err) {
+    console.error('Error pruning conversations:', err)
+  }
 }
