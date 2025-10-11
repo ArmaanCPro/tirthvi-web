@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
@@ -43,7 +44,14 @@ export function Navigation() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="text-2xl font-bold text-primary">🕉️</div>
+          <Image
+            src="/tirthvi-icon.svg"
+            alt="Tirthvi logo"
+            width={28}
+            height={28}
+            priority
+            className="h-7 w-7"
+          />
           <span className="text-xl font-bold">Tirthvi</span>
         </Link>
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, BookOpen, Bot, Heart, Users } from "lucide-react";
@@ -10,7 +11,14 @@ export default function Home() {
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="container mx-auto px-4 py-20 lg:py-32">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="text-6xl mb-6">🕉️</div>
+            <Image
+              src="/tirthvi-icon.svg"
+              alt="Tirthvi logo"
+              width={96}
+              height={96}
+              priority
+              className="mx-auto mb-6 h-24 w-24"
+            />
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
               Welcome to <span className="text-primary">Tirthvi</span>
             </h1>
