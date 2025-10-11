@@ -138,14 +138,8 @@ export default function Home() {
             Join thousands discovering the depth of Hindu philosophy and tradition
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="default" className="hover:brightness-110 transition-all" asChild>
-              <Link href="/login">
-                <Users className="mr-2 h-5 w-5" />
-                Create Account
-              </Link>
-            </Button>
             <Button size="lg" variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 hover:border-primary hover:brightness-110 transition-all" asChild>
-              <Link href="/donate">
+              <Link href="/pricing">
                 <Heart className="mr-2 h-5 w-5" />
                 Support Us
               </Link>

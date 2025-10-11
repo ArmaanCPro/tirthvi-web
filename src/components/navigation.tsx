@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
 import { Calendar, BookOpen, Bot, Heart, User, Menu, X, Upload } from "lucide-react";
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, Protect } from "@clerk/nextjs";
 
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -99,13 +99,17 @@ export function Navigation() {
         </NavigationMenu>
 
         {/* Right side actions */}
+
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild className="hidden sm:flex">
-            <Link href="/donate">
-              <Heart className="mr-2 h-4 w-4" />
-              Donate
-            </Link>
-          </Button>
+
+            <Protect plan={"free_plan"}>
+              <Button variant="default" size="sm" asChild className="hidden sm:flex">
+                <Link href="/pricing">
+                  <Heart className="mr-2 h-4 w-4" />
+                  Upgrade to Premium
+                </Link>
+              </Button>
+            </Protect>
           
           {/* Clerk Authentication */}
           <SignedOut>
@@ -180,13 +184,16 @@ export function Navigation() {
             )}
 
             <div className="pt-2 border-t">
-              <Button variant="ghost" className="w-full justify-start" asChild>
-                <Link href="/donate" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Heart className="mr-2 h-4 w-4" />
-                  Donate
-                </Link>
-              </Button>
-              
+
+                <Protect plan={"free_plan"}>
+                  <Button variant="default" className="w-full justify-start" asChild>
+                    <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Heart className="mr-2 h-4 w-4" />
+                      Upgrade to Premium
+                    </Link>
+                  </Button>
+                </Protect>
+
               {/* Mobile Clerk Authentication */}
               <div className="pt-2 space-y-2">
                 <SignedOut>
