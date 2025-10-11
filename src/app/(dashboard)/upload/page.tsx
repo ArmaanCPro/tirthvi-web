@@ -11,7 +11,12 @@ import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function UploadPage() {
   const { isLoaded, isSignedIn } = useUser()
+  const [mode, setMode] = useState<'file' | 'url' | 'supabase'>('file')
   const [file, setFile] = useState<File | null>(null)
+  const [fileUrl, setFileUrl] = useState('')
+  const [bucket, setBucket] = useState('')
+  const [storagePath, setStoragePath] = useState('')
+  const [expiresIn, setExpiresIn] = useState<number>(600)
   const [title, setTitle] = useState('')
   const [source, setSource] = useState('')
   const [metadata, setMetadata] = useState('')
@@ -31,18 +36,43 @@ export default function UploadPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!file || !title || !source) return
+    if (!title || !source) return
 
     setUploading(true)
     setResult(null)
 
     try {
       const formData = new FormData()
-      formData.append('file', file)
       formData.append('title', title)
       formData.append('source', source)
       if (metadata) {
         formData.append('metadata', metadata)
+      }
+
+      if (mode === 'file') {
+        if (!file) {
+          setResult({ success: false, message: 'Please choose a file.' })
+          setUploading(false)
+          return
+        }
+        formData.append('file', file)
+      } else if (mode === 'url') {
+        if (!fileUrl) {
+          setResult({ success: false, message: 'Please enter a file URL.' })
+          setUploading(false)
+          return
+        }
+        formData.append('fileUrl', fileUrl)
+      } else if (mode === 'supabase') {
+        if (!bucket || !storagePath) {
+          setResult({ success: false, message: 'Bucket and path are required for Supabase Storage.' })
+          setUploading(false)
+          return
+        }
+        formData.append('provider', 'supabase')
+        formData.append('bucket', bucket)
+        formData.append('path', storagePath)
+        formData.append('expiresIn', String(expiresIn || 600))
       }
 
       const response = await fetch('/api/rag/upload', {
@@ -58,12 +88,21 @@ export default function UploadPage() {
           message: data.message,
           document: data.document,
         })
-        // Reset form
-        setFile(null)
+        // Reset mode-specific fields and common fields
+        if (mode === 'file') {
+          setFile(null)
+          const inputEl = document.getElementById('file-input') as HTMLInputElement | null
+          if (inputEl) inputEl.value = ''
+        } else if (mode === 'url') {
+          setFileUrl('')
+        } else {
+          setBucket('')
+          setStoragePath('')
+          setExpiresIn(600)
+        }
         setTitle('')
         setSource('')
         setMetadata('')
-        ;(document.getElementById('file-input') as HTMLInputElement).value = ''
       } else {
         setResult({
           success: false,
@@ -116,25 +155,98 @@ export default function UploadPage() {
             Upload Document to RAG System
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Upload PDF, Word documents, or text files to add them to the knowledge base.
+            Upload via file, URL, or Supabase Storage. Supported types: PDF and TXT.
           </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="file-input">File</Label>
-              <Input
-                id="file-input"
-                type="file"
-                accept=".pdf,.txt"
-                onChange={handleFileChange}
-                required
-                className="mt-1"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Supported formats: PDF, Text (.txt)
-              </p>
+              <Label htmlFor="mode">Upload method</Label>
+              <select
+                id="mode"
+                value={mode}
+                onChange={(e) => setMode(e.target.value as 'file' | 'url' | 'supabase')}
+                className="mt-1 w-full border rounded-md p-2 bg-background"
+              >
+                <option value="file">Direct file upload (≤ 25 MB)</option>
+                <option value="url">URL (Supabase signed, Vercel Blob, S3, etc.)</option>
+                <option value="supabase">Supabase Storage (bucket + path)</option>
+              </select>
             </div>
+
+            {mode === 'file' && (
+              <div>
+                <Label htmlFor="file-input">File</Label>
+                <Input
+                  id="file-input"
+                  type="file"
+                  accept=".pdf,.txt"
+                  onChange={handleFileChange}
+                  className="mt-1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Max 25 MB. For larger files, use URL or Supabase Storage.
+                </p>
+              </div>
+            )}
+
+            {mode === 'url' && (
+              <div>
+                <Label htmlFor="file-url">File URL</Label>
+                <Input
+                  id="file-url"
+                  type="url"
+                  value={fileUrl}
+                  onChange={(e) => setFileUrl(e.target.value)}
+                  placeholder="https://... (Supabase signed URL, Vercel Blob, S3 pre-signed)"
+                  className="mt-1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Max 250 MB. The server will download and process the file.
+                </p>
+              </div>
+            )}
+
+            {mode === 'supabase' && (
+              <>
+                <div>
+                  <Label htmlFor="bucket">Bucket</Label>
+                  <Input
+                    id="bucket"
+                    value={bucket}
+                    onChange={(e) => setBucket(e.target.value)}
+                    placeholder="e.g., my-bucket"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="storagePath">Path</Label>
+                  <Input
+                    id="storagePath"
+                    value={storagePath}
+                    onChange={(e) => setStoragePath(e.target.value)}
+                    placeholder="e.g., docs/gita.pdf"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="expiresIn">Signed URL expiry (seconds)</Label>
+                  <Input
+                    id="expiresIn"
+                    type="number"
+                    min={60}
+                    max={3600}
+                    step={60}
+                    value={expiresIn}
+                    onChange={(e) => setExpiresIn(parseInt(e.target.value || '600', 10))}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Server creates a short‑lived signed URL using service role (default 10 minutes).
+                  </p>
+                </div>
+              </>
+            )}
 
             <div>
               <Label htmlFor="title">Title</Label>
@@ -172,7 +284,14 @@ export default function UploadPage() {
               />
             </div>
 
-            <Button type="submit" disabled={uploading || !file} className="w-full">
+            <Button
+              type="submit"
+              disabled={
+                uploading ||
+                (mode === 'file' ? !file : mode === 'url' ? !fileUrl : !bucket || !storagePath)
+              }
+              className="w-full"
+            >
               {uploading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
