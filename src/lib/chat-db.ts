@@ -187,7 +187,7 @@ export async function pruneOldConversations(userId: string, days: number): Promi
       .delete(chatConversations)
       .where(and(
         eq(chatConversations.userId, userId),
-        lt(chatConversations.updatedAt, cutoff)
+        lt(chatConversations.updatedAt, cutoff as any)
       ))
   } catch (err) {
     console.error('Error pruning conversations:', err)
