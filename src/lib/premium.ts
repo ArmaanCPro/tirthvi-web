@@ -1,6 +1,7 @@
 import { db } from '@/lib/drizzle'
 import { profiles } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
+import {isAdmin} from "@/lib/auth";
 
 /**
  * Premium scaffold. For now, always returns false unless you later add a flag in DB.
@@ -15,8 +16,8 @@ export async function isPremium(clerkUserId: string): Promise<boolean> {
     // })
     // return Boolean((user as any)?.isPremium)
 
-    // For now, explicitly return false to act as a scaffold
-    return false
+    // For now, explicitly return false to act as a scaffold unless admin
+    return await isAdmin(clerkUserId) || false
   } catch {
     return false
   }
