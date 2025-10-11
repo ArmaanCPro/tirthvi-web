@@ -12,6 +12,7 @@ export const profiles = pgTable('profiles', {
   timezone: text('timezone').default('UTC'),
   language: text('language').default('en'),
   isAdmin: boolean('is_admin').default(false),
+  isPremium: boolean('is_premium').default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 })
