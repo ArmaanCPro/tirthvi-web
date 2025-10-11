@@ -19,7 +19,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Tirthvi - Hindu Wisdom Hub",
-  description: "Discover Hindu philosophy, calendar events, scriptures, and AI-powered wisdom",
+  description: "A digital hub and AI tool for Hindu wisdom, philosophy, and scripture",
+  icons: {
+      icon: '/tirthvi-icon.svg',
+      shortcut: '/favicon-16x16.png',
+      apple: '/apple-touch-icon.png',
+  },
+    manifest: '/site.webmanifest',
 };
 
 export default function RootLayout({
