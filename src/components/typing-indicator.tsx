@@ -15,7 +15,7 @@ export function TypingIndicator({ isTyping }: TypingIndicatorProps) {
       <MessageContent>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Loader />
-          <span className="text-sm">AI is thinking...</span>
+          <span className="text-base">AI is thinking...</span>
         </div>
       </MessageContent>
     </Message>
