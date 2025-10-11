@@ -21,7 +21,12 @@ export const metadata: Metadata = {
   title: "Tirthvi - Hindu Wisdom Hub",
   description: "A digital hub and AI tool for Hindu wisdom, philosophy, and scripture",
   icons: {
-      icon: '/tirthvi-icon.svg',
+      icon: [
+          { url: '/tirthvi-icon.svg', type: 'image/svg+xml' },
+          { url: '/favicon.ico', sizes: 'any' },
+          { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+          { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      ],
       shortcut: '/favicon-16x16.png',
       apple: '/apple-touch-icon.png',
   },
