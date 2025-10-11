@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
-import { db } from '@/lib/drizzle'
+import {db, subscriptions} from '@/lib/drizzle'
 import { profiles } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   const body = JSON.stringify(payload)
 
   // Create a new Svix instance with your secret.
-  const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET || '')
+  const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET!)
 
   let evt: WebhookEvent
 
@@ -93,6 +93,50 @@ export async function POST(req: NextRequest) {
       console.error('Error deleting user profile:', error)
       return new Response('Error deleting user profile', { status: 500 })
     }
+  }
+
+  if (eventType.startsWith("billing.subscription.")) {
+      type BillingSubscriptionEventData = {
+          user_id?: string | null;
+          customer_id?: string | null;
+          plan?: string | null;
+          status?: string | null;
+          current_period_end?: string | number | Date | null;
+      };
+      const sub = evt.data as BillingSubscriptionEventData;
+      const clerkUserId = sub.user_id ?? sub.customer_id;
+      if (!clerkUserId) {
+          console.error("Missing user_id/customer_id in billing.subscription event");
+          return new Response("Invalid webhook payload", { status: 400 });
+      }
+      const plan = sub.plan ?? "free";
+      const isPremium = plan === "premium" && sub.status === "active";
+      const currentPeriodEnd = sub.current_period_end ? new Date(sub.current_period_end) : null;
+
+      const [user] = await db.select().from(profiles).where(eq(profiles.clerkId, clerkUserId));
+      if (!user) {
+          console.error(`User with Clerk ID ${clerkUserId} not found`);
+          return new Response("User not found", { status: 404 });
+      }
+
+      await db
+          .insert(subscriptions)
+          .values({
+              userId: user.id,
+              plan,
+              isPremium,
+              currentPeriodEnd,
+              updatedAt: new Date(),
+          })
+          .onConflictDoUpdate({
+              target: subscriptions.userId,
+              set: {
+                  plan,
+                  isPremium,
+                  currentPeriodEnd,
+                  updatedAt: new Date(),
+              }
+          });
   }
 
   return new Response('', { status: 200 })

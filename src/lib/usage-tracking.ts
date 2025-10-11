@@ -58,7 +58,7 @@ export async function getUserUsageStats(userId: string): Promise<UsageStats> {
   }
 
   // Determine overall daily message cap based on plan
-  let maxMessages = DAILY_LIMITS.AI_MESSAGES // Free default
+  let maxMessages: number = DAILY_LIMITS.AI_MESSAGES // Free default
   if (profile?.clerkId) {
     try {
       const premium = await isPremium(profile.clerkId)

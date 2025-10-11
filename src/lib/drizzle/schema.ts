@@ -16,6 +16,16 @@ export const profiles = pgTable('profiles', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 })
 
+// Plan Subscriptions
+export const subscriptions = pgTable("subscriptions", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => profiles.id),
+    plan: text("plan").notNull().default("free"),
+    isPremium: boolean("is_premium").default(false),
+    currentPeriodEnd: timestamp("current_period_end", { withTimezone: true}),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 // Event subscriptions - users can subscribe to events for notifications
 export const eventSubscriptions = pgTable('event_subscriptions', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -95,6 +105,17 @@ export const profilesRelations = relations(profiles, ({ many, one }) => ({
   donations: many(donations),
   preferences: one(userPreferences),
   usage: many(userUsage),
+  subscription: one(subscriptions, {
+      fields: [profiles.id],
+      references: [subscriptions.userId],
+  })
+}))
+
+export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
+  user: one(profiles, {
+    fields: [subscriptions.userId],
+    references: [profiles.id],
+  }),
 }))
 
 export const eventSubscriptionsRelations = relations(eventSubscriptions, ({ one }) => ({
