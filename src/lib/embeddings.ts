@@ -6,7 +6,7 @@ import { embed, embedMany } from 'ai'
 export async function generateTextEmbedding(text: string): Promise<number[]> {
   try {
     const result = await embed({
-      model: 'openai/text-embedding-3-small',
+      model: 'openai/text-embedding-3-large',
       value: text,
     })
     return result.embedding
@@ -24,7 +24,7 @@ export async function generateTextEmbedding(text: string): Promise<number[]> {
 export async function generateBatchEmbeddings(texts: string[]): Promise<number[][]> {
   try {
     const result = await embedMany({
-      model: 'openai/text-embedding-3-small',
+      model: 'openai/text-embedding-3-large',
       values: texts,
     })
     // Embeddings are returned as arrays of numbers already
@@ -49,7 +49,7 @@ export async function generateEmbeddingsInBatches(
   for (let i = 0; i < texts.length; i += batchSize) {
     const slice = texts.slice(i, i + batchSize)
     const result = await embedMany({
-      model: 'openai/text-embedding-3-small',
+      model: 'openai/text-embedding-3-large',
       values: slice,
       ...(typeof maxParallelCalls === 'number' ? { maxParallelCalls } : {}),
     })
@@ -67,7 +67,7 @@ export async function generateEmbeddingsInBatches(
 export async function storeEmbedding(
   chunkId: string,
   embedding: number[],
-  model: string = 'text-embedding-3-small'
+  model: string = 'text-embedding-3-large'
 ): Promise<void> {
   const { db } = await import('@/lib/drizzle')
   const { embeddings } = await import('@/lib/drizzle/schema')
