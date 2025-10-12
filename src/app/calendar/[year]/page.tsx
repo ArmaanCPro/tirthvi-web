@@ -1,6 +1,7 @@
 import { getEventsForYear } from '@/lib/events';
 import { CalendarView } from '@/components/calendar-view';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 
 interface CalendarYearPageProps {
   params: {
@@ -33,4 +34,25 @@ export async function generateStaticParams() {
   });
   
   return years;
+}
+
+export async function generateMetadata({ params }: CalendarYearPageProps): Promise<Metadata> {
+    return {
+        title: `${params.year} - Hindu Events Calendar`,
+        description: `View all events for ${params.year} in the Hindu Events Calendar.`,
+        alternates: {
+            canonical: `/calendar`,
+        },
+        openGraph: {
+            title: `${params.year} - Hindu Events Calendar`,
+            description: `View all events for ${params.year} in the Hindu Events Calendar.`,
+            type: 'website',
+            url: `${process.env.NEXT_PUBLIC_SITE_URL}/calendar/${params.year}`,
+        },
+        twitter: {
+            title: `${params.year} - Hindu Events Calendar`,
+            description: `View all events for ${params.year} in the Hindu Events Calendar.`,
+            card: 'summary',
+        },
+    }
 }
