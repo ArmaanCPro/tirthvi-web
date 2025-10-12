@@ -1,0 +1,34 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm" # Enables pnpm caching automatically
+
+      # 3. Enable Corepack for pnpm
+      - run: corepack enable
+      - run: corepack prepare pnpm@latest --activate
+
+      # 4. Install dependencies with pnpm
+      - name: Install dependencies
+        run: pnpm install
+
+      # 5. Run lint
+      - name: Lint code
+        run: pnpm lint
+
+      # 6. Run TypeScript type checking
+      - name: Type check
+        run: pnpm tsc --noEmit
