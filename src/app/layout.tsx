@@ -63,7 +63,7 @@ export const metadata: Metadata = {
       images: ["/android-chrome-512x512.png"],
   },
   other: {
-      "msapplication-TileColor": "#000000",
+      "msapplication-TileColor": "#111111",
       "msapplication-TileImage": "/android-chrome-192x192.png",
   }
 };
