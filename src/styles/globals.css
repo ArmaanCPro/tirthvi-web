@@ -98,3 +98,14 @@
     @apply text-base md:text-lg;
   }
 }
+
+
+/* Ensure Clerk Billing/Authentication overlays appear above the sticky navbar */
+:where(#clerk-portal-root),
+:where([data-clerk-portal]),
+:where([class*="cl-"])[role="dialog"],
+:where([class*="cl-"])[data-overlay],
+:where([class*="cl-"])[data-portal],
+:where([class*="cl-"])[data-state="open"] {
+  z-index: 9999 !important;
+}

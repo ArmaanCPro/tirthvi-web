@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function PricingPage() {
     return (
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 1rem' }}>
+        <div className="flex w-full justify-center" style={{ maxWidth: '800px', margin: '0 auto', padding: '0 1rem', paddingTop: '2rem', }}>
             <PricingTable />
         </div>
     )
