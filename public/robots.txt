@@ -1,0 +1,18 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow crawling of API routes
+Disallow: /api/
+
+# Disallow crawling of temporary or development files
+Disallow: /_next/
+Disallow: /static/
+
+# Allow crawling of important resources
+Allow: /images/
+Allow: /favicon.ico
+Allow: /site.webmanifest
+
+# Sitemap location (you should create this)
+Sitemap: https://www.tirthvi.com/sitemap.xml
