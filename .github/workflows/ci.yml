@@ -1,4 +1,4 @@
-name: Lint
+name: CI
 
 on:
   pull_request:
@@ -7,28 +7,29 @@ on:
     branches: [main]
 
 jobs:
-  build-and-lint:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 'latest'
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm" # Enables pnpm caching automatically
 
-      # 3. Enable Corepack for pnpm
-      - run: corepack enable
-      - run: corepack prepare pnpm@latest --activate
-
-      # 4. Install dependencies with pnpm
+      # Install dependencies with pnpm
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      # 5. Run lint
+      # Run lint
       - name: Lint code
         run: pnpm lint
 
-      # 6. Run TypeScript type checking
+      # Run TypeScript type checking
       - name: Type check
         run: pnpm tsc --noEmit
