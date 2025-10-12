@@ -2,18 +2,18 @@ import { PricingTable } from "@clerk/nextjs"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: 'Pricing',
+    title: 'Pricing - Tirthvi',
     description: 'Subscription Plans for Tirthvi',
     alternates: {
         canonical: '/pricing',
     },
     openGraph: {
-        title: 'Pricing',
+        title: 'Pricing - Tirthvi',
         description: 'Subscription Plans for Tirthvi',
         type: 'website',
     },
     twitter: {
-        title: 'Pricing',
+        title: 'Pricing - Tirthvi',
         description: 'Subscription Plans for Tirthvi',
         card: 'summary',
     }
