@@ -21,13 +21,11 @@ export default async function EventPage({ params }: EventPageProps) {
 }
 
 export async function generateMetadata({ params }: EventPageProps): Promise<Metadata> {
-    const event = await getEventBySlug(await params.slug);
+    const { slug } = await params;
+    const event = await getEventBySlug(slug);
 
     if (!event) {
-        return {
-            title: 'Event Not Found',
-            description: 'The event you are looking for does not exist.',
-        };
+        notFound();
     }
 
     return {
