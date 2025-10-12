@@ -60,7 +60,7 @@ export function Navigation() {
           <NavigationMenuList className="flex items-center gap-1">
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link href="/calendar" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 py-2 text-base md:text-lg font-medium transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
+                <Link href="/calendar" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 text-base md:text-lg font-medium leading-none transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
                   <Calendar className="h-5 w-5" />
                   Events Calendar
                 </Link>
@@ -69,7 +69,7 @@ export function Navigation() {
             
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link href="/scriptures" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 py-2 text-base md:text-lg font-medium transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
+                <Link href="/scriptures" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 text-base md:text-lg font-medium leading-none transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
                   <BookOpen className="h-5 w-5" />
                   Scriptures
                 </Link>
@@ -78,7 +78,7 @@ export function Navigation() {
             
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link href="/chat" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 py-2 text-base md:text-lg font-medium transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
+                <Link href="/chat" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 text-base md:text-lg font-medium leading-none transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
                   <Bot className="h-5 w-5" />
                   AI Wisdom
                 </Link>
@@ -88,7 +88,7 @@ export function Navigation() {
             {isAdmin && (
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link href="/upload" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 py-2 text-base md:text-lg font-medium transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
+                <Link href="/upload" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 text-base md:text-lg font-medium leading-none transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
                   <Upload className="h-5 w-5" />
                   Upload
                 </Link>
