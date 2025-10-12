@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
+import ClerkClientProvider from "@/components/ClerkClientProvider";
 import "@/styles/globals.css";
 import { Navigation } from "@/components/navigation";
 import { Analytics } from "@vercel/analytics/next"
@@ -66,28 +65,29 @@ export const metadata: Metadata = {
   }
 };
 
+export const dynamic = "force-static";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider appearance={{
-      theme: dark,
-    }}>
       <html lang="en">
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
         >
-          <Navigation />
-          <main className="min-h-screen">
-            {children}
-          </main>
+          <ClerkClientProvider>
+              <Navigation />
+              <main className="min-h-screen">
+                {children}
+              </main>
+          </ClerkClientProvider>
+
           <Analytics />
           <SpeedInsights />
           <Toaster />
         </body>
       </html>
-    </ClerkProvider>
   );
 }
