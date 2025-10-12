@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, BookOpen, Bot, Heart, Users } from "lucide-react";
+import { Calendar, BookOpen, Bot, Heart } from "lucide-react";
 
 export default function Home() {
   return (
