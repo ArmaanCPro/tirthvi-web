@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import { Navigation } from "@/components/navigation";
-import { Analytics } from "@vercel/analytics/next"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "@/components/ui/sonner"
 import ClerkClientProvider from "@/components/clerk/ClerkProviderLazy";
+import LazyAnalytics from "@/components/lazy-analytics";
 
+
+// lazy load analytic
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -91,8 +92,7 @@ export default function RootLayout({
               </main>
           </ClerkClientProvider>
 
-          <Analytics />
-          <SpeedInsights />
+          <LazyAnalytics />
           <Toaster />
         </body>
       </html>
