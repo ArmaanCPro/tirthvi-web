@@ -1,0 +1,40 @@
+{
+  "id": "navaratri",
+  "name": "Navaratri",
+  "description": "<p><strong>Navaratri</strong> is a nine-night festival dedicated to the <em>Divine Feminine</em>, worshiping Goddess Durga and her various forms.</p><h3>Significance</h3><p>Each day of Navaratri honors a different manifestation of the Goddess, symbolizing the <em>victory of good over evil</em> and the awakening of divine energy within devotees.</p>",
+  "image": {
+    "url": "/images/events/navaratri.jpg",
+    "caption": "Goddess Durga during Navaratri",
+    "alt": "Navaratri Durga puja celebration"
+  },
+  "externalLinks": [
+    {
+      "title": "ISKCON Navaratri",
+      "url": "https://iskcondwarka.org/blogs/happy-navaratri-from-iskcon-dwarka/",
+      "description": "Understand the meaning and rituals of Navaratri"
+    }
+  ],
+  "category": "religious",
+  "regions": ["north", "south", "east", "west"],
+  "slug": "navaratri",
+  "occurrences": {
+    "2024": [
+      {
+        "date": "2024-10-03",
+        "startTime": "06:00",
+        "endTime": "22:00",
+        "timezone": "IST",
+        "significance": "Day 1 of Navaratri"
+      }
+    ],
+    "2025": [
+      {
+        "date": "2025-09-22",
+        "startTime": "06:00",
+        "endTime": "22:00",
+        "timezone": "IST",
+        "significance": "Day 1 of Navaratri"
+      }
+    ]
+  }
+}

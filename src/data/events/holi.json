@@ -1,0 +1,40 @@
+{
+  "id": "holi",
+  "name": "Holi",
+  "description": "<p>Holi, the <strong>Festival of Colors</strong>, is a joyous celebration marking the arrival of spring and the triumph of devotion and truth.</p><h3>Significance</h3><p>Holi celebrates <em>the victory of Lord Vishnu in his Narasimha avatar over the demon Hiranyakashipu</em> and honors the devotion of Prahlada. It is also a day of unity, forgiveness, and renewal of relationships.</p>",
+  "image": {
+    "url": "/images/events/holi.webp",
+    "caption": "Krishna playing Holi with Radha",
+    "alt": "Holi festival colors celebration"
+  },
+  "externalLinks": [
+    {
+      "title": "ISKCON Holi",
+      "url": "https://iskconghaziabad.com/holika-dahan-2024-dates-importance-story/",
+      "description": "Learn more about the spiritual significance of Holi"
+    }
+  ],
+  "category": "religious",
+  "regions": ["north", "south", "east", "west"],
+  "slug": "holi",
+  "occurrences": {
+    "2024": [
+      {
+        "date": "2024-03-25",
+        "startTime": "10:00",
+        "endTime": "17:00",
+        "timezone": "IST",
+        "significance": "Main celebration"
+      }
+    ],
+    "2025": [
+      {
+        "date": "2025-03-14",
+        "startTime": "10:00",
+        "endTime": "17:00",
+        "timezone": "IST",
+        "significance": "Main celebration"
+      }
+    ]
+  }
+}
