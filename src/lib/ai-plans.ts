@@ -26,7 +26,7 @@ export const FREE_PLAN: PlanConfig = {
 export const PREMIUM_PLAN: PlanConfig = {
   name: 'premium',
   models: [
-    { model: 'openai/gpt-5-mini', dailyLimit: 15 },
+    { model: 'openai/gpt-oss-120b', dailyLimit: 15 },
     { model: 'openai/gpt-oss-120b', dailyLimit: 30 },
   ],
   contextTokens: 32000,
