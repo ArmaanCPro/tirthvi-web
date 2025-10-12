@@ -19,6 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_SITE_URL!.toString() : "http://localhost:3000"),
   title: "Tirthvi - Hindu Wisdom Hub",
   description: "A digital hub and AI tool for Hindu wisdom, philosophy, and scripture",
   icons: {
@@ -31,7 +32,38 @@ export const metadata: Metadata = {
       shortcut: '/favicon-16x16.png',
       apple: '/apple-touch-icon.png',
   },
-    manifest: '/site.webmanifest',
+  manifest: '/site.webmanifest',
+
+  openGraph: {
+      title: "Tirthvi - Hindu Wisdom Hub",
+      description: "A digital hub and AI tool for Hindu wisdom, philosophy, and scripture",
+      images: [
+          {
+              url: "/android-chrome-512x512.png",
+              width: 512,
+              height: 512,
+              alt: "Tirthvi Logo",
+          },
+          {
+              url: "/android-chrome-192x192.png",
+              width: 192,
+              height: 192,
+              alt: "Tirthvi Logo",
+          }
+      ],
+      type: "website",
+  },
+
+  twitter: {
+      card: "summary",
+      title: "Tirthvi - Hindu Wisdom Hub",
+      description: "A digital hub and AI tool for Hindu wisdom, philosophy, and scripture",
+      images: ["/android-chrome-512x512.png"],
+  },
+  other: {
+      "msapplication-TileColor": "#000000",
+      "msapplication-TileImage": "/android-chrome-192x192.png",
+  }
 };
 
 export default function RootLayout({
