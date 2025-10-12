@@ -26,15 +26,15 @@ export default function Home() {
               Your gateway to Hindu wisdom, sacred calendar, scriptures, and AI-powered spiritual guidance
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild>
+              <Button size="lg" asChild className="px-8 py-6 text-lg md:px-10 md:py-7 md:text-xl">
                 <Link href="/calendar">
-                  <Calendar className="mr-2 h-5 w-5" />
+                  <Calendar className="mr-2 h-6 w-6 md:h-7 md:w-7" />
                   Explore Calendar
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" asChild>
+              <Button variant="outline" size="lg" asChild className="px-8 py-6 text-lg md:px-10 md:py-7 md:text-xl">
                 <Link href="/chat">
-                  <Bot className="mr-2 h-5 w-5" />
+                  <Bot className="mr-2 h-6 w-6 md:h-7 md:w-7" />
                   Ask AI Wisdom
                 </Link>
               </Button>
