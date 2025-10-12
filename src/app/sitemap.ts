@@ -4,7 +4,7 @@ import { getAllEvents } from "@/lib/events";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const events = await getAllEvents();
 
-    const baseUrl = "http://www.tirthvi.com";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
     const eventUrls = events.map(event => ({
         url: `${baseUrl}/events/${event.slug}`,
