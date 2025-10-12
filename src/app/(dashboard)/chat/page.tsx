@@ -254,15 +254,15 @@ export default function ChatPage() {
       <div className="container mx-auto p-6 max-w-4xl">
         <Card className="h-[600px] flex flex-col">
           <CardHeader>
-            <CardTitle>Hindu Philosophy Assistant</CardTitle>
-            <p className="text-sm text-muted-foreground">
+            <CardTitle className="text-2xl">Hindu Philosophy Assistant</CardTitle>
+            <p className="text-base text-muted-foreground">
               Sign in to access the AI assistant
             </p>
           </CardHeader>
           <CardContent className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <h3 className="text-lg font-medium mb-2">Authentication Required</h3>
-              <p className="text-sm text-muted-foreground mb-4">
+              <h3 className="text-2xl font-medium mb-2">Authentication Required</h3>
+              <p className="text-base text-muted-foreground mb-4">
                 Please sign in to use the Hindu Philosophy Assistant.
               </p>
               <SignInButton mode="modal">
@@ -295,7 +295,7 @@ export default function ChatPage() {
   return (
     <ChatErrorBoundary>
       <KeyboardShortcuts />
-      <div className="flex h-screen">
+      <div className="flex h-screen text-lg md:text-xl">
       {/* Sidebar */}
       {sidebarOpen && (
         <>
@@ -359,8 +359,8 @@ export default function ChatPage() {
                     History
                   </Button>
                   <div>
-                    <CardTitle className="text-lg">Hindu Philosophy Assistant</CardTitle>
-                    <p className="text-sm text-muted-foreground">
+                    <CardTitle className="text-2xl">Hindu Philosophy Assistant</CardTitle>
+                    <p className="text-base text-muted-foreground">
                       Ask questions about Hindu philosophy, festivals, scriptures, and traditions
                     </p>
                   </div>
@@ -386,8 +386,8 @@ export default function ChatPage() {
                     {messages.length === 0 && (
                       <div className="flex items-center justify-center h-full text-muted-foreground">
                         <div className="text-center">
-                          <h3 className="text-lg font-medium mb-2">Welcome to the Hindu Philosophy Assistant</h3>
-                          <p className="text-sm">Ask me anything about Hindu philosophy, festivals, or traditions.</p>
+                          <h3 className="text-2xl font-medium mb-2">Welcome to the Hindu Philosophy Assistant</h3>
+                          <p className="text-base">Ask me anything about Hindu philosophy, festivals, or traditions.</p>
                         </div>
                       </div>
                     )}
@@ -398,7 +398,7 @@ export default function ChatPage() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <AlertTriangle className="h-4 w-4 text-destructive" />
-                            <span className="text-sm text-destructive">
+                            <span className="text-base text-destructive">
                               {error.includes('429') 
                                 ? 'Daily limit reached. Try again tomorrow.' 
                                 : error.includes('Network') 
@@ -424,9 +424,11 @@ export default function ChatPage() {
                             <div className="w-full md:max-w-[95%] xl:max-w-[90%]">
                               <Message from={message.role}>
                                 <MessageContent>
-                                  <Response parseIncompleteMarkdown>
-                                    {extractMessageText(message as UIMessage)}
-                                  </Response>
+                                  <div className="chat-content text-lg leading-relaxed md:text-xl md:leading-relaxed">
+                                    <Response parseIncompleteMarkdown>
+                                      {extractMessageText(message as UIMessage)}
+                                    </Response>
+                                  </div>
                                 </MessageContent>
                               </Message>
                               <div className="mt-3 space-y-3">
@@ -477,7 +479,7 @@ export default function ChatPage() {
                         : "Ask about Hindu philosophy, festivals, or traditions... (Enter to send, Shift+Enter for new line)"
                     }
                     disabled={status === 'streaming' || usageStats?.isLimitReached}
-                    className="w-full resize-none"
+                    className="w-full resize-none text-base md:text-lg leading-relaxed"
                   />
                 </PromptInput>
               </div>

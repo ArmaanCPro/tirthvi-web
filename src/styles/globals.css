@@ -87,3 +87,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Increase table font size specifically inside chat content */
+  .chat-content table {
+    @apply text-base md:text-lg;
+  }
+  .chat-content th,
+  .chat-content td {
+    @apply text-base md:text-lg;
+  }
+}
