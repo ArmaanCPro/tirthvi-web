@@ -1,4 +1,23 @@
 import React from 'react'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+    title: 'Privacy Policy - Tirthvi',
+    description: 'Learn about how we collect, use, and protect your personal information on Tirthvi.',
+    alternates: {
+        canonical: '/privacy-policy',
+    },
+    openGraph: {
+        title: 'Privacy Policy - Tirthvi',
+        description: 'Learn about how we collect, use, and protect your personal information on Tirthvi.',
+        type: 'website',
+    },
+    twitter: {
+        title: 'Privacy Policy - Tirthvi',
+        description: 'Learn about how we collect, use, and protect your personal information on Tirthvi.',
+        card: 'summary',
+    },
+}
 
 const PrivacyPolicyPage: React.FC = () => {
     return (
