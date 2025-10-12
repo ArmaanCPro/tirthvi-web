@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
 import { Calendar, BookOpen, Bot, Heart, User, Menu, X, Upload } from "lucide-react";
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, Protect } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, Protect, ClerkProvider } from "@clerk/nextjs";
+import { shadcn } from "@clerk/themes";
 
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -26,6 +27,7 @@ export function Navigation() {
   }, [])
 
   return (
+      <ClerkProvider appearance={{theme: shadcn}}>
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container flex mx-auto h-16 items-center justify-between px-4">
         {/* Mobile Menu Button */}
@@ -235,5 +237,6 @@ export function Navigation() {
         </div>
       )}
     </header>
+      </ClerkProvider>
   );
 }

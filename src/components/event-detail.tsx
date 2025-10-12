@@ -6,10 +6,9 @@ import { formatEventDate } from '@/lib/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SaveEventButton } from '@/components/save-event-button';
-import { SubscribeEventButton } from '@/components/subscribe-event-button';
 import Image from 'next/image';
 import Link from 'next/link';
+import EventDetailClientSection from "@/components/event-detail-client-section";
 
 interface EventDetailProps {
   event: Event;
@@ -45,12 +44,8 @@ export function EventDetail({ event }: EventDetailProps) {
               </SelectContent>
             </Select>
           </div>
-          
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <SaveEventButton eventSlug={event.slug} className="flex-1 sm:flex-none" />
-            <SubscribeEventButton eventSlug={event.slug} className="flex-1 sm:flex-none" />
-          </div>
+
+            <EventDetailClientSection eventSlug={event.slug}/>
         </div>
       </div>
       
