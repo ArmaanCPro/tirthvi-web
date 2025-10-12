@@ -1,5 +1,7 @@
 import { db } from '@/lib/drizzle'
 import { isPremium } from '@/lib/premium'
+import { chatConversations, chatMessages } from '@/lib/drizzle/schema'
+import { and, count, eq, gte, lt, sql } from 'drizzle-orm'
 
 export type ModelName = 'openai/gpt-5-mini' | 'openai/gpt-oss-120b'
 
@@ -49,24 +51,28 @@ function getTodayRange(): { start: Date; end: Date } {
  * We rely on chat_messages.metadata.model being set when writing assistant responses.
  */
 export async function getTodayAssistantCountByModel(userId: string, model: ModelName): Promise<number> {
-  const { start, end } = getTodayRange()
+    const { start, end } = getTodayRange()
 
-  try {
-    const [row] = await db.$client<{ count: string }[]>`\
-      SELECT COUNT(*)::text as count\
-      FROM chat_messages m\
-      JOIN chat_conversations c ON m.conversation_id = c.id\
-      WHERE c.user_id = ${userId}\
-        AND m.role = 'assistant'\
-        AND m.created_at >= ${start}\
-        AND m.created_at < ${end}\
-        AND (m.metadata->>'model') = ${model}\
-    `
-    return parseInt(row?.count || '0', 10)
-  } catch (e) {
-    console.error('Model usage count error', e)
-    return 0
-  }
+    try {
+        const result = await db
+            .select({ count: count() })
+            .from(chatMessages)
+            .innerJoin(chatConversations, eq(chatMessages.conversationId, chatConversations.id))
+            .where(
+                and(
+                    eq(chatConversations.userId, userId),
+                    eq(chatMessages.role, 'assistant'),
+                    gte(chatMessages.createdAt, start),
+                    lt(chatMessages.createdAt, end),
+                    eq(sql`(${chatMessages.metadata}->>'model')`, model)
+                )
+            )
+
+        return result[0]?.count || 0
+    } catch (e) {
+        console.error('Model usage count error', e)
+        return 0
+    }
 }
 
 /**

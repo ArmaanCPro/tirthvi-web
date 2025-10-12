@@ -100,6 +100,13 @@ export async function searchSimilarChunks(
   limit: number = 5
 ): Promise<RAGSearchResult> {
   try {
+    // Normalize embedding length to match DB dimension (1536 by default)
+    const TARGET_DIM = 1536
+    let embed = Array.isArray(queryEmbedding) ? queryEmbedding.slice(0, TARGET_DIM) : []
+    if (embed.length < TARGET_DIM) {
+      embed = embed.concat(Array(TARGET_DIM - embed.length).fill(0))
+    }
+
     // Prefer calling the Supabase SQL function for optimized vector search.
     // This works whether the embeddings column is native vector or stored as text (the function uses the proper type).
     const result = await db.$client<{
@@ -112,7 +119,7 @@ export async function searchSimilarChunks(
     }[]>`
       SELECT *
       FROM search_similar_chunks(
-        ${JSON.stringify(queryEmbedding)}::vector,
+        ${JSON.stringify(embed)}::vector,
         ${threshold},
         ${limit}
       )
