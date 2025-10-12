@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
-import { Calendar, BookOpen, Bot, Heart, User, Menu, X, Upload } from "lucide-react";
+import { Calendar, BookOpen, Shield, Bot, Heart, User, Menu, X, Upload } from "lucide-react";
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, Protect } from "@clerk/nextjs";
 
 export function Navigation() {
@@ -173,8 +173,16 @@ export function Navigation() {
                 AI Wisdom
               </Link>
             </Button>
-            
-            {isAdmin && (
+
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/privacy-policy" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Shield className="mr-2 h-4 w-4" />
+                      Privacy Policy
+                  </Link>
+              </Button>
+
+
+              {isAdmin && (
             <Button variant="ghost" className="w-full justify-start" asChild>
               <Link href="/upload" onClick={() => setIsMobileMenuOpen(false)}>
                 <Upload className="mr-2 h-4 w-4" />
