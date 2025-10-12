@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_SITE_URL!.toString() : "http://localhost:3000"),
   title: "Tirthvi - Hindu Wisdom Hub",
   description: "A digital hub and AI tool for Hindu wisdom, philosophy, and scripture",
+  alternates: {
+      canonical: "/",
+  },
   icons: {
       icon: [
           { url: '/tirthvi-icon.svg', type: 'image/svg+xml' },
