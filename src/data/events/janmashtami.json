@@ -1,0 +1,40 @@
+{
+  "id": "janmashtami",
+  "name": "Janmashtami",
+  "description": "<p><strong>Krishna Janmashtami</strong> celebrates the birth of <em>Lord Krishna</em>, the eighth avatar of Vishnu, known for his divine playfulness and profound teachings in the Bhagavad Gita.</p><h3>Significance</h3><p>Devotees observe fasting, devotional singing, and midnight vigils, marking the hour when Krishna was born in Mathura.</p>",
+  "image": {
+    "url": "/images/events/janmashtami.webp",
+    "caption": "Celebration of Lord Krishna’s birth",
+    "alt": "Krishna Janmashtami Image"
+  },
+  "externalLinks": [
+    {
+      "title": "ISKCON Janmashtami",
+      "url": "https://www.iskcondelhi.com/shri-krishna-janmashtami-leela/",
+      "description": "Learn about Krishna Janmashtami"
+    }
+  ],
+  "category": "religious",
+  "regions": ["north", "south", "east", "west"],
+  "slug": "janmashtami",
+  "occurrences": {
+    "2024": [
+      {
+        "date": "2024-08-26",
+        "startTime": "20:00",
+        "endTime": "23:59",
+        "timezone": "IST",
+        "significance": "Midnight celebration of Krishna's birth"
+      }
+    ],
+    "2025": [
+      {
+        "date": "2025-08-16",
+        "startTime": "20:00",
+        "endTime": "23:59",
+        "timezone": "IST",
+        "significance": "Midnight celebration of Krishna's birth"
+      }
+    ]
+  }
+}

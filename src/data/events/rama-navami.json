@@ -1,0 +1,45 @@
+{
+  "id": "rama-navami",
+  "name": "Rama Navami",
+  "description": "<p><strong>Rama Navami</strong> marks the birth of <em>Lord Rama</em>, the seventh avatar of Vishnu, celebrated as the embodiment of righteousness and dharma.</p><h3>Significance</h3><p>Devotees recite the <em>Ramayana</em>, offer prayers, and observe fasting in honor of Lord Rama’s birth in Ayodhya.</p>",
+  "image": {
+    "url": "/images/events/rama-navami.jpg",
+    "caption": "Devotees offering prayers to Lord Rama",
+    "alt": "Rama Navami celebration"
+  },
+  "externalLinks": [
+    {
+      "title": "ISKCON Rama Navami",
+      "url": "https://iskcondesiretree.com/page/rama-navami-appearance-day-of/",
+      "description": "Explore the meaning of Rama Navami"
+    }
+  ],
+  "category": "religious",
+  "regions": [
+    "north",
+    "south",
+    "east",
+    "west"
+  ],
+  "slug": "rama-navami",
+  "occurrences": {
+    "2024": [
+      {
+        "date": "2024-04-17",
+        "startTime": "06:00",
+        "endTime": "22:00",
+        "timezone": "IST",
+        "significance": "Main celebration of Lord Rama’s birth"
+      }
+    ],
+    "2025": [
+      {
+        "date": "2025-04-06",
+        "startTime": "06:00",
+        "endTime": "22:00",
+        "timezone": "IST",
+        "significance": "Main celebration of Lord Rama’s birth"
+      }
+    ]
+  }
+}

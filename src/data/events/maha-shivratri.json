@@ -1,0 +1,40 @@
+{
+  "id": "maha-shivaratri",
+  "name": "Maha Shivaratri",
+  "description": "<p><strong>Maha Shivaratri</strong>, meaning 'The Great Night of Shiva', is dedicated to <em>Lord Shiva</em> and observed with night-long vigils, fasting, and meditation.</p><h3>Significance</h3><p>The festival symbolizes <em>the overcoming of darkness and ignorance</em> in life and the world through Shiva’s grace.</p>",
+  "image": {
+    "url": "/images/events/maha-shivratri.webp",
+    "caption": "Devotees performing night vigil on Maha Shivaratri",
+    "alt": "Maha Shivaratri worship"
+  },
+  "externalLinks": [
+    {
+      "title": "Maha Shivaratri - Isha Foundation",
+      "url": "https://isha.sadhguru.org/mahashivratri/",
+      "description": "Learn about the significance of Maha Shivaratri and how it is observed"
+    }
+  ],
+  "category": "religious",
+  "regions": ["north", "south", "east", "west"],
+  "slug": "maha-shivaratri",
+  "occurrences": {
+    "2024": [
+      {
+        "date": "2024-03-08",
+        "startTime": "18:00",
+        "endTime": "06:00",
+        "timezone": "IST",
+        "significance": "Main night vigil and worship"
+      }
+    ],
+    "2025": [
+      {
+        "date": "2025-02-26",
+        "startTime": "18:00",
+        "endTime": "06:00",
+        "timezone": "IST",
+        "significance": "Main night vigil and worship"
+      }
+    ]
+  }
+}
