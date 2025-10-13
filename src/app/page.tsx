@@ -16,7 +16,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <Particles className="absolute inset-0 pointer-events-none" quantity={80} ease={80} refresh color={"#ffffff"}/>
-        <div className="container mx-auto px-4 py-20 lg:py-32">
+        <div className="relative z-20 container mx-auto px-4 py-20 lg:py-32">
           <div className="text-center max-w-4xl mx-auto">
 
               <Magnetic>
@@ -30,8 +30,8 @@ export default function Home() {
                 />
               </Magnetic>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-center justify-center items-center">
-              Welcome to
-                    <ShimmeringText className="text-primary text-5xl md:text-7xl" text=" Tirthvi" wave />
+              Welcome to&nbsp;
+                    <ShimmeringText className="text-primary text-5xl md:text-7xl" text="Tirthvi" wave />
             </h1>
 
               <BlurText
