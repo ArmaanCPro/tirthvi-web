@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import type { ComponentProps } from 'react';
 
 import {SignedIn, SignedOut, SignInButton, SignUpButton, UserButton} from '@clerk/nextjs';
+import Link from "next/link";
 
 // Simple logo component for the navbar
 const Logo = (props: React.SVGAttributes<SVGElement>) => {
@@ -293,15 +294,16 @@ export const Navbar02 = React.forwardRef<HTMLElement, Navbar02Props>(
             )}
             {/* Main nav */}
             <div className="flex items-center gap-6">
-              <button 
-                
-                className="flex items-center space-x-2 text-primary hover:text-primary/90 transition-colors cursor-pointer"
-              >
-                <div className="text-2xl">
-                  {logo}
-                </div>
-                <span className="hidden font-bold text-xl sm:inline-block">Tirthvi</span>
-              </button>
+                <Link href={logoHref} className="flex items-center space-x-2 text-primary hover:text-primary/90 transition-colors cursor-pointer">
+                  <button
+                    className="flex items-center space-x-2 text-primary hover:text-primary/90 transition-colors cursor-pointer"
+                  >
+                    <div className="text-2xl">
+                      {logo}
+                    </div>
+                    <span className="font-bold text-xl sm:inline-block text-foreground">Tirthvi</span>
+                  </button>
+                </Link>
               {/* Navigation menu */}
               {!isMobile && (
                 <NavigationMenu className="flex">

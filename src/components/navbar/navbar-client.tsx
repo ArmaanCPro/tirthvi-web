@@ -8,7 +8,8 @@ export type NavbarClientProps = {
     isPremium?: boolean,
 }
 
-const Logo: React.ReactNode = <Image src="/tirthvi-icon.svg" alt="logo" width={28} height={28} priority />
+const Logo: React.ReactNode = <Image src="/tirthvi-icon.svg" alt="logo" width={28} height={28} priority
+                                     className="rounded-md h-7 w-7" />
 
 export default function NavbarClient({
     isAdmin = false,
