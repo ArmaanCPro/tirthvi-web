@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {Calendar, BookOpen, Bot, Heart, Shield} from "lucide-react";
+import { Magnetic } from "@/components/ui/shadcn-io/magnetic";
+import { LiquidButton } from "@/components/ui/shadcn-io/liquid-button";
 
 export default function Home() {
   return (
@@ -25,19 +27,21 @@ export default function Home() {
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Your gateway to Hindu wisdom, sacred calendar, scriptures, and AI-powered spiritual guidance
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild className="px-8 py-6 text-lg md:px-10 md:py-7 md:text-xl">
-                <Link href="/calendar">
-                  <Calendar className="mr-2 h-6 w-6 md:h-7 md:w-7" />
-                  Explore Calendar
-                </Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild className="px-8 py-6 text-lg md:px-10 md:py-7 md:text-xl">
+            <div className="flex flex-col sm:flex-row gap-8 justify-center">
+                <Magnetic>
+                  <Button size="lg" asChild className="px-8 py-6 text-lg md:px-10 md:py-7 md:text-xl">
+                    <Link href="/calendar">
+                      <Calendar className="mr-2 h-6 w-6 md:h-7 md:w-7" />
+                      Explore Calendar
+                    </Link>
+                  </Button>
+                </Magnetic>
+              <LiquidButton variant="default" size="lg" className="px-8 py-6 text-lg md:px-10 md:py-7 md:text-xl">
                 <Link href="/chat">
                   <Bot className="mr-2 h-6 w-6 md:h-7 md:w-7" />
                   Ask AI Wisdom
                 </Link>
-              </Button>
+              </LiquidButton>
             </div>
           </div>
         </div>
