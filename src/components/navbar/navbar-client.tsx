@@ -8,7 +8,7 @@ export type NavbarClientProps = {
     isPremium?: boolean,
 }
 
-const Logo: React.ReactNode = <Image src="/tirthvi-logo.svg" alt="logo" width={100} height={100} />
+const Logo: React.ReactNode = <Image src="/tirthvi-icon.svg" alt="logo" width={28} height={28} priority />
 
 export default function NavbarClient({
     isAdmin = false,
@@ -33,8 +33,8 @@ export default function NavbarClient({
         submenu: true,
         type: 'icon',
         items: [
-            { href: '/privacy-policy', label: 'Privacy Policy', icon: 'shield' },
-            { href: '/about-us', label: 'About Us', icon: 'info' },
+            { href: '/privacy-policy', label: 'Privacy Policy', icon: 'ShieldIcon' },
+            { href: '/about', label: 'About Us', icon: 'InfoIcon' },
         ]
     });
 

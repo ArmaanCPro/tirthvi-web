@@ -4,7 +4,7 @@ import NavbarClient from './navbar-client'
 import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 
-export default async function NavbarWrapper(){
+export default function NavbarWrapper(){
 
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [isPremium, setIsPremium] = useState<boolean>(false);

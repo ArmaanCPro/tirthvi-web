@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useEffect, useState, useRef } from 'react';
-import { BookOpenIcon, InfoIcon, LifeBuoyIcon } from 'lucide-react';
+import {BookOpenIcon, InfoIcon, LifeBuoyIcon, ShieldIcon} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   NavigationMenu,
@@ -146,9 +146,9 @@ const defaultNavigationLinks: Navbar02NavItem[] = [
     submenu: true,
     type: 'icon',
     items: [
-      { href: '#getting-started', label: 'Getting Started', icon: 'BookOpenIcon' },
-      { href: '#tutorials', label: 'Tutorials', icon: 'LifeBuoyIcon' },
-      { href: '#about-us', label: 'About Us', icon: 'InfoIcon' },
+      { href: '/getting-started', label: 'Getting Started', icon: 'BookOpenIcon' },
+      { href: '/tutorials', label: 'Tutorials', icon: 'LifeBuoyIcon' },
+      { href: '/about-us', label: 'About Us', icon: 'InfoIcon' },
     ],
   },
 ];
@@ -254,7 +254,7 @@ export const Navbar02 = React.forwardRef<HTMLElement, Navbar02Props>(
                                 {link.items?.map((item, itemIndex) => (
                                   <li key={itemIndex}>
                                     <button
-                                      onClick={(e) => e.preventDefault()}
+                                      
                                       className="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer no-underline"
                                     >
                                       {item.label}
@@ -265,7 +265,7 @@ export const Navbar02 = React.forwardRef<HTMLElement, Navbar02Props>(
                             </>
                           ) : (
                             <button
-                              onClick={(e) => e.preventDefault()}
+                              
                               className="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer no-underline"
                             >
                               {link.label}
@@ -294,7 +294,7 @@ export const Navbar02 = React.forwardRef<HTMLElement, Navbar02Props>(
             {/* Main nav */}
             <div className="flex items-center gap-6">
               <button 
-                onClick={(e) => e.preventDefault()}
+                
                 className="flex items-center space-x-2 text-primary hover:text-primary/90 transition-colors cursor-pointer"
               >
                 <div className="text-2xl">
@@ -319,7 +319,7 @@ export const Navbar02 = React.forwardRef<HTMLElement, Navbar02Props>(
                               <div className="row-span-3">
                                 <NavigationMenuLink asChild>
                                   <button
-                                    onClick={(e) => e.preventDefault()}
+                                    
                                     className="flex h-full w-full select-none flex-col justify-center items-center text-center rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md cursor-pointer"
                                   >
                                     <div className="mb-3 text-xl font-medium">
@@ -389,7 +389,7 @@ export const Navbar02 = React.forwardRef<HTMLElement, Navbar02Props>(
                       <NavigationMenuLink
                         href={link.href}
                         className={cn(navigationMenuTriggerStyle(), 'cursor-pointer')}
-                        onClick={(e) => e.preventDefault()}
+                        
                       >
                         {link.label}
                       </NavigationMenuLink>
@@ -437,7 +437,7 @@ export const Navbar02 = React.forwardRef<HTMLElement, Navbar02Props>(
                   <UserButton afterSignOutUrl={signInHref}
                     appearance={{
                         elements: {
-                            avatarBox: 'h-10 w-10',
+                            avatarBox: 'h-8 w-8',
                         }
                     }}
                   />
@@ -472,6 +472,8 @@ const ListItem = React.forwardRef<
         return <LifeBuoyIcon className="h-5 w-5" />;
       case 'InfoIcon':
         return <InfoIcon className="h-5 w-5" />;
+      case 'ShieldIcon':
+            return <ShieldIcon className="h-5 w-5" />;
       default:
         return null;
     }
@@ -481,7 +483,7 @@ const ListItem = React.forwardRef<
     <NavigationMenuLink asChild>
       <a
         ref={ref}
-        onClick={(e) => e.preventDefault()}
+        
         className={cn(
           'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer',
           className
