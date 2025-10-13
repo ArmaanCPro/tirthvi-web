@@ -1,7 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@plugin "@tailwindcss/typography";
 
+@custom-variant dark (&:is(.dark *));
+@plugin "@tailwindcss/typography";
 
 @theme inline {
   --color-background: var(--background);
@@ -41,6 +42,16 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --animate-aurora: aurora 60s linear infinite;
+  @keyframes aurora {
+  from {
+    backgroundPosition: 50% 50%, 50% 50%;
+    }
+  to {
+    backgroundPosition: 350% 50%, 350% 50%;
+    }
+  }
+  --animate-spin: spin 2s linear infinite
 }
 
 :root {
@@ -78,7 +89,6 @@
   --sidebar-ring: oklch(0.6 0.12 50);
 }
 
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -98,7 +108,6 @@
     @apply text-base md:text-lg;
   }
 }
-
 
 /* Ensure Clerk Billing/Authentication overlays appear above the sticky navbar */
 :where(#clerk-portal-root),

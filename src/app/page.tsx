@@ -7,12 +7,15 @@ import { Magnetic } from "@/components/ui/shadcn-io/magnetic";
 import { LiquidButton } from "@/components/ui/shadcn-io/liquid-button";
 import {ShimmeringText} from "@/components/ui/shadcn-io/shimmering-text";
 import BlurText from "@/components/ui/shadcn-io/blur-text";
+import { BackgroundBeams } from "@/components/ui/shadcn-io/background-beams";
+import { Particles } from "@/components/ui/shadcn-io/particles";
 
 export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5">
+          <BackgroundBeams className="absolute inset-0 -z-10 backdrop-blur-2xl" />
         <div className="container mx-auto px-4 py-20 lg:py-32">
           <div className="text-center max-w-4xl mx-auto">
 
