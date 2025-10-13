@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import {Calendar, BookOpen, Bot, Heart, Shield} from "lucide-react";
 import { Magnetic } from "@/components/ui/shadcn-io/magnetic";
 import { LiquidButton } from "@/components/ui/shadcn-io/liquid-button";
-import { BackgroundGradient } from "@/components/ui/shadcn-io/background-gradient"
+import {ShimmeringText} from "@/components/ui/shadcn-io/shimmering-text";
+import BlurText from "@/components/ui/shadcn-io/blur-text";
 
 export default function Home() {
   return (
@@ -26,11 +27,17 @@ export default function Home() {
                 />
               </Magnetic>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-              Welcome to <span className="text-primary">Tirthvi</span>
+              Welcome to
+                    <ShimmeringText className="text-primary text-5xl md:text-7xl" text=" Tirthvi" wave />
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Your gateway to Hindu wisdom, sacred calendar, scriptures, and AI-powered spiritual guidance
-            </p>
+
+              <BlurText
+                  className="text-xl md:text-2xl justify-center items-center text-muted-foreground mb-8 max-w-2xl mx-auto"
+                  delay={150}
+                  animateBy="words"
+                  direction="top"
+                  text="Your gateway to Hindu wisdom, sacred calendar, scriptures, and AI-powered spiritual guidance"
+              />
 
             <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
                 <Magnetic>
