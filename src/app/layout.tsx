@@ -7,7 +7,6 @@ import ClerkClientProvider from "@/components/clerk/ClerkProviderLazy";
 import LazyAnalytics from "@/components/lazy-analytics";
 
 
-// lazy load analytic
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -73,8 +72,6 @@ export const metadata: Metadata = {
   }
 };
 
-export const dynamic = "force-static";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -85,12 +82,12 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
         >
-          <ClerkClientProvider>
+            <ClerkClientProvider>
               <Navigation />
               <main className="min-h-screen">
                 {children}
               </main>
-          </ClerkClientProvider>
+            </ClerkClientProvider>
 
           <LazyAnalytics />
           <Toaster />
