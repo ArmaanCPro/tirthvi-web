@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import {Calendar, BookOpen, Bot, Heart, Shield} from "lucide-react";
 import { Magnetic } from "@/components/ui/shadcn-io/magnetic";
 import { LiquidButton } from "@/components/ui/shadcn-io/liquid-button";
+import { BackgroundGradient } from "@/components/ui/shadcn-io/background-gradient"
 
 export default function Home() {
   return (
@@ -27,7 +28,8 @@ export default function Home() {
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Your gateway to Hindu wisdom, sacred calendar, scriptures, and AI-powered spiritual guidance
             </p>
-            <div className="flex flex-col sm:flex-row gap-8 justify-center">
+
+            <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
                 <Magnetic>
                   <Button size="lg" asChild className="px-8 py-6 text-lg md:px-10 md:py-7 md:text-xl">
                     <Link href="/calendar">
@@ -36,12 +38,13 @@ export default function Home() {
                     </Link>
                   </Button>
                 </Magnetic>
-              <LiquidButton variant="default" size="lg" className="px-8 py-6 text-lg md:px-10 md:py-7 md:text-xl">
-                <Link href="/chat">
-                  <Bot className="mr-2 h-6 w-6 md:h-7 md:w-7" />
-                  Ask AI Wisdom
-                </Link>
-              </LiquidButton>
+
+                <LiquidButton variant="default" size="lg" className="px-8 py-6 text-lg md:px-10 md:py-7 md:text-xl shadow-md shadow-orange-300">
+                    <Link href="/chat">
+                      <Bot className="mr-2 h-6 w-6 md:h-7 md:w-7" />
+                      Ask AI Wisdom
+                    </Link>
+                </LiquidButton>
             </div>
           </div>
         </div>
