@@ -26,7 +26,7 @@ export default function Home() {
                   className="mx-auto mb-6 h-24 w-24 rounded-xl"
                 />
               </Magnetic>
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-center justify-center items-center">
               Welcome to
                     <ShimmeringText className="text-primary text-5xl md:text-7xl" text=" Tirthvi" wave />
             </h1>
