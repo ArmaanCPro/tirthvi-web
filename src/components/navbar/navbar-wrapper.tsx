@@ -1,16 +1,37 @@
-import { auth } from '@clerk/nextjs/server'
-import { isAdmin } from '@/lib/auth'
+'use client'
+
 import NavbarClient from './navbar-client'
+import { useEffect, useState } from 'react'
+import { useUser } from '@clerk/nextjs'
 
 export default async function NavbarWrapper(){
-    const { userId, has } = await auth()
 
-    if (!userId) {
-        return <NavbarClient />
-    }
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const [isPremium, setIsPremium] = useState<boolean>(false);
 
-    const admin = isAdmin(userId!);
-    const premium = has({plan: 'premium'});
+    useEffect(() => {
+        let active = true;
+        fetch('/api/auth/admin')
+            .then((res) => res.json())
+            .then((data) => {
+                if (active) setIsAdmin(!!data?.isAdmin);
+            })
+            .catch(() => {
+                if (active) setIsAdmin(false);
+            });
+    }, []);
 
-    return <NavbarClient isAdmin={await admin} isPremium={premium} />
+    useEffect(() => {
+        let active = true;
+        fetch('/api/auth/premium')
+            .then((res) => res.json())
+            .then((data) => {
+                if (active) setIsPremium(!!data?.isPremium);
+            })
+            .catch(() => {
+                if (active) setIsPremium(false);
+            });
+    }, []);
+
+    return <NavbarClient isAdmin={isAdmin} isPremium={isPremium} />
 }
