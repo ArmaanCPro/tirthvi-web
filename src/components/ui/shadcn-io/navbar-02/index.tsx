@@ -21,6 +21,8 @@ import {
 import { cn } from '@/lib/utils';
 import type { ComponentProps } from 'react';
 
+import {SignedIn, SignedOut, SignInButton, SignUpButton, UserButton} from '@clerk/nextjs';
+
 // Simple logo component for the navbar
 const Logo = (props: React.SVGAttributes<SVGElement>) => {
   return (
@@ -298,7 +300,7 @@ export const Navbar02 = React.forwardRef<HTMLElement, Navbar02Props>(
                 <div className="text-2xl">
                   {logo}
                 </div>
-                <span className="hidden font-bold text-xl sm:inline-block">shadcn.io</span>
+                <span className="hidden font-bold text-xl sm:inline-block">Tirthvi</span>
               </button>
               {/* Navigation menu */}
               {!isMobile && (
@@ -401,27 +403,46 @@ export const Navbar02 = React.forwardRef<HTMLElement, Navbar02Props>(
           </div>
           {/* Right side */}
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-              onClick={(e) => {
-                e.preventDefault();
-                if (onSignInClick) onSignInClick();
-              }}
-            >
-              {signInText}
-            </Button>
-            <Button
-              size="sm"
-              className="text-sm font-medium px-4 h-9 rounded-md shadow-sm"
-              onClick={(e) => {
-                e.preventDefault();
-                if (onCtaClick) onCtaClick();
-              }}
-            >
-              {ctaText}
-            </Button>
+
+              <SignedOut>
+                  <SignInButton mode="modal">
+                      <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+                          onClick={(e) => {
+                              e.preventDefault();
+                              if (onSignInClick) onSignInClick();
+                          }}
+                      >
+                          {signInText}
+                      </Button>
+                  </SignInButton>
+
+                  <SignUpButton mode="modal">
+                      <Button
+                          size="sm"
+                          className="text-sm font-medium px-4 h-9 rounded-md shadow-sm"
+                          onClick={(e) => {
+                              e.preventDefault();
+                              if (onCtaClick) onCtaClick();
+                          }}
+                      >
+                          {ctaText}
+                      </Button>
+                  </SignUpButton>
+              </SignedOut>
+
+              <SignedIn>
+                  <UserButton afterSignOutUrl={signInHref}
+                    appearance={{
+                        elements: {
+                            avatarBox: 'h-10 w-10',
+                        }
+                    }}
+                  />
+              </SignedIn>
+
           </div>
         </div>
       </header>

@@ -5,7 +5,9 @@ import { Navigation } from "@/components/navigation";
 import { Toaster } from "@/components/ui/sonner"
 import ClerkClientProvider from "@/components/clerk/ClerkProviderLazy";
 import LazyAnalytics from "@/components/lazy-analytics";
+import dynamic from "next/dynamic";
 
+const NavbarWrapper = dynamic(() => import("@/components/navbar/navbar-wrapper") );
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -83,7 +85,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
         >
             <ClerkClientProvider>
-              <Navigation />
+              <NavbarWrapper />
               <main className="min-h-screen">
                 {children}
               </main>
