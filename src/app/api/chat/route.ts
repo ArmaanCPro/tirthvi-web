@@ -1,4 +1,4 @@
-import { streamText } from 'ai'
+import { streamText, convertToModelMessages } from 'ai'
 import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/drizzle'
@@ -84,16 +84,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Convert UI messages to model messages
-    const modelMessages = messages.map((msg: { role: string; content?: string; parts?: Array<{ type: string; text?: string }> }) => {
-      if (msg.role === 'user') {
-        const content = msg.content || msg.parts?.[0]?.text || ''
-        return { role: 'user' as const, content }
-      } else if (msg.role === 'assistant') {
-        const content = msg.content || msg.parts?.[0]?.text || ''
-        return { role: 'assistant' as const, content }
-      }
-      return msg
-    })
+    const modelMessages = convertToModelMessages(messages)
 
     // Get or create conversation (only if user exists)
     let convId = conversationId
