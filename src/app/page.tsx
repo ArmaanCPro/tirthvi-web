@@ -15,7 +15,7 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5">
-          <BackgroundBeams className="absolute inset-0 -z-10 backdrop-blur-2xl" />
+        <Particles className="absolute inset-0 pointer-events-none" quantity={80} ease={80} refresh color={"#ffffff"}/>
         <div className="container mx-auto px-4 py-20 lg:py-32">
           <div className="text-center max-w-4xl mx-auto">
 
