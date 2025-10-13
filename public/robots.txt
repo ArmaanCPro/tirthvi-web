@@ -14,5 +14,5 @@ Allow: /images/
 Allow: /favicon.ico
 Allow: /site.webmanifest
 
-# Sitemap location (you should create this)
+# Sitemap location
 Sitemap: https://www.tirthvi.com/sitemap.xml

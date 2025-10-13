@@ -5,11 +5,19 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { Bell, Calendar, ExternalLink, Trash2 } from 'lucide-react'
+import {Bell, Bookmark, Calendar, ExternalLink, Trash2} from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty'
 import { getNextOccurrence, formatEventDate } from '@/lib/event-utils'
 
 interface SubscribedEvent {
@@ -116,16 +124,25 @@ export function SubscribedEventsList() {
 
   if (subscribedEvents.length === 0) {
     return (
-      <div className="text-center py-8">
-        <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-semibold mb-2">No subscribed events yet</h3>
-        <p className="text-muted-foreground mb-4">
-          Subscribe to events to get notifications about upcoming celebrations
-        </p>
-        <Button asChild>
-          <Link href="/calendar">Browse Events</Link>
-        </Button>
-      </div>
+        <div className="text-center py-8">
+            <Empty>
+                <EmptyHeader>
+                    <EmptyMedia variant={"icon"}>
+                        <Bell />
+                    </EmptyMedia>
+                    <EmptyTitle>No subscribed events yet</EmptyTitle>
+                    <EmptyDescription>
+                        Subscribe to events to get notifications about upcoming celebrations
+                    </EmptyDescription>
+                </EmptyHeader>
+
+                <EmptyContent>
+                    <Button asChild>
+                        <Link href="/calendar">Browse Events</Link>
+                    </Button>
+                </EmptyContent>
+            </Empty>
+        </div>
     )
   }
 

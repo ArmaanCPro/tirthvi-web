@@ -4,6 +4,14 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { Bookmark, Calendar, ExternalLink, Trash2, Edit3 } from 'lucide-react'
 import Link from 'next/link'
@@ -124,16 +132,25 @@ export function SavedEventsList() {
 
   if (savedEvents.length === 0) {
     return (
-      <div className="text-center py-8">
-        <Bookmark className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-semibold mb-2">No saved events yet</h3>
-        <p className="text-muted-foreground mb-4">
-          Start exploring events and save the ones you&apos;re interested in
-        </p>
-        <Button asChild>
-          <Link href="/calendar">Browse Events</Link>
-        </Button>
-      </div>
+        <div className="text-center py-8">
+            <Empty>
+                <EmptyHeader>
+                    <EmptyMedia variant={"icon"}>
+                        <Bookmark />
+                    </EmptyMedia>
+                    <EmptyTitle>No saved events yet</EmptyTitle>
+                    <EmptyDescription>
+                        Start exploring events and save the ones you&apos;re interested in
+                    </EmptyDescription>
+                </EmptyHeader>
+
+                <EmptyContent>
+                    <Button asChild>
+                        <Link href="/calendar">Browse Events</Link>
+                    </Button>
+                </EmptyContent>
+            </Empty>
+        </div>
     )
   }
 
