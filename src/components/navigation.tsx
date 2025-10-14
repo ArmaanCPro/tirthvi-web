@@ -9,6 +9,20 @@ import { Calendar, BookOpen, Shield, Bot, Heart, User, Menu, X, Upload, Info } f
 import { cn } from "@/lib/utils";
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, Protect } from "@clerk/nextjs";
 
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    setMatches(media.matches);
+    const listener = () => setMatches(media.matches);
+    media.addEventListener("change", listener);
+    return () => media.removeEventListener("change", listener);
+  }, [matches, query]);
+
+  return matches;
+}
+
 // Animated Hamburger Icon component
 const HamburgerIcon = ({ className, ...props }: React.SVGAttributes<SVGElement>) => (
   <svg
@@ -42,7 +56,6 @@ const HamburgerIcon = ({ className, ...props }: React.SVGAttributes<SVGElement>)
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -58,26 +71,7 @@ export function Navigation() {
     return () => { active = false }
   }, [])
 
-  // Check for mobile breakpoint
-  useEffect(() => {
-    const checkWidth = () => {
-      if (containerRef.current) {
-        const width = containerRef.current.offsetWidth;
-        setIsMobile(width < 768); // 768px is md breakpoint
-      }
-    };
-
-    checkWidth();
-
-    const resizeObserver = new ResizeObserver(checkWidth);
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   return (
     <header 
