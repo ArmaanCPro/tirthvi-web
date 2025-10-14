@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
-import { Navigation } from "@/components/navigation";
+import { Navigation } from "@/components/navbar/navigation";
 import { Toaster } from "@/components/ui/sonner"
 import ClerkClientProvider from "@/components/clerk/ClerkProviderLazy";
 import LazyAnalytics from "@/components/lazy-analytics";
 import dynamic from "next/dynamic";
-
-const NavbarWrapper = dynamic(() => import("@/components/navbar/navbar-wrapper") );
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
