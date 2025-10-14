@@ -4,8 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
-import { Calendar, BookOpen, Shield, Bot, Heart, User, Menu, X, Upload, Info } from "lucide-react";
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
+import { Calendar, BookOpen, Shield, Bot, Heart, User, Upload, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, Protect } from "@clerk/nextjs";
 

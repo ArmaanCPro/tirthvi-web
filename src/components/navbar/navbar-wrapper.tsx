@@ -2,7 +2,6 @@
 
 import NavbarClient from './navbar-client'
 import { useEffect, useState } from 'react'
-import { useUser } from '@clerk/nextjs'
 
 export default function NavbarWrapper(){
 
@@ -10,7 +9,7 @@ export default function NavbarWrapper(){
     const [isPremium, setIsPremium] = useState<boolean>(false);
 
     useEffect(() => {
-        let active = true;
+        const active = true;
         fetch('/api/auth/admin')
             .then((res) => res.json())
             .then((data) => {
@@ -22,7 +21,7 @@ export default function NavbarWrapper(){
     }, []);
 
     useEffect(() => {
-        let active = true;
+        const active = true;
         fetch('/api/auth/premium')
             .then((res) => res.json())
             .then((data) => {
