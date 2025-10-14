@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useEffect, useState, useRef } from 'react';
-import {BookOpenIcon, InfoIcon, LifeBuoyIcon, ShieldIcon} from 'lucide-react';
+import {BookOpenIcon, InfoIcon, LifeBuoyIcon, ShieldIcon, User} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   NavigationMenu,
@@ -436,6 +436,12 @@ export const Navbar02 = React.forwardRef<HTMLElement, Navbar02Props>(
               </SignedOut>
 
               <SignedIn>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/dashboard">
+                    <User className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </Button>
                   <UserButton afterSignOutUrl={signInHref}
                     appearance={{
                         elements: {

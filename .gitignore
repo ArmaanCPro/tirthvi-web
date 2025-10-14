@@ -30,6 +30,7 @@
 .vs
 .cache
 .fleet
+.cursor
 
 # debug
 npm-debug.log*

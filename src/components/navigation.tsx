@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
-import { Calendar, BookOpen, Shield, Bot, Heart, User, Menu, X, Upload } from "lucide-react";
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
+import { Calendar, BookOpen, Shield, Bot, Heart, User, Menu, X, Upload, Info } from "lucide-react";
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, Protect } from "@clerk/nextjs";
 
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const containerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     let active = true
@@ -25,14 +27,38 @@ export function Navigation() {
     return () => { active = false }
   }, [])
 
+  // Check for mobile breakpoint
+  useEffect(() => {
+    const checkWidth = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.offsetWidth;
+        setIsMobile(width < 768); // 768px is md breakpoint
+      }
+    };
+
+    checkWidth();
+
+    const resizeObserver = new ResizeObserver(checkWidth);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header 
+      ref={containerRef}
+      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+    >
       <nav className="container flex mx-auto h-16 items-center justify-between px-4">
         {/* Mobile Menu Button */}
         <Button
           variant="ghost"
           size="sm"
-          className="md:hidden"
+          className={isMobile ? "flex" : "hidden"}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? (
@@ -55,48 +81,92 @@ export function Navigation() {
           <span className="text-xl font-bold">Tirthvi</span>
         </Link>
 
-        {/* Desktop Navigation - Centered */}
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList className="flex items-center gap-1">
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/calendar" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 text-base md:text-lg font-medium leading-none transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                  <Calendar className="h-5 w-5" />
-                  Events Calendar
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/scriptures" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 text-base md:text-lg font-medium leading-none transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                  <BookOpen className="h-5 w-5" />
-                  Scriptures
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/chat" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 text-base md:text-lg font-medium leading-none transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                  <Bot className="h-5 w-5" />
-                  AI Wisdom
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            
-            {isAdmin && (
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/upload" className="inline-flex h-10 items-center gap-2 rounded-md bg-background px-4 text-base md:text-lg font-medium leading-none transition-colors hover:bg-accent/80 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                  <Upload className="h-5 w-5" />
-                  Upload
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            )}
-          </NavigationMenuList>
-        </NavigationMenu>
+        {/* Desktop Navigation - Left Aligned */}
+        {!isMobile && (
+          <NavigationMenu className="flex">
+            <NavigationMenuList className="flex items-center gap-1">
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/calendar" className="inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
+                    <Calendar className="h-4 w-4" />
+                    Events Calendar
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/scriptures" className="inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
+                    <BookOpen className="h-4 w-4" />
+                    Scriptures
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/chat" className="inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
+                    <Bot className="h-4 w-4" />
+                    AI Wisdom
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              
+              {isAdmin && (
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link href="/upload" className="inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
+                      <Upload className="h-4 w-4" />
+                      Upload
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )}
+
+              {/* About Dropdown */}
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
+                  <Info className="h-4 w-4" />
+                  About
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid w-[400px] gap-3 p-4">
+                    <NavigationMenuLink asChild>
+                      <Link href="/privacy-policy" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Shield className="h-5 w-5" />
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-base font-medium leading-tight">Privacy Policy</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Learn about our privacy practices and data protection.
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link href="/about" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Info className="h-5 w-5" />
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-base font-medium leading-tight">About Us</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Learn more about Tirthvi and our mission.
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+        )}
 
         {/* Right side actions */}
 
@@ -150,8 +220,8 @@ export function Navigation() {
       </nav>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {isMobileMenuOpen && isMobile && (
+        <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="container mx-auto px-4 py-4 space-y-2">
             <Button variant="ghost" className="w-full justify-start" asChild>
               <Link href="/calendar" onClick={() => setIsMobileMenuOpen(false)}>

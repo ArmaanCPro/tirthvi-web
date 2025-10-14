@@ -85,7 +85,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
         >
             <ClerkClientProvider>
-              <NavbarWrapper />
+              <Navigation />
               <main className="min-h-screen">
                 {children}
               </main>
