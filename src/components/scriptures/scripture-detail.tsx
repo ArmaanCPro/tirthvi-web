@@ -15,22 +15,22 @@ interface ScriptureDetailProps {
 
 export function ScriptureDetail({ scripture }: ScriptureDetailProps) {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="container mx-auto px-4 py-6 sm:py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6 sm:space-y-8">
           {/* Header */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h1 className="text-4xl font-bold">{scripture.title}</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <h1 className="text-3xl sm:text-4xl font-bold">{scripture.title}</h1>
               {scripture.isPremium && (
-                <Badge variant="secondary" className="bg-amber-100 text-amber-800">
+                <Badge variant="secondary" className="bg-amber-100 text-amber-800 self-start">
                   Premium
                 </Badge>
               )}
             </div>
             
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
               {scripture.description}
             </p>
           </div>
@@ -82,7 +82,7 @@ export function ScriptureDetail({ scripture }: ScriptureDetailProps) {
               <CardTitle>Scripture Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {scripture.metadata.chapters && (
                   <div className="flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-muted-foreground" />

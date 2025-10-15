@@ -50,7 +50,7 @@ export function DownloadButton({ scripture }: DownloadButtonProps) {
 
     if (!user) {
         return (
-            <Button disabled className="w-full cursor-not-allowed">
+            <Button disabled className="w-full cursor-not-allowed min-h-[44px]">
                 <Download className="w-4 h-4 mr-2" />
                 Sign in to download
             </Button>
@@ -64,7 +64,7 @@ export function DownloadButton({ scripture }: DownloadButtonProps) {
             <Button
                 onClick={handleDownload}
                 disabled={downloading}
-                className="w-full cursor-pointer"
+                className="w-full cursor-pointer min-h-[44px]"
             >
                 {downloading ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -78,7 +78,7 @@ export function DownloadButton({ scripture }: DownloadButtonProps) {
             <Button
                 onClick={handleDownload}
                 disabled={downloading}
-                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 cursor-pointer"
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 cursor-pointer min-h-[44px]"
             >
                 {downloading ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />

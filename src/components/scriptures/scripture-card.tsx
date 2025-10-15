@@ -44,18 +44,18 @@ export function ScriptureCard({ scripture }: ScriptureCardProps) {
 
                 <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                     {scripture.metadata.chapters && (
-                        <span>
+                        <span className="whitespace-nowrap">
                             {scripture.metadata.chapters} chapters
                         </span>
                     )}
                     {scripture.metadata.verses && (
-                        <span>{scripture.metadata.verses} verses</span>
+                        <span className="whitespace-nowrap">{scripture.metadata.verses} verses</span>
                     )}
                     {scripture.metadata.language && (
-                        <span>{scripture.metadata.language} language</span>
+                        <span className="whitespace-nowrap">{scripture.metadata.language}</span>
                     )}
                     {scripture.metadata.author && (
-                        <span>{scripture.metadata.author} author</span>
+                        <span className="whitespace-nowrap">{scripture.metadata.author}</span>
                     )}
                 </div>
             </CardHeader>
@@ -75,21 +75,11 @@ export function ScriptureCard({ scripture }: ScriptureCardProps) {
                                 href={link.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-full justify-start"
+                                className="flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors"
                             >
-                                <ExternalLink className="w-4 h-4 mr-2" />
-                                {link.title}
+                                <ExternalLink className="w-4 h-4 mr-2 flex-shrink-0" />
+                                <span className="truncate">{link.title}</span>
                             </a>
-                            /*
-                            <div key={index}>
-                                <Button asChild variant="outline" className="w-full justify-start">
-                                    <Link href={link.url} target="_blank" rel="noopener noreferrer">
-                                        {link.title}
-                                    </Link>
-                                    <p className="text-sm text-muted-foreground mt-1">{link.description}</p>
-                                </Button>
-                            </div>
-                            */
                         ))}
                     </div>
                 )}
