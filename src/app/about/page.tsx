@@ -34,11 +34,11 @@ export default function AboutPage() {
 
                         <h2 className="text-2xl font-semibold">Our Mission</h2>
                         <p className="text-lg leading-relaxed">
-                            I'd first like to mention that Tirthvi is an open source project. 
-                            You can find the source code on Github, <Link href="https://github.com/armaancpro/tirthvi-web" className="text-primary underline">here.</Link> If you'd like to contribute, please do so.
+                            I&apos;d first like to mention that Tirthvi is an open source project. 
+                            You can find the source code on Github, <Link href="https://github.com/armaancpro/tirthvi-web" className="text-primary underline">here.</Link> If you&apos;d like to contribute, please do so.
                             Tirthvi is built using modern tools and technologies.
                             We built it knowing that in order to be successful, we need to combine old wisdom with new technology.
-                            Thus we've integrated modern AI tools along with traditional calendar knowledge and scriptures.
+                            Thus we&apos;ve integrated modern AI tools along with traditional calendar knowledge and scriptures.
                             Ultimately, Tirthvi is a hub, for people to learn about all major aspects of Hinduism.
                         </p>
                     </div>
