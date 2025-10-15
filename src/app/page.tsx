@@ -7,7 +7,6 @@ import { Magnetic } from "@/components/ui/shadcn-io/magnetic";
 import { LiquidButton } from "@/components/ui/shadcn-io/liquid-button";
 import {ShimmeringText} from "@/components/ui/shadcn-io/shimmering-text";
 import BlurText from "@/components/ui/shadcn-io/blur-text";
-import { BackgroundBeams } from "@/components/ui/shadcn-io/background-beams";
 import { Particles } from "@/components/ui/shadcn-io/particles";
 
 export default function Home() {
