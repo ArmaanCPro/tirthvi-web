@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { ScriptureGrid } from '@/components/scriptures/scripture-grid'
-import { ScriptureCardSkeleton } from '@/components/scriptures/scripture-card-skeleton'
+import { ScriptureCardSkeletonList } from '@/components/scriptures/scripture-card-skeleton'
 import { UsageStats } from '@/components/scriptures/usage-stats'
 import { getAllScriptures } from '@/lib/scriptures'
 
@@ -18,7 +18,7 @@ export default async function ScripturesPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 <div className="lg:col-span-3">
-                    <Suspense fallback={<ScriptureCardSkeleton count={6} />}>
+                    <Suspense fallback={<ScriptureCardSkeletonList count={6} />}>
                         <ScriptureGrid scriptures={scriptures} />
                     </Suspense>
                 </div>
