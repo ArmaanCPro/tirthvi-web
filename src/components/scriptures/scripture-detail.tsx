@@ -7,6 +7,7 @@ import { DownloadButton } from './download-button'
 import { UsageStats } from './usage-stats'
 import { ExternalLink, BookOpen, Calendar, User, Globe } from 'lucide-react'
 import Image from 'next/image'
+import { ImageZoom } from '@/components/ui/shadcn-io/image-zoom'
 
 interface ScriptureDetailProps {
   scripture: Scripture
@@ -34,16 +35,22 @@ export function ScriptureDetail({ scripture }: ScriptureDetailProps) {
             </p>
           </div>
 
-          {/* Image */}
+          {/* Image with Zoom and Caption Overlay */}
           {scripture.image && (
             <div className="aspect-video relative rounded-lg overflow-hidden">
-              <Image
-                src={scripture.image.url}
-                alt={scripture.image.alt}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 50vw"
-              />
+              <ImageZoom className="w-full h-full object-cover relative">
+                <Image
+                  src={scripture.image.url}
+                  alt={scripture.image.alt}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 50vw"
+                  unoptimized
+                  priority
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                />
+              </ImageZoom>
               {scripture.image.caption && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-4">
                   <p className="text-sm">{scripture.image.caption}</p>
