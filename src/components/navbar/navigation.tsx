@@ -272,6 +272,13 @@ export function Navigation() {
             </Button>
 
               <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Info className="mr-2 h-4 w-4" />
+                      About Us
+                  </Link>
+              </Button>
+
+              <Button variant="ghost" className="w-full justify-start" asChild>
                   <Link href="/privacy-policy" onClick={() => setIsMobileMenuOpen(false)}>
                       <Shield className="mr-2 h-4 w-4" />
                       Privacy Policy
