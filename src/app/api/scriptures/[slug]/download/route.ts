@@ -9,7 +9,7 @@ import { getCurrentUser } from '@/lib/auth'
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
         const { userId } = await auth()
@@ -33,7 +33,8 @@ export async function GET(
             }, { status: 429 })
         }
 
-        const scripture = await getScriptureBySlug(params.slug)
+        const { slug } = await params
+        const scripture = await getScriptureBySlug(slug)
         if (!scripture) {
             return NextResponse.json({ error: 'Scripture not found' }, { status: 404 })
         }
@@ -49,7 +50,7 @@ export async function GET(
         }
 
         // Record download with scripture slug
-        await recordDownload(user.id, params.slug, {
+        await recordDownload(user.id, slug, {
             scriptureTitle: scripture.title,
             isPremium: scripture.isPremium
         })

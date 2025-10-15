@@ -43,9 +43,9 @@ export function ScriptureCard({ scripture }: ScriptureCardProps) {
                 </CardTitle>
 
                 <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                    {scripture.metadata.chapter && (
+                    {scripture.metadata.chapters && (
                         <span>
-                            {scripture.metadata.chapter} chapters
+                            {scripture.metadata.chapters} chapters
                         </span>
                     )}
                     {scripture.metadata.verses && (
