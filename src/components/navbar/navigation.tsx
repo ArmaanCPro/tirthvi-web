@@ -250,10 +250,10 @@ export function Navigation() {
       <div className={cn(
         "border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
         isMobileMenuOpen && isMobile 
-          ? "max-h-96 opacity-100 translate-y-0" 
+          ? "max-h-[600px] opacity-100 translate-y-0" 
           : "max-h-0 opacity-0 -translate-y-4"
       )}>
-        <div className="container mx-auto px-4 py-4 space-y-2">
+        <div className="container mx-auto px-4 py-4 pb-8 space-y-2">
             <Button variant="ghost" className="w-full justify-start" asChild>
               <Link href="/calendar" onClick={() => setIsMobileMenuOpen(false)}>
                 <Calendar className="mr-2 h-4 w-4" />
