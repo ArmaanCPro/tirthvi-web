@@ -97,6 +97,17 @@ export const userUsage = pgTable('user_usage', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 })
 
+// Scripture downloads tracking - track monthly download usage
+export const scriptureDownloads = pgTable('scripture_downloads', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
+  scriptureSlug: text('scripture_slug').notNull(),
+  downloadedAt: timestamp('downloaded_at', { withTimezone: true }).defaultNow(),
+  month: text('month').notNull(), // YYYY-MM format for monthly tracking
+  year: integer('year').notNull(),
+  metadata: jsonb('metadata').default('{}'), // Store additional info like file size, etc.
+})
+
 // Define relations
 export const profilesRelations = relations(profiles, ({ many, one }) => ({
   eventSubscriptions: many(eventSubscriptions),
@@ -105,6 +116,7 @@ export const profilesRelations = relations(profiles, ({ many, one }) => ({
   donations: many(donations),
   preferences: one(userPreferences),
   usage: many(userUsage),
+  scriptureDownloads: many(scriptureDownloads),
   subscription: one(subscriptions, {
       fields: [profiles.id],
       references: [subscriptions.userId],
@@ -164,6 +176,13 @@ export const userPreferencesRelations = relations(userPreferences, ({ one }) => 
 export const userUsageRelations = relations(userUsage, ({ one }) => ({
   user: one(profiles, {
     fields: [userUsage.userId],
+    references: [profiles.id],
+  }),
+}))
+
+export const scriptureDownloadsRelations = relations(scriptureDownloads, ({ one }) => ({
+  user: one(profiles, {
+    fields: [scriptureDownloads.userId],
     references: [profiles.id],
   }),
 }))

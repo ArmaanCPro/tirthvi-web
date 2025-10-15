@@ -1,73 +1,115 @@
-// Depicts scripture download limits for free and premium users
-
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/drizzle'
-import { userUsage } from '@/lib/drizzle/schema'
-import { eq, and, gte } from 'drizzle-orm'
+import { scriptureDownloads } from '@/lib/drizzle/schema'
+import { eq, and, count } from 'drizzle-orm'
 
 const FREE_DOWNLOAD_LIMIT = 5 // per month
 const PREMIUM_DOWNLOAD_LIMIT = 1000 // effectively unlimited
 
 export async function checkDownloadLimit(userId: string): Promise<{
-    canDownload: boolean
-    remaining: number
-    limit: number
+  canDownload: boolean
+  remaining: number
+  limit: number
+  isPremium: boolean
 }> {
-    const { has } = await auth()
-    const hasUnlimited = has({ feature: 'unlimited_scripture_downloads'  })
-
-    if (hasUnlimited) {
-        return { canDownload: true, remaining: PREMIUM_DOWNLOAD_LIMIT, limit: PREMIUM_DOWNLOAD_LIMIT }
+  const { has } = await auth()
+  const hasUnlimited = has({ feature: 'unlimited_scripture_downloads' })
+  
+  if (hasUnlimited) {
+    return { 
+      canDownload: true, 
+      remaining: PREMIUM_DOWNLOAD_LIMIT, 
+      limit: PREMIUM_DOWNLOAD_LIMIT,
+      isPremium: true
     }
+  }
 
-    // Check current month usage
-    const startOfMonth = new Date()
-    startOfMonth.setDate(1)
-    startOfMonth.setHours(0, 0, 0, 0)
+  // Get current month and year
+  const now = new Date()
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const currentYear = now.getFullYear()
 
-    const usage = await db.query.userUsage.findFirst({
-        where: and(
-            eq(userUsage.userId, userId),
-            gte(userUsage.date, startOfMonth),
-        )
-    })
+  // Count downloads for current month
+  const result = await db
+    .select({ count: count() })
+    .from(scriptureDownloads)
+    .where(
+      and(
+        eq(scriptureDownloads.userId, userId),
+        eq(scriptureDownloads.month, currentMonth),
+        eq(scriptureDownloads.year, currentYear)
+      )
+    )
 
-    // TODO: make this an actual DB field
-    const downloadsThisMonth = usage?.aiMessagesCount || 0
-    const remaining = Math.max(0, FREE_DOWNLOAD_LIMIT - downloadsThisMonth)
+  const downloadsThisMonth = result[0]?.count || 0
+  const remaining = Math.max(0, FREE_DOWNLOAD_LIMIT - downloadsThisMonth)
 
-    return {
-        canDownload: remaining > 0,
-        remaining,
-        limit: FREE_DOWNLOAD_LIMIT,
-    }
+  return {
+    canDownload: remaining > 0,
+    remaining,
+    limit: FREE_DOWNLOAD_LIMIT,
+    isPremium: false
+  }
 }
 
-export async function recordDownload(userId: string): Promise<void> {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+export async function recordDownload(
+  userId: string, 
+  scriptureSlug: string,
+  metadata?: Record<string, any>
+): Promise<void> {
+  const now = new Date()
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const currentYear = now.getFullYear()
 
-    const currentUsage = await db.query.userUsage.findFirst({
-        where: and(
-            eq(userUsage.userId, userId),
-            gte(userUsage.date, today),
-        )
-    })
+  await db.insert(scriptureDownloads).values({
+    userId,
+    scriptureSlug,
+    month: currentMonth,
+    year: currentYear,
+    metadata: metadata || {}
+  })
+}
 
-    const downloadsThisMonth = currentUsage?.aiMessagesCount || 0
+export async function getUserDownloadStats(userId: string): Promise<{
+  downloadsThisMonth: number
+  limit: number
+  remaining: number
+  isPremium: boolean
+}> {
+  const { has } = await auth()
+  const hasUnlimited = has({ feature: 'unlimited_scripture_downloads' })
+  
+  if (hasUnlimited) {
+    return {
+      downloadsThisMonth: 0,
+      limit: PREMIUM_DOWNLOAD_LIMIT,
+      remaining: PREMIUM_DOWNLOAD_LIMIT,
+      isPremium: true
+    }
+  }
 
-    await db
-        .insert(userUsage)
-        .values({
-            userId,
-            date: today,
-            aiMessagesCount: 1, // TODO: make this an actual DB field
-        })
-        .onConflictDoUpdate({
-            target: [userUsage.userId, userUsage.date],
-            set: {
-                aiMessagesCount: downloadsThisMonth + 1,
-                updatedAt: new Date(),
-            }
-        })
+  const now = new Date()
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const currentYear = now.getFullYear()
+
+  const result = await db
+    .select({ count: count() })
+    .from(scriptureDownloads)
+    .where(
+      and(
+        eq(scriptureDownloads.userId, userId),
+        eq(scriptureDownloads.month, currentMonth),
+        eq(scriptureDownloads.year, currentYear)
+      )
+    )
+
+  const downloadsThisMonth = result[0]?.count || 0
+  const remaining = Math.max(0, FREE_DOWNLOAD_LIMIT - downloadsThisMonth)
+
+  return {
+    downloadsThisMonth,
+    limit: FREE_DOWNLOAD_LIMIT,
+    remaining,
+    isPremium: false
+  }
 }

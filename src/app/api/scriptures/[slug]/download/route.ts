@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/db'
-import { getScriptureBySlug } from '@/lib/scriptures'
+import { getScripture } from '@/lib/scriptures'
 import { checkDownloadLimit, recordDownload } from '@/lib/download-limits'
 import { getCurrentUser } from '@/lib/auth'
 
@@ -23,7 +23,7 @@ export async function GET(
         }
 
         // Check download limits
-        const { canDownload, remaining, limit } = await checkDownloadLimit(userId)
+        const { canDownload, remaining, limit, isPremium } = await checkDownloadLimit(user.id)
         if (!canDownload) {
             return NextResponse.json({
                 error: 'Download limit reached',
@@ -33,23 +33,26 @@ export async function GET(
             }, { status: 429 })
         }
 
-        const scripture = await getScriptureBySlug(params.slug)
+        const scripture = await getScripture(params.slug)
         if (!scripture) {
-            return new Response('Scripture not found', { status: 404 })
+            return NextResponse.json({ error: 'Scripture not found' }, { status: 404 })
         }
 
         // Check if scripture requires premium access
         if (scripture.isPremium) {
             const { has } = await auth()
-            if (!has({ feature: 'premium_scripture_downloads' })) {
+            if (!has({ feature: 'unlimited_scripture_downloads' })) {
                 return NextResponse.json({
-                    error: 'Scripture requires premium access',
+                    error: 'Premium scripture requires upgrade',
                 }, { status: 403 })
             }
         }
 
-        // Record download
-        await recordDownload(userId)
+        // Record download with scripture slug
+        await recordDownload(user.id, params.slug, {
+            scriptureTitle: scripture.title,
+            isPremium: scripture.isPremium
+        })
 
         // Create signed URL with 5 min expiry
         const { data, error } = await supabaseAdmin.storage
