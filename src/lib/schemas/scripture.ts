@@ -13,7 +13,7 @@ export const ScriptureSchema = z.object({
     storagePath: z.string().min(1, 'Storage path is required'),
     slug: z.string().regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
     metadata: z.object({
-        chapter: z.number().optional(),
+        chapters: z.number().optional(),
         verses: z.number().optional(),
         language: z.string().optional(),
         period: z.string().optional(),

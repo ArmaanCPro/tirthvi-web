@@ -55,7 +55,7 @@ export async function checkDownloadLimit(userId: string): Promise<{
 export async function recordDownload(
   userId: string, 
   scriptureSlug: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): Promise<void> {
   const now = new Date()
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`

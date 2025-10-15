@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/db'
-import { getScripture } from '@/lib/scriptures'
+import { getScriptureBySlug } from '@/lib/scriptures'
 import { checkDownloadLimit, recordDownload } from '@/lib/download-limits'
 import { getCurrentUser } from '@/lib/auth'
 
@@ -23,7 +23,7 @@ export async function GET(
         }
 
         // Check download limits
-        const { canDownload, remaining, limit, isPremium } = await checkDownloadLimit(user.id)
+        const { canDownload, remaining, limit } = await checkDownloadLimit(user.id)
         if (!canDownload) {
             return NextResponse.json({
                 error: 'Download limit reached',
@@ -33,7 +33,7 @@ export async function GET(
             }, { status: 429 })
         }
 
-        const scripture = await getScripture(params.slug)
+        const scripture = await getScriptureBySlug(params.slug)
         if (!scripture) {
             return NextResponse.json({ error: 'Scripture not found' }, { status: 404 })
         }

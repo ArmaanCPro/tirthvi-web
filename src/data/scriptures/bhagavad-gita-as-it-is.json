@@ -1,0 +1,29 @@
+{
+  "id": "bhagavad-gita-as-it-is",
+  "title": "Bhagavad Gita As It Is",
+  "description": "The Bhagavad Gita is a 700-verse Hindu scripture that is part of the epic Mahabharata. This edition, 'As It Is', presents the original Sanskrit text with English translation and commentary by A. C. Bhaktivedanta Swami Prabhupada, the founder of the International Society for Krishna Consciousness (ISKCON).",
+  "commentary": "This sacred text presents a conversation between Prince Arjuna and Lord Krishna, who serves as his charioteer. It addresses the moral and philosophical dilemmas faced by Arjuna on the battlefield of Kurukshetra. The Gita covers topics such as dharma (duty), karma (action), yoga (spiritual practice), and moksha (liberation). Prabhupada's commentary provides deep insights into the spiritual teachings and their practical application in daily life.",
+  "image": {
+    "url": "/images/scriptures/bhagavad-gita-as-it-is.jpg",
+    "alt": "Bhagavad Gita As It Is book cover",
+    "caption": "The sacred Bhagavad Gita As It Is by A. C. Bhaktivedanta Swami Prabhupada"
+  },
+  "storagePath": "Bhagavad Gita As It Is.pdf",
+  "slug": "bhagavad-gita-as-it-is",
+  "metadata": {
+    "chapters": 18,
+    "verses": 700,
+    "language": "Sanskrit with English translation",
+    "period": "Ancient (circa 3100 BCE)",
+    "category": "philosophy",
+    "author": "A. C. Bhaktivedanta Swami Prabhupada"
+  },
+  "externalLinks": [
+    {
+      "title": "ISKCON Chapter-wise Summary",
+      "url": "https://www.iskconbooks.com/chapter-wise-summary-of-bhagavad-gita-as-it-is/",
+      "description": "Chapter-wise summary of the Bhagavad Gita As It Is"
+    }
+  ],
+  "isPremium": false
+}
