@@ -8,6 +8,8 @@ interface StructuredDataProps {
 
 export function StructuredData({ type, data }: StructuredDataProps) {
   const getStructuredData = () => {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.tirthvi.com'
+    
     switch (type) {
       case 'event':
         if (!data || !('name' in data)) return null
@@ -26,7 +28,7 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           "organizer": {
             "@type": "Organization",
             "name": "Tirthvi",
-            "url": process.env.NEXT_PUBLIC_SITE_URL
+            "url": baseUrl
           }
         }
 
@@ -42,11 +44,8 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           "author": scripture.metadata?.author,
           "publisher": {
             "@type": "Organization",
-            "name": "Tirthvi"
-          },
-          "isPartOf": {
-            "@type": "Collection",
-            "name": "Hindu Scriptures"
+            "name": "Tirthvi",
+            "url": baseUrl
           }
         }
 
@@ -56,12 +55,12 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           "@type": "WebSite",
           "name": "Tirthvi - Hindu Wisdom Hub",
           "description": "A digital hub and AI tool for Hindu wisdom, philosophy, and scripture",
-          "url": process.env.NEXT_PUBLIC_SITE_URL,
+          "url": baseUrl,
           "potentialAction": {
             "@type": "SearchAction",
             "target": {
               "@type": "EntryPoint",
-              "urlTemplate": `${process.env.NEXT_PUBLIC_SITE_URL}/chat?q={search_term_string}`
+              "urlTemplate": `${baseUrl}/chat?q={search_term_string}`
             },
             "query-input": "required name=search_term_string"
           }
@@ -73,9 +72,8 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           "@type": "Organization",
           "name": "Tirthvi",
           "description": "A digital hub for Hindu wisdom, philosophy, and scripture",
-          "url": process.env.NEXT_PUBLIC_SITE_URL,
-          "logo": `${process.env.NEXT_PUBLIC_SITE_URL}/tirthvi-icon.svg`,
-          "sameAs": []
+          "url": baseUrl,
+          "logo": `${baseUrl}/tirthvi-icon.svg`
         }
 
       default:

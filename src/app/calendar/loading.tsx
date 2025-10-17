@@ -1,5 +1,4 @@
 import { EventListSkeleton } from '@/components/event-card-skeleton';
-import { LoadingSpinner } from '@/components/loading-spinner';
 
 export default function CalendarLoading() {
   return (

@@ -6,7 +6,6 @@ import ClerkClientProvider from "@/components/clerk/ClerkProviderLazy";
 import LazyAnalytics from "@/components/lazy-analytics";
 import { StructuredData } from "@/components/structured-data";
 import { SkipLink } from "@/components/accessibility-utils";
-import { PreloadCriticalResources, ResourceHints, PerformanceMonitor } from "@/components/performance-optimizations";
 import dynamic from "next/dynamic";
 
 const Navigation = dynamic(() => import("@/components/navbar/navigation").then(mod => ({ default: mod.Navigation })) );
@@ -94,9 +93,6 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
         >
             <SkipLink href="#main-content">Skip to main content</SkipLink>
-            <PreloadCriticalResources />
-            <ResourceHints />
-            <PerformanceMonitor />
             <StructuredData type="website" />
             <StructuredData type="organization" />
             <ClerkClientProvider>
