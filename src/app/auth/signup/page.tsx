@@ -6,13 +6,15 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Eye, EyeOff, Mail, Lock, User, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
+import { signIn } from "next-auth/react"
 
 export default function SignUpPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -24,14 +26,10 @@ export default function SignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  
-  const router = useRouter()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }))
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,36 +37,25 @@ export default function SignUpPage() {
     setIsLoading(true)
     setError("")
 
-    // Validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match")
-      setIsLoading(false)
-      return
-    }
-
-    if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long")
+      toast.error("Passwords do not match")
       setIsLoading(false)
       return
     }
 
     try {
-      const response = await fetch("/api/auth/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-        }),
+        body: JSON.stringify(formData),
       })
 
-      const data = await response.json()
+      const data = await res.json()
 
-      if (response.ok) {
+      if (res.ok) {
         toast.success("Account created successfully! Please sign in.")
         router.push("/auth/signin")
       } else {
@@ -83,10 +70,20 @@ export default function SignUpPage() {
     }
   }
 
+  const handleGoogleSignUp = async () => {
+    setIsLoading(true)
+    try {
+      await signIn("google", { callbackUrl: "/dashboard" })
+    } catch {
+      toast.error("Failed to sign up with Google")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
             <ArrowLeft className="h-4 w-4" />
@@ -114,11 +111,14 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <Card className="bg-background/95 border shadow-xl">
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
+        <Card>
+          <CardHeader>
+            <CardTitle>Create your account</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <Alert variant="destructive" className="text-sm">
+                <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
@@ -133,7 +133,7 @@ export default function SignUpPage() {
                     placeholder="First name"
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className="pl-10 h-11 border-border/40 focus:border-primary/50 transition-colors"
+                    className="pl-10"
                     required
                     disabled={isLoading}
                   />
@@ -148,7 +148,7 @@ export default function SignUpPage() {
                     placeholder="Last name"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="pl-10 h-11 border-border/40 focus:border-primary/50 transition-colors"
+                    className="pl-10"
                     required
                     disabled={isLoading}
                   />
@@ -164,7 +164,7 @@ export default function SignUpPage() {
                   placeholder="Email address"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="pl-10 h-11 border-border/40 focus:border-primary/50 transition-colors"
+                  className="pl-10"
                   required
                   disabled={isLoading}
                 />
@@ -179,7 +179,7 @@ export default function SignUpPage() {
                   placeholder="Password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="pl-10 pr-10 h-11 border-border/40 focus:border-primary/50 transition-colors"
+                  className="pl-10 pr-10"
                   required
                   disabled={isLoading}
                   minLength={8}
@@ -209,7 +209,7 @@ export default function SignUpPage() {
                   placeholder="Confirm password"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className="pl-10 pr-10 h-11 border-border/40 focus:border-primary/50 transition-colors"
+                  className="pl-10 pr-10"
                   required
                   disabled={isLoading}
                   minLength={8}
@@ -230,7 +230,7 @@ export default function SignUpPage() {
                 </Button>
               </div>
 
-              <Button type="submit" className="w-full h-11 font-medium" disabled={isLoading}>
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -247,8 +247,8 @@ export default function SignUpPage() {
                 <div className="absolute inset-0 flex items-center">
                   <Separator className="w-full" />
                 </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="bg-background px-3 text-muted-foreground">
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
                     or
                   </span>
                 </div>
@@ -256,7 +256,8 @@ export default function SignUpPage() {
 
               <Button
                 variant="outline"
-                className="w-full mt-4 h-11 border-border/40 hover:border-border/60 transition-colors"
+                className="w-full mt-4"
+                onClick={handleGoogleSignUp}
                 disabled={isLoading}
               >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">

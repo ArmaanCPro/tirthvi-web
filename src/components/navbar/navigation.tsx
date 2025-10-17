@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Calendar, BookOpen, Shield, Bot, Heart, User, Upload, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, Protect } from "@/components/auth";
+import { SignedIn, SignedOut, UserButton, Protect } from "@/components/auth";
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(false);
@@ -211,13 +211,17 @@ export function Navigation() {
           {/* Clerk Authentication */}
           <SignedOut>
             <div className="flex items-center gap-2">
-              <SignInButton mode="modal" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
-                <User className="mr-2 h-4 w-4" />
-                Sign In
-              </SignInButton>
-              <SignUpButton mode="modal" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3">
-                Sign Up
-              </SignUpButton>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/auth/signin">
+                  <User className="mr-2 h-4 w-4" />
+                  Sign In
+                </Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link href="/auth/signup">
+                  Sign Up
+                </Link>
+              </Button>
             </div>
           </SignedOut>
           
@@ -309,13 +313,17 @@ export function Navigation() {
               {/* Mobile Clerk Authentication */}
               <div className="pt-2 space-y-2">
                 <SignedOut>
-                  <SignInButton mode="modal" className="w-full justify-start inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
-                    <User className="mr-2 h-4 w-4" />
-                    Sign In
-                  </SignInButton>
-                  <SignUpButton mode="modal" className="w-full justify-start inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3">
-                    Sign Up
-                  </SignUpButton>
+                  <Button variant="outline" className="w-full justify-start" asChild>
+                    <Link href="/auth/signin" onClick={() => setIsMobileMenuOpen(false)}>
+                      <User className="mr-2 h-4 w-4" />
+                      Sign In
+                    </Link>
+                  </Button>
+                  <Button className="w-full justify-start" asChild>
+                    <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                      Sign Up
+                    </Link>
+                  </Button>
                 </SignedOut>
                 
                 <SignedIn>

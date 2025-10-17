@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Mail, ArrowLeft, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
             <Link href="/auth/signin" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
             </div>
           </div>
 
-          <Card className="bg-background/95 border shadow-xl">
+          <Card>
             <CardContent className="pt-6">
               <div className="text-center space-y-4">
                 <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
@@ -80,10 +80,10 @@ export default function ForgotPasswordPage() {
                 
                 <div>
                   <h2 className="text-2xl font-semibold mb-2">
-                    Reset your password
+                    Check your email!
                   </h2>
                   <p className="text-muted-foreground">
-                    We&apos;ve sent a password reset link to your email address.
+                    A password reset link has been sent to <span className="font-medium text-foreground">{email}</span>. Please check your inbox (and spam folder) to reset your password.
                   </p>
                 </div>
 
@@ -108,8 +108,8 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link href="/auth/signin" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
             <ArrowLeft className="h-4 w-4" />
@@ -137,11 +137,14 @@ export default function ForgotPasswordPage() {
           </p>
         </div>
 
-        <Card className="bg-background/95 border shadow-xl">
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
+        <Card>
+          <CardHeader>
+            <CardTitle>Reset your password</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <Alert variant="destructive" className="text-sm">
+                <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
@@ -154,13 +157,13 @@ export default function ForgotPasswordPage() {
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-11 border-border/40 focus:border-primary/50 transition-colors"
+                  className="pl-10"
                   required
                   disabled={isLoading}
                 />
               </div>
 
-              <Button type="submit" className="w-full h-11 font-medium" disabled={isLoading}>
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

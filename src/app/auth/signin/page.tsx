@@ -7,7 +7,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react"
@@ -19,7 +19,6 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
@@ -30,15 +29,15 @@ export default function SignInPage() {
     setError("")
 
     try {
-      const result = await signIn("credentials", {
+      const res = await signIn("credentials", {
+        redirect: false,
         email,
         password,
-        redirect: false,
       })
 
-      if (result?.error) {
-        setError("Invalid email or password")
-        toast.error("Invalid email or password")
+      if (res?.error) {
+        setError(res.error)
+        toast.error(res.error)
       } else {
         toast.success("Welcome back!")
         router.push(callbackUrl)
@@ -63,10 +62,9 @@ export default function SignInPage() {
     }
   }
 
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
             <ArrowLeft className="h-4 w-4" />
@@ -94,16 +92,19 @@ export default function SignInPage() {
           </p>
         </div>
 
-        <Card className="bg-background/95 border shadow-xl">
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
+        <Card>
+          <CardHeader>
+            <CardTitle>Sign in to your account</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <Alert variant="destructive" className="text-sm">
+                <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -112,14 +113,14 @@ export default function SignInPage() {
                     placeholder="Email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-11 border-border/40 focus:border-primary/50 transition-colors"
+                    className="pl-10"
                     required
                     disabled={isLoading}
                   />
                 </div>
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -128,7 +129,7 @@ export default function SignInPage() {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 h-11 border-border/40 focus:border-primary/50 transition-colors"
+                    className="pl-10 pr-10"
                     required
                     disabled={isLoading}
                   />
@@ -158,7 +159,7 @@ export default function SignInPage() {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full h-11 font-medium" disabled={isLoading}>
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -175,8 +176,8 @@ export default function SignInPage() {
                 <div className="absolute inset-0 flex items-center">
                   <Separator className="w-full" />
                 </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="bg-background px-3 text-muted-foreground">
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
                     or
                   </span>
                 </div>
@@ -184,7 +185,7 @@ export default function SignInPage() {
 
               <Button
                 variant="outline"
-                className="w-full mt-4 h-11 border-border/40 hover:border-border/60 transition-colors"
+                className="w-full mt-4"
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
               >
