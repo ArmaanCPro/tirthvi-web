@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 12)
 
     // Create user
-    const [user] = await db.insert(profiles).values({
+    await db.insert(profiles).values({
       id: crypto.randomUUID(),
       email,
       password: hashedPassword,

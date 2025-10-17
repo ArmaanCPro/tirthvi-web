@@ -29,3 +29,47 @@ export async function isPremium(userId: string): Promise<boolean> {
     return false;
   }
 }
+
+export async function getSubscriptionStatus(userId: string): Promise<{
+  isPremium: boolean;
+  plan: string;
+  currentPeriodEnd: Date | null;
+  stripeCustomerId: string | null;
+}> {
+  try {
+    const user = await db.query.profiles.findFirst({
+      where: eq(profiles.id, userId),
+      with: {
+        subscription: true
+      }
+    });
+
+    if (!user) {
+      return {
+        isPremium: false,
+        plan: 'free',
+        currentPeriodEnd: null,
+        stripeCustomerId: null,
+      };
+    }
+
+    const isAdminUser = await isAdmin(userId);
+    const subscription = user.subscription;
+
+    return {
+      isPremium: isAdminUser || (subscription?.isPremium && 
+        subscription.currentPeriodEnd && 
+        new Date() < new Date(subscription.currentPeriodEnd)) || false,
+      plan: isAdminUser ? 'admin' : (subscription?.plan || 'free'),
+      currentPeriodEnd: subscription?.currentPeriodEnd || null,
+      stripeCustomerId: user.stripeCustomerId,
+    };
+  } catch {
+    return {
+      isPremium: false,
+      plan: 'free',
+      currentPeriodEnd: null,
+      stripeCustomerId: null,
+    };
+  }
+}

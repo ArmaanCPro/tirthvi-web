@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth-config'
 import { db } from '@/lib/drizzle'
 import { profiles } from '@/lib/drizzle/schema'
@@ -26,10 +26,25 @@ export async function DELETE() {
       )
     }
 
-    // TODO: Cancel Stripe subscription if exists
-    // This will be implemented in Phase 5 (Stripe Integration)
+    // Cancel Stripe subscription if exists
     if (user.stripeCustomerId) {
-      console.log('TODO: Cancel Stripe subscription for customer:', user.stripeCustomerId)
+      try {
+        const { stripe } = await import('@/lib/stripe')
+        
+        // Get all active subscriptions for the customer
+        const subscriptions = await stripe.subscriptions.list({
+          customer: user.stripeCustomerId,
+          status: 'active',
+        })
+
+        // Cancel all active subscriptions
+        for (const subscription of subscriptions.data) {
+          await stripe.subscriptions.cancel(subscription.id)
+        }
+      } catch (stripeError) {
+        console.error('Failed to cancel Stripe subscription:', stripeError)
+        // Continue with account deletion even if Stripe cancellation fails
+      }
     }
 
     // Delete user from database (cascade will handle related records)
