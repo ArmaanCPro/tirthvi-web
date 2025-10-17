@@ -48,7 +48,12 @@ export function useAuth() {
         .then(({ isAdmin, isPremium }) => {
           setAuthState({
             isSignedIn: true,
-            user: session.user,
+            user: session.user ? {
+              id: session.user.id || '',
+              email: session.user.email || '',
+              name: session.user.name || undefined,
+              image: session.user.image || undefined,
+            } : null,
             isLoading: false,
             isAdmin,
             isPremium,
@@ -57,7 +62,12 @@ export function useAuth() {
         .catch(() => {
           setAuthState({
             isSignedIn: true,
-            user: session.user,
+            user: session.user ? {
+              id: session.user.id || '',
+              email: session.user.email || '',
+              name: session.user.name || undefined,
+              image: session.user.image || undefined,
+            } : null,
             isLoading: false,
             isAdmin: false,
             isPremium: false,
