@@ -54,3 +54,4 @@ next-env.d.ts
 
 # drizzle migrations (optional - can be regenerated)
 /drizzle/
+supabase
