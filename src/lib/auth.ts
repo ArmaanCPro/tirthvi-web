@@ -1,36 +1,37 @@
-import { auth } from '@clerk/nextjs/server'
-import { db } from './drizzle'
-import { profiles } from './drizzle/schema'
-import { eq } from 'drizzle-orm'
+import { auth } from "next-auth"
+import { authOptions } from "./auth-config"
+import { db } from "./drizzle"
+import { profiles } from "./drizzle/schema"
+import { eq } from "drizzle-orm"
 
 export async function getCurrentUser() {
-  const { userId } = await auth()
+  const session = await auth()
   
-  if (!userId) {
+  if (!session?.user?.id) {
     return null
   }
 
-  // Get user from our database
   const user = await db.query.profiles.findFirst({
-    where: eq(profiles.clerkId, userId),
+    where: eq(profiles.id, session.user.id),
   })
 
   return user
 }
 
-export async function createUserProfile(clerkId: string, userData: {
-  email?: string
+export async function createUserProfile(userData: {
+  email: string
   firstName?: string
   lastName?: string
   avatarUrl?: string
+  password?: string
 }) {
   const [profile] = await db.insert(profiles).values({
     id: crypto.randomUUID(),
-    clerkId,
     email: userData.email,
     firstName: userData.firstName,
     lastName: userData.lastName,
     avatarUrl: userData.avatarUrl,
+    password: userData.password,
   }).returning()
 
   return profile
@@ -38,7 +39,7 @@ export async function createUserProfile(clerkId: string, userData: {
 
 export async function isAdmin(userId: string) {
   const user = await db.query.profiles.findFirst({
-    where: eq(profiles.clerkId, userId),
+    where: eq(profiles.id, userId),
     columns: { isAdmin: true },
   })
 
