@@ -5,16 +5,15 @@ import { isAdmin } from '@/lib/auth'
 export async function GET() {
   try {
     const { userId } = await auth()
-
+    
     if (!userId) {
-      // Not signed in -> not admin
       return NextResponse.json({ isAdmin: false })
     }
 
     const admin = await isAdmin(userId)
     return NextResponse.json({ isAdmin: admin })
-  } catch {
-    // On any error, default to not admin
+  } catch (error) {
+    console.error('Error checking admin status:', error)
     return NextResponse.json({ isAdmin: false })
   }
 }

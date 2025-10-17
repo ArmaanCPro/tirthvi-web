@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/drizzle'
 import { scriptureDownloads } from '@/lib/drizzle/schema'
 import { eq, and, count } from 'drizzle-orm'
+import { isAdmin } from '@/lib/auth'
 
 const FREE_DOWNLOAD_LIMIT = 5 // per month
 const PREMIUM_DOWNLOAD_LIMIT = 1000 // effectively unlimited
@@ -12,6 +13,17 @@ export async function checkDownloadLimit(userId: string): Promise<{
   limit: number
   isPremium: boolean
 }> {
+  // Check if user is admin (bypass all limits)
+  const admin = await isAdmin(userId)
+  if (admin) {
+    return { 
+      canDownload: true, 
+      remaining: Number.MAX_SAFE_INTEGER, 
+      limit: Number.MAX_SAFE_INTEGER,
+      isPremium: true
+    }
+  }
+
   const { has } = await auth()
   const hasUnlimited = has({ feature: 'unlimited_scripture_downloads' })
   
@@ -76,6 +88,17 @@ export async function getUserDownloadStats(userId: string): Promise<{
   remaining: number
   isPremium: boolean
 }> {
+  // Check if user is admin (bypass all limits)
+  const admin = await isAdmin(userId)
+  if (admin) {
+    return {
+      downloadsThisMonth: 0,
+      limit: Number.MAX_SAFE_INTEGER,
+      remaining: Number.MAX_SAFE_INTEGER,
+      isPremium: true
+    }
+  }
+
   const { has } = await auth()
   const hasUnlimited = has({ feature: 'unlimited_scripture_downloads' })
   

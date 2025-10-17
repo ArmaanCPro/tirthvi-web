@@ -2,7 +2,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Download, Crown, Loader2 } from 'lucide-react'
@@ -17,6 +17,22 @@ interface DownloadButtonProps {
 export function DownloadButton({ scripture }: DownloadButtonProps) {
     const { user } = useUser()
     const [downloading, setDownloading] = useState(false)
+    const [isAdmin, setIsAdmin] = useState(false)
+
+    useEffect(() => {
+        async function checkAdmin() {
+            if (user?.id) {
+                try {
+                    const response = await fetch('/api/auth/admin')
+                    const data = await response.json()
+                    setIsAdmin(data.isAdmin || false)
+                } catch (error) {
+                    console.error('Error checking admin status:', error)
+                }
+            }
+        }
+        checkAdmin()
+    }, [user?.id])
 
     const handleDownload = async () => {
         if (!user) {
@@ -57,9 +73,27 @@ export function DownloadButton({ scripture }: DownloadButtonProps) {
         )
     }
 
+    // If user is admin, show premium button without protection
+    if (isAdmin) {
+        return (
+            <Button
+                onClick={handleDownload}
+                disabled={downloading}
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 cursor-pointer min-h-[44px]"
+            >
+                {downloading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                    <Crown className="w-4 h-4 mr-2" />
+                )}
+                {downloading ? 'Preparing...' : 'Download PDF (Admin)'}
+            </Button>
+        )
+    }
+
     return (
         <Protect
-        condition={(has) => has({ feature: 'unlimited_scripture_downloads' })}
+        condition={(has) => has({ feature: 'premium_scripture_downloads' })}
         fallback={
             <Button
                 onClick={handleDownload}

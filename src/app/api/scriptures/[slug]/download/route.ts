@@ -5,7 +5,7 @@ import { auth } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/db'
 import { getScriptureBySlug } from '@/lib/scriptures'
 import { checkDownloadLimit, recordDownload } from '@/lib/download-limits'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, isAdmin } from '@/lib/auth'
 
 export async function GET(
     request: NextRequest,
@@ -22,15 +22,29 @@ export async function GET(
             return new Response('User not found', { status: 404 })
         }
 
-        // Check download limits
-        const { canDownload, remaining, limit } = await checkDownloadLimit(user.id)
-        if (!canDownload) {
-            return NextResponse.json({
-                error: 'Download limit reached',
-                remaining,
-                limit,
-                upgradeRequired: true,
-            }, { status: 429 })
+        // Check if user is admin (bypass all limits)
+        const admin = await isAdmin(userId)
+        let remaining = 0
+        let limit = 0
+        
+        if (!admin) {
+            // Check download limits for non-admin users
+            const downloadLimit = await checkDownloadLimit(user.id)
+            remaining = downloadLimit.remaining
+            limit = downloadLimit.limit
+            
+            if (!downloadLimit.canDownload) {
+                return NextResponse.json({
+                    error: 'Download limit reached',
+                    remaining,
+                    limit,
+                    upgradeRequired: true,
+                }, { status: 429 })
+            }
+        } else {
+            // Admin users have unlimited downloads
+            remaining = Number.MAX_SAFE_INTEGER
+            limit = Number.MAX_SAFE_INTEGER
         }
 
         const { slug } = await params
@@ -39,12 +53,13 @@ export async function GET(
             return NextResponse.json({ error: 'Scripture not found' }, { status: 404 })
         }
 
-        // Check if scripture requires premium access
-        if (scripture.isPremium) {
+        // Check if scripture requires premium access (skip for admins)
+        if (scripture.isPremium && !admin) {
             const { has } = await auth()
-            if (!has({ feature: 'unlimited_scripture_downloads' })) {
+            if (!has({ feature: 'premium_scripture_downloads' })) {
                 return NextResponse.json({
                     error: 'Premium scripture requires upgrade',
+                    upgradeRequired: true,
                 }, { status: 403 })
             }
         }
