@@ -26,7 +26,7 @@ export const { handlers, auth } = NextAuth({
         }
 
         const user = await db.query.profiles.findFirst({
-          where: eq(profiles.email, credentials.email)
+          where: eq(profiles.email, credentials.email as string)
         })
 
         if (!user?.password) {
