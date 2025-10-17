@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { db } from '@/lib/drizzle'
 import { profiles } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
@@ -10,7 +10,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
@@ -18,7 +19,7 @@ export async function GET(
 
     // Get user from database
     const user = await db.query.profiles.findFirst({
-      where: eq(profiles.clerkId, userId),
+      where: eq(profiles.id, userId),
     })
 
     if (!user) {

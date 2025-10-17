@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import { Toaster } from "@/components/ui/sonner"
-import ClerkClientProvider from "@/components/clerk/ClerkProviderLazy";
+import { SessionProvider } from "@/components/auth/SessionProvider";
 import LazyAnalytics from "@/components/lazy-analytics";
 import { StructuredData } from "@/components/structured-data";
 import { SkipLink } from "@/components/accessibility-utils";
@@ -95,12 +95,12 @@ export default function RootLayout({
             <SkipLink href="#main-content">Skip to main content</SkipLink>
             <StructuredData type="website" />
             <StructuredData type="organization" />
-            <ClerkClientProvider>
+            <SessionProvider>
               <Navigation />
               <main id="main-content" className="min-h-screen" role="main">
                 {children}
               </main>
-            </ClerkClientProvider>
+            </SessionProvider>
 
           <LazyAnalytics />
           <Toaster />

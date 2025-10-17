@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { isPremium } from '@/lib/premium'
 
 export async function GET() {
   try {
-    const { userId } = await auth()
+    const session = await auth()
 
-    if (!userId) {
+    if (!session?.user?.id) {
       // Not signed in -> not premium
       return NextResponse.json({ isPremium: false })
     }
 
-    const premium = await isPremium(userId)
+    const premium = await isPremium(session.user.id)
     return NextResponse.json({ isPremium: premium })
   } catch {
     // On any error, default to not premium

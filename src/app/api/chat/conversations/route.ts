@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { db } from '@/lib/drizzle'
 import { profiles } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
@@ -7,7 +7,8 @@ import { getUserConversations, createConversation, deleteConversation, updateCon
 
 export async function GET() {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
@@ -15,7 +16,7 @@ export async function GET() {
 
     // Get user from database
     const user = await db.query.profiles.findFirst({
-      where: eq(profiles.clerkId, userId),
+      where: eq(profiles.id, userId),
     })
 
     if (!user) {
@@ -33,7 +34,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     // Get user from database
     const user = await db.query.profiles.findFirst({
-      where: eq(profiles.clerkId, userId),
+      where: eq(profiles.id, userId),
     })
 
     if (!user) {
@@ -60,7 +62,8 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
@@ -68,7 +71,7 @@ export async function DELETE(req: NextRequest) {
 
     // Get user from database
     const user = await db.query.profiles.findFirst({
-      where: eq(profiles.clerkId, userId),
+      where: eq(profiles.id, userId),
     })
 
     if (!user) {
@@ -93,7 +96,8 @@ export async function DELETE(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
@@ -101,7 +105,7 @@ export async function PATCH(req: NextRequest) {
 
     // Get user from database
     const user = await db.query.profiles.findFirst({
-      where: eq(profiles.clerkId, userId),
+      where: eq(profiles.id, userId),
     })
 
     if (!user) {

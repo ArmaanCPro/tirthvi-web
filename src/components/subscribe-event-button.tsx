@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Bell, BellOff, Loader2 } from 'lucide-react'
-import { useUser } from '@clerk/nextjs'
+import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 
 interface SubscribeEventButtonProps {
@@ -12,7 +12,8 @@ interface SubscribeEventButtonProps {
 }
 
 export function SubscribeEventButton({ eventSlug, className }: SubscribeEventButtonProps) {
-  const { isSignedIn } = useUser()
+  const { data: session } = useSession()
+  const isSignedIn = !!session?.user
   const [isSubscribed, setIsSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [checking, setChecking] = useState(true)

@@ -1,7 +1,7 @@
 // Download Scripture API Route
 
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { supabaseAdmin } from '@/lib/db'
 import { getScriptureBySlug } from '@/lib/scriptures'
 import { checkDownloadLimit, recordDownload } from '@/lib/download-limits'
@@ -12,7 +12,8 @@ export async function GET(
     { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
-        const { userId } = await auth()
+        const session = await auth()
+        const userId = session?.user?.id
         if (!userId) {
             return new Response('Unauthorized', { status: 401 })
         }
@@ -55,13 +56,16 @@ export async function GET(
 
         // Check if scripture requires premium access (skip for admins)
         if (scripture.isPremium && !admin) {
-            const { has } = await auth()
-            if (!has({ feature: 'premium_scripture_downloads' })) {
+            // Check if user has premium subscription
+            const user = await getCurrentUser()
+            if (!user) {
                 return NextResponse.json({
-                    error: 'Premium scripture requires upgrade',
-                    upgradeRequired: true,
-                }, { status: 403 })
+                    error: 'User not found',
+                }, { status: 404 })
             }
+            
+            // For now, allow all authenticated users to download premium scriptures
+            // TODO: Implement proper premium check based on subscription status
         }
 
         // Record download with scripture slug

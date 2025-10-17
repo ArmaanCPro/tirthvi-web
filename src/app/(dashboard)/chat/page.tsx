@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useUser, SignInButton } from '@clerk/nextjs'
+import { useSession } from 'next-auth/react'
+import { SignInButton } from '@/components/auth'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
 import { Conversation, ConversationContent } from '@/components/ui/shadcn-io/ai/conversation'
@@ -52,7 +53,9 @@ function extractMessageText(message: UIMessage): string {
 }
 
 export default function ChatPage() {
-  const { isLoaded, isSignedIn } = useUser()
+  const { data: session, status: authStatus } = useSession()
+  const isLoaded = authStatus !== "loading"
+  const isSignedIn = !!session?.user
   const [input, setInput] = useState('')
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
   const [currentConversationId, setCurrentConversationId] = useState<string | undefined>()

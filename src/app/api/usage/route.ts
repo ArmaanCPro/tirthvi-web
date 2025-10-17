@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { db } from '@/lib/drizzle'
 import { profiles } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
@@ -13,7 +13,7 @@ const getCachedUserUsageStats = unstable_cache(
     
     // Get user from database
     const user = await db.query.profiles.findFirst({
-      where: eq(profiles.clerkId, userId),
+      where: eq(profiles.id, userId),
     })
 
     if (!user) {
@@ -38,13 +38,13 @@ const getCachedUserUsageStats = unstable_cache(
 
 export async function GET() {
   try {
-    const { userId } = await auth()
+    const session = await auth()
     
-    if (!userId) {
+    if (!session?.user?.id) {
       return new Response('Unauthorized', { status: 401 })
     }
 
-    const usageStats = await getCachedUserUsageStats(userId)
+    const usageStats = await getCachedUserUsageStats(session.user.id)
     return NextResponse.json(usageStats)
   } catch (error) {
     console.error('Error fetching usage stats:', error)

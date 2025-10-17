@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { db } from '@/lib/drizzle'
 import { savedEvents, profiles } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
@@ -13,7 +13,7 @@ const getCachedSavedEvents = unstable_cache(
     
     // Get user profile
     const user = await db.query.profiles.findFirst({
-      where: eq(profiles.clerkId, userId),
+      where: eq(profiles.id, userId),
     })
 
     if (!user) {
@@ -63,7 +63,8 @@ const getCachedSavedEvents = unstable_cache(
 // GET /api/saved-events - Get user's saved events
 export async function GET() {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -80,7 +81,8 @@ export async function GET() {
 // POST /api/saved-events - Save an event
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -94,7 +96,7 @@ export async function POST(request: NextRequest) {
 
     // Get user profile
     const user = await db.query.profiles.findFirst({
-      where: eq(profiles.clerkId, userId),
+      where: eq(profiles.id, userId),
     })
 
     if (!user) {

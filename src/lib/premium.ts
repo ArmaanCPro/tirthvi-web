@@ -1,56 +1,75 @@
-import {isAdmin} from "@/lib/auth";
-
+import { isAdmin } from "@/lib/auth";
 import { db } from "@/lib/drizzle";
-import { profiles, subscriptions} from "@/lib/drizzle";
+import { profiles } from "@/lib/drizzle";
 import { eq } from "drizzle-orm";
-import { auth } from "@clerk/nextjs/server";
 
-export async function isPremium(clerkUserId: string): Promise<boolean> {
+export async function isPremium(userId: string): Promise<boolean> {
   try {
+    if (await isAdmin(userId)) {
+      return true;
+    }
 
-      if (await isAdmin(clerkUserId)) {
-          return true;
+    // Check local DB for subscription status
+    const user = await db.query.profiles.findFirst({
+      where: eq(profiles.id, userId),
+      with: {
+        subscription: true
       }
+    });
 
-    // Step 1: Try local DB
-      const user = await db.query.profiles.findFirst({
-          where: eq(profiles.clerkId, clerkUserId),
-          with: {
-              subscription: true
-          }
-      });
-
-      if (user?.subscription?.isPremium) {
-          return true;
+    if (user?.subscription?.isPremium) {
+      // Check if subscription is still active
+      if (user.subscription.currentPeriodEnd && new Date() < new Date(user.subscription.currentPeriodEnd)) {
+        return true;
       }
+    }
 
-      // Step 2: Fallback to Clerk Billing API
-      const { has } = await auth();
-      const hasPremium = has({ feature: "premium_access" }) || has({ plan: "premium" });
-
-      // Step 3: Update DB cache for faster future lookups (if user exists)
-      if (user) {
-          await db
-              .insert(subscriptions)
-              .values({
-                  userId: user.id,
-                  plan: hasPremium ? "premium" : "free",
-                  isPremium: hasPremium,
-                  updatedAt: new Date(),
-              })
-              .onConflictDoUpdate({
-                  target: subscriptions.userId,
-                  set: {
-                      plan: hasPremium ? "premium" : "free",
-                      isPremium: hasPremium,
-                      updatedAt: new Date(),
-                  },
-              });
-      }
-
-      return hasPremium;
-
+    return false;
   } catch {
-    return false
+    return false;
+  }
+}
+
+export async function getSubscriptionStatus(userId: string): Promise<{
+  isPremium: boolean;
+  plan: string;
+  currentPeriodEnd: Date | null;
+  stripeCustomerId: string | null;
+}> {
+  try {
+    const user = await db.query.profiles.findFirst({
+      where: eq(profiles.id, userId),
+      with: {
+        subscription: true
+      }
+    });
+
+    if (!user) {
+      return {
+        isPremium: false,
+        plan: 'free',
+        currentPeriodEnd: null,
+        stripeCustomerId: null,
+      };
+    }
+
+    const isAdminUser = await isAdmin(userId);
+    const subscription = user.subscription;
+
+    return {
+      isPremium: isAdminUser || (subscription?.isPremium && 
+        subscription.currentPeriodEnd && 
+        new Date() < new Date(subscription.currentPeriodEnd)) || false,
+      plan: isAdminUser ? 'admin' : (subscription?.plan || 'free'),
+      currentPeriodEnd: subscription?.currentPeriodEnd || null,
+      stripeCustomerId: user.stripeCustomerId,
+    };
+  } catch {
+    return {
+      isPremium: false,
+      plan: 'free',
+      currentPeriodEnd: null,
+      stripeCustomerId: null,
+    };
   }
 }

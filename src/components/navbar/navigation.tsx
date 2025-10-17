@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Calendar, BookOpen, Shield, Bot, Heart, User, Upload, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, Protect } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton, Protect } from "@/components/auth";
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(false);
@@ -199,7 +199,7 @@ export function Navigation() {
 
         <div className="flex items-center gap-4">
 
-            <Protect plan={"free_plan"}>
+            <Protect plan="free_plan">
               <Button variant="default" size="sm" asChild className="hidden sm:flex">
                 <Link href="/pricing">
                   <Heart className="mr-2 h-4 w-4" />
@@ -211,17 +211,17 @@ export function Navigation() {
           {/* Clerk Authentication */}
           <SignedOut>
             <div className="flex items-center gap-2">
-              <SignInButton mode="modal">
-                <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/auth/signin">
                   <User className="mr-2 h-4 w-4" />
                   Sign In
-                </Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button size="sm">
+                </Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link href="/auth/signup">
                   Sign Up
-                </Button>
-              </SignUpButton>
+                </Link>
+              </Button>
             </div>
           </SignedOut>
           
@@ -301,7 +301,7 @@ export function Navigation() {
 
             <div className="pt-2 border-t">
 
-                <Protect plan={"free_plan"}>
+                <Protect plan="free_plan">
                   <Button variant="default" className="w-full justify-start" asChild>
                     <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)}>
                       <Heart className="mr-2 h-4 w-4" />
@@ -313,17 +313,17 @@ export function Navigation() {
               {/* Mobile Clerk Authentication */}
               <div className="pt-2 space-y-2">
                 <SignedOut>
-                  <SignInButton mode="modal">
-                    <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start" asChild>
+                    <Link href="/auth/signin" onClick={() => setIsMobileMenuOpen(false)}>
                       <User className="mr-2 h-4 w-4" />
                       Sign In
-                    </Button>
-                  </SignInButton>
-                  <SignUpButton mode="modal">
-                    <Button className="w-full justify-start">
+                    </Link>
+                  </Button>
+                  <Button className="w-full justify-start" asChild>
+                    <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
                       Sign Up
-                    </Button>
-                  </SignUpButton>
+                    </Link>
+                  </Button>
                 </SignedOut>
                 
                 <SignedIn>

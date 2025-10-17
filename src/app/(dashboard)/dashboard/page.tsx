@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { redirect } from 'next/navigation'
 import { SavedEventsList } from '@/components/saved-events-list'
 import { SubscribedEventsList } from '@/components/subscribed-events-list'
@@ -11,13 +11,13 @@ import Link from 'next/link'
 import { isAdmin } from '@/lib/auth'
 
 export default async function DashboardPage() {
-  const { userId } = await auth()
+  const session = await auth()
   
-  if (!userId) {
+  if (!session?.user?.id) {
     redirect('/')
   }
 
-  const admin = await isAdmin(userId)
+  const admin = await isAdmin(session.user.id)
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">

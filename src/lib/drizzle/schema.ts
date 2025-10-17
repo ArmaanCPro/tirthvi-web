@@ -1,14 +1,18 @@
 import { pgTable, uuid, text, timestamp, boolean, jsonb, integer } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
-// Profiles table - syncs with Clerk users
+// Profiles table - NextAuth users
 export const profiles = pgTable('profiles', {
   id: uuid('id').primaryKey(),
-  clerkId: text('clerk_id').unique().notNull(),
-  email: text('email'),
+  email: text('email').unique().notNull(),
+  emailVerified: timestamp('email_verified', { withTimezone: true }),
   firstName: text('first_name'),
   lastName: text('last_name'),
   avatarUrl: text('avatar_url'),
+  password: text('password'), // For credentials provider
+  resetToken: text('reset_token'),
+  resetTokenExpires: timestamp('reset_token_expires', { withTimezone: true }),
+  stripeCustomerId: text('stripe_customer_id'),
   timezone: text('timezone').default('UTC'),
   language: text('language').default('en'),
   isAdmin: boolean('is_admin').default(false),
@@ -22,6 +26,8 @@ export const subscriptions = pgTable("subscriptions", {
     userId: uuid("user_id").notNull().references(() => profiles.id),
     plan: text("plan").notNull().default("free"),
     isPremium: boolean("is_premium").default(false),
+    stripeSubscriptionId: text("stripe_subscription_id"),
+    stripePriceId: text("stripe_price_id"),
     currentPeriodEnd: timestamp("current_period_end", { withTimezone: true}),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -120,7 +126,9 @@ export const profilesRelations = relations(profiles, ({ many, one }) => ({
   subscription: one(subscriptions, {
       fields: [profiles.id],
       references: [subscriptions.userId],
-  })
+  }),
+  accounts: many(accounts),
+  sessions: many(sessions),
 }))
 
 export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
@@ -235,5 +243,54 @@ export const embeddingsRelations = relations(embeddings, ({ one }) => ({
   chunk: one(chunks, {
     fields: [embeddings.chunkId],
     references: [chunks.id],
+  }),
+}))
+
+// NextAuth Tables
+export const accounts = pgTable('accounts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
+  type: text('type').notNull(),
+  provider: text('provider').notNull(),
+  providerAccountId: text('provider_account_id').notNull(),
+  refreshToken: text('refresh_token'),
+  accessToken: text('access_token'),
+  expiresAt: integer('expires_at'),
+  tokenType: text('token_type'),
+  scope: text('scope'),
+  idToken: text('id_token'),
+  sessionState: text('session_state'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+})
+
+export const sessions = pgTable('sessions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  sessionToken: text('session_token').unique().notNull(),
+  userId: uuid('user_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
+  expires: timestamp('expires', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+})
+
+export const verificationTokens = pgTable('verification_tokens', {
+  identifier: text('identifier').notNull(),
+  token: text('token').unique().notNull(),
+  expires: timestamp('expires', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+})
+
+// NextAuth Relations
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(profiles, {
+    fields: [accounts.userId],
+    references: [profiles.id],
+  }),
+}))
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(profiles, {
+    fields: [sessions.userId],
+    references: [profiles.id],
   }),
 }))

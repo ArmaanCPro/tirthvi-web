@@ -45,7 +45,7 @@ export async function getUserUsageStats(userId: string): Promise<UsageStats> {
   // Admins have no limits and determine plan-based limits
   const profile = await db.query.profiles.findFirst({
     where: eq(profiles.id, userId),
-    columns: { isAdmin: true, clerkId: true },
+    columns: { isAdmin: true },
   })
   if (profile?.isAdmin) {
     return {
@@ -59,14 +59,12 @@ export async function getUserUsageStats(userId: string): Promise<UsageStats> {
 
   // Determine overall daily message cap based on plan
   let maxMessages: number = DAILY_LIMITS.AI_MESSAGES // Free default
-  if (profile?.clerkId) {
-    try {
-      const premium = await isPremium(profile.clerkId)
-      if (premium) {
-        maxMessages = 45 // Premium: 15 HQ + 30 fallback
-      }
-    } catch {}
-  }
+  try {
+    const premium = await isPremium(userId)
+    if (premium) {
+      maxMessages = 45 // Premium: 15 HQ + 30 fallback
+    }
+  } catch {}
   
   return {
     messagesCount,

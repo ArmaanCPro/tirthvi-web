@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { generateTextEmbedding } from '@/lib/embeddings'
 import { searchSimilarChunks, createRAGContext } from '@/lib/rag-utils'
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })

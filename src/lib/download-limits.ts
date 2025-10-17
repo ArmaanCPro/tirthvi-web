@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { db } from '@/lib/drizzle'
 import { scriptureDownloads } from '@/lib/drizzle/schema'
 import { eq, and, count } from 'drizzle-orm'
@@ -7,14 +7,14 @@ import { isAdmin } from '@/lib/auth'
 const FREE_DOWNLOAD_LIMIT = 5 // per month
 const PREMIUM_DOWNLOAD_LIMIT = 1000 // effectively unlimited
 
-export async function checkDownloadLimit(userId: string): Promise<{
+export async function checkDownloadLimit(userIdParam: string): Promise<{
   canDownload: boolean
   remaining: number
   limit: number
   isPremium: boolean
 }> {
   // Check if user is admin (bypass all limits)
-  const admin = await isAdmin(userId)
+  const admin = await isAdmin(userIdParam)
   if (admin) {
     return { 
       canDownload: true, 
@@ -24,10 +24,21 @@ export async function checkDownloadLimit(userId: string): Promise<{
     }
   }
 
-  const { has } = await auth()
-  const hasUnlimited = has({ feature: 'unlimited_scripture_downloads' })
+  const session = await auth()
+  const userId = session?.user?.id
   
-  if (hasUnlimited) {
+  if (!userId) {
+    return { 
+      canDownload: false, 
+      remaining: 0, 
+      limit: FREE_DOWNLOAD_LIMIT,
+      isPremium: false
+    }
+  }
+
+  // Check if user is admin (unlimited downloads)
+  const userIsAdmin = await isAdmin(userId)
+  if (userIsAdmin) {
     return { 
       canDownload: true, 
       remaining: PREMIUM_DOWNLOAD_LIMIT, 
@@ -47,7 +58,7 @@ export async function checkDownloadLimit(userId: string): Promise<{
     .from(scriptureDownloads)
     .where(
       and(
-        eq(scriptureDownloads.userId, userId),
+        eq(scriptureDownloads.userId, userIdParam),
         eq(scriptureDownloads.month, currentMonth),
         eq(scriptureDownloads.year, currentYear)
       )
@@ -99,10 +110,21 @@ export async function getUserDownloadStats(userId: string): Promise<{
     }
   }
 
-  const { has } = await auth()
-  const hasUnlimited = has({ feature: 'unlimited_scripture_downloads' })
+  const session = await auth()
+  const sessionUserId = session?.user?.id
   
-  if (hasUnlimited) {
+  if (!sessionUserId) {
+    return {
+      downloadsThisMonth: 0,
+      limit: FREE_DOWNLOAD_LIMIT,
+      remaining: FREE_DOWNLOAD_LIMIT,
+      isPremium: false
+    }
+  }
+
+  // Check if user is admin (unlimited downloads)
+  const userIsAdmin = await isAdmin(sessionUserId)
+  if (userIsAdmin) {
     return {
       downloadsThisMonth: 0,
       limit: PREMIUM_DOWNLOAD_LIMIT,

@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { isAdmin } from '@/lib/auth'
 
 export async function GET() {
   try {
-    const { userId } = await auth()
+    const session = await auth()
     
-    if (!userId) {
+    if (!session?.user?.id) {
       return NextResponse.json({ isAdmin: false })
     }
 
-    const admin = await isAdmin(userId)
+    const admin = await isAdmin(session.user.id)
     return NextResponse.json({ isAdmin: admin })
   } catch (error) {
     console.error('Error checking admin status:', error)

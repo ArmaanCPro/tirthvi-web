@@ -52,7 +52,17 @@
     }
   }
   --animate-spin: spin 2s linear infinite
-}
+;
+  @keyframes aurora {
+  from {
+    backgroundPosition: 50% 50%, 50% 50%;}
+  to {
+    backgroundPosition: 350% 50%, 350% 50%;}}
+  @keyframes aurora {
+  from {
+    backgroundPosition: 50% 50%, 50% 50%;}
+  to {
+    backgroundPosition: 350% 50%, 350% 50%;}}}
 
 :root {
   --radius: 0.625rem;
@@ -96,36 +106,36 @@
   body {
     @apply bg-background text-foreground;
   }
-  
+
   /* Custom scrollbar styles */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
-  
+
   ::-webkit-scrollbar-track {
     background: oklch(0.11 0.01 30); /* matches --card */
     border-radius: 4px;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     background: oklch(0.3 0.01 50); /* dark gray */
     border-radius: 4px;
     border: 1px solid oklch(0.18 0.01 35); /* matches --border */
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     background: oklch(0.4 0.01 50); /* lighter gray on hover */
   }
-  
+
   ::-webkit-scrollbar-thumb:active {
     background: oklch(0.5 0.01 50); /* even lighter on active */
   }
-  
+
   ::-webkit-scrollbar-corner {
     background: oklch(0.11 0.01 30); /* matches track */
   }
-  
+
   /* Firefox scrollbar */
   * {
     scrollbar-width: thin;
