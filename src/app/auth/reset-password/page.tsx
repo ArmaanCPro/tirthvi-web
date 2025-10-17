@@ -9,9 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Lock, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react"
-import { AuroraBackground } from "@/components/ui/shadcn-io/aurora-background"
-import { GradientText } from "@/components/ui/shadcn-io/gradient-text"
-import { FlipWords } from "@/components/ui/shadcn-io/flip-words"
 import { toast } from "sonner"
 
 export default function ResetPasswordPage() {
@@ -31,7 +28,8 @@ export default function ResetPasswordPage() {
     if (tokenParam) {
       setToken(tokenParam)
     } else {
-      setError("Invalid or missing reset token")
+      setError("Invalid or missing reset token.")
+      toast.error("Invalid or missing reset token.")
     }
   }, [searchParams])
 
@@ -40,40 +38,32 @@ export default function ResetPasswordPage() {
     setIsLoading(true)
     setError("")
 
-    // Validation
     if (password !== confirmPassword) {
       setError("Passwords do not match")
-      setIsLoading(false)
-      return
-    }
-
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long")
+      toast.error("Passwords do not match")
       setIsLoading(false)
       return
     }
 
     if (!token) {
-      setError("Invalid reset token")
+      setError("Reset token is missing.")
+      toast.error("Reset token is missing.")
       setIsLoading(false)
       return
     }
 
     try {
-      const response = await fetch("/api/auth/reset-password", {
+      const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          token,
-          password,
-        }),
+        body: JSON.stringify({ token, password }),
       })
 
-      const data = await response.json()
+      const data = await res.json()
 
-      if (response.ok) {
+      if (res.ok) {
         setIsSuccess(true)
         toast.success("Password reset successfully!")
       } else {
@@ -88,14 +78,12 @@ export default function ResetPasswordPage() {
     }
   }
 
-  const words = ["New", "Password", "Set"]
-
   if (isSuccess) {
     return (
-      <AuroraBackground>
-        <div className="relative z-10 w-full max-w-md mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <Link href="/auth/signin" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6">
+            <Link href="/auth/signin" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
               <ArrowLeft className="h-4 w-4" />
               Back to sign in
             </Link>
@@ -108,15 +96,13 @@ export default function ResetPasswordPage() {
                 height={40}
                 className="h-10 w-10 rounded-lg"
               />
-              <GradientText 
-                text="Tirthvi" 
-                className="text-3xl font-bold"
-                gradient="linear-gradient(90deg, #3b82f6 0%, #a855f7 20%, #ec4899 50%, #a855f7 80%, #3b82f6 100%)"
-              />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Tirthvi
+              </h1>
             </div>
           </div>
 
-          <Card className="backdrop-blur-sm bg-background/80 border-border/50">
+          <Card className="bg-background/95 border shadow-xl">
             <CardContent className="pt-6">
               <div className="text-center space-y-4">
                 <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
@@ -124,28 +110,32 @@ export default function ResetPasswordPage() {
                 </div>
                 
                 <div>
-                  <h1 className="text-2xl font-semibold mb-2">
-                    <FlipWords words={words} className="text-2xl font-semibold" />
-                  </h1>
+                  <h2 className="text-2xl font-semibold mb-2">
+                    Password Reset!
+                  </h2>
                   <p className="text-muted-foreground">
-                    Your password has been successfully reset.
+                    You can now sign in with your new password.
                   </p>
                 </div>
 
-                <Button asChild className="w-full">
-                  <Link href="/auth/signin">Sign In to Your Account</Link>
-                </Button>
+                <div className="pt-4 space-y-2">
+                  <Button asChild className="w-full">
+                    <Link href="/auth/signin">
+                      Back to Sign In
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
-      </AuroraBackground>
+      </div>
     )
   }
 
   return (
-    <AuroraBackground>
-      <div className="relative z-10 w-full max-w-sm mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/auth/signin" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
             <ArrowLeft className="h-4 w-4" />
@@ -160,22 +150,20 @@ export default function ResetPasswordPage() {
               height={32}
               className="h-8 w-8 rounded-lg"
             />
-            <GradientText 
-              text="Tirthvi" 
-              className="text-2xl font-semibold"
-              gradient="linear-gradient(90deg, #3b82f6 0%, #a855f7 20%, #ec4899 50%, #a855f7 80%, #3b82f6 100%)"
-            />
+            <h1 className="text-2xl font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Tirthvi
+            </h1>
           </div>
           
-          <h1 className="text-xl font-medium mb-2 text-foreground">
-            <FlipWords words={words} className="text-xl font-medium" />
-          </h1>
+          <h2 className="text-xl font-medium mb-2 text-foreground">
+            Set new password
+          </h2>
           <p className="text-sm text-muted-foreground">
             Choose a strong password
           </p>
         </div>
 
-        <Card className="backdrop-blur-sm bg-background/95 border-border/20 shadow-xl">
+        <Card className="bg-background/95 border shadow-xl">
           <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
@@ -263,6 +251,6 @@ export default function ResetPasswordPage() {
           </CardContent>
         </Card>
       </div>
-    </AuroraBackground>
+    </div>
   )
 }

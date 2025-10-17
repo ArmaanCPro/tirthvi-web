@@ -10,7 +10,7 @@ interface SignInButtonProps {
   className?: string
 }
 
-export function SignInButton({ children, mode = "redirect", className }: SignInButtonProps) {
+export function SignInButton({ children, className }: SignInButtonProps) {
   const handleSignIn = () => {
     // For now, always redirect to sign in page
     // TODO: Implement modal sign in for mode="modal"

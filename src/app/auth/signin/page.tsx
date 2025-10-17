@@ -11,9 +11,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react"
-import { AuroraBackground } from "@/components/ui/shadcn-io/aurora-background"
-import { GradientText } from "@/components/ui/shadcn-io/gradient-text"
-import { FlipWords } from "@/components/ui/shadcn-io/flip-words"
 import { toast } from "sonner"
 
 export default function SignInPage() {
@@ -66,11 +63,10 @@ export default function SignInPage() {
     }
   }
 
-  const words = ["Welcome", "Back", "to", "Tirthvi"]
 
   return (
-    <AuroraBackground>
-      <div className="relative z-10 w-full max-w-sm mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
             <ArrowLeft className="h-4 w-4" />
@@ -85,22 +81,20 @@ export default function SignInPage() {
               height={32}
               className="h-8 w-8 rounded-lg"
             />
-            <GradientText 
-              text="Tirthvi" 
-              className="text-2xl font-semibold"
-              gradient="linear-gradient(90deg, #3b82f6 0%, #a855f7 20%, #ec4899 50%, #a855f7 80%, #3b82f6 100%)"
-            />
+            <h1 className="text-2xl font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Tirthvi
+            </h1>
           </div>
           
-          <h1 className="text-xl font-medium mb-2 text-foreground">
-            <FlipWords words={words} className="text-xl font-medium" />
-          </h1>
+          <h2 className="text-xl font-medium mb-2 text-foreground">
+            Welcome back
+          </h2>
           <p className="text-sm text-muted-foreground">
             Continue your spiritual journey
           </p>
         </div>
 
-        <Card className="backdrop-blur-sm bg-background/95 border-border/20 shadow-xl">
+        <Card className="bg-background/95 border shadow-xl">
           <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
@@ -225,6 +219,6 @@ export default function SignInPage() {
           </CardContent>
         </Card>
       </div>
-    </AuroraBackground>
+    </div>
   )
 }

@@ -211,16 +211,12 @@ export function Navigation() {
           {/* Clerk Authentication */}
           <SignedOut>
             <div className="flex items-center gap-2">
-              <SignInButton mode="modal">
-                <Button variant="outline" size="sm">
-                  <User className="mr-2 h-4 w-4" />
-                  Sign In
-                </Button>
+              <SignInButton mode="modal" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
+                <User className="mr-2 h-4 w-4" />
+                Sign In
               </SignInButton>
-              <SignUpButton mode="modal">
-                <Button size="sm">
-                  Sign Up
-                </Button>
+              <SignUpButton mode="modal" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3">
+                Sign Up
               </SignUpButton>
             </div>
           </SignedOut>
@@ -313,16 +309,12 @@ export function Navigation() {
               {/* Mobile Clerk Authentication */}
               <div className="pt-2 space-y-2">
                 <SignedOut>
-                  <SignInButton mode="modal">
-                    <Button variant="outline" className="w-full justify-start">
-                      <User className="mr-2 h-4 w-4" />
-                      Sign In
-                    </Button>
+                  <SignInButton mode="modal" className="w-full justify-start inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
+                    <User className="mr-2 h-4 w-4" />
+                    Sign In
                   </SignInButton>
-                  <SignUpButton mode="modal">
-                    <Button className="w-full justify-start">
-                      Sign Up
-                    </Button>
+                  <SignUpButton mode="modal" className="w-full justify-start inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3">
+                    Sign Up
                   </SignUpButton>
                 </SignedOut>
                 

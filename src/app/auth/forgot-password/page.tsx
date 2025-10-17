@@ -8,9 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Mail, ArrowLeft, CheckCircle } from "lucide-react"
-import { AuroraBackground } from "@/components/ui/shadcn-io/aurora-background"
-import { GradientText } from "@/components/ui/shadcn-io/gradient-text"
-import { FlipWords } from "@/components/ui/shadcn-io/flip-words"
 import { toast } from "sonner"
 
 export default function ForgotPasswordPage() {
@@ -25,7 +22,7 @@ export default function ForgotPasswordPage() {
     setError("")
 
     try {
-      const response = await fetch("/api/auth/forgot-password", {
+      const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,9 +30,9 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ email }),
       })
 
-      const data = await response.json()
+      const data = await res.json()
 
-      if (response.ok) {
+      if (res.ok) {
         setIsSuccess(true)
         toast.success("Password reset email sent!")
       } else {
@@ -50,14 +47,12 @@ export default function ForgotPasswordPage() {
     }
   }
 
-  const words = ["Reset", "Your", "Password"]
-
   if (isSuccess) {
     return (
-      <AuroraBackground>
-        <div className="relative z-10 w-full max-w-md mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <Link href="/auth/signin" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6">
+            <Link href="/auth/signin" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
               <ArrowLeft className="h-4 w-4" />
               Back to sign in
             </Link>
@@ -70,15 +65,13 @@ export default function ForgotPasswordPage() {
                 height={40}
                 className="h-10 w-10 rounded-lg"
               />
-              <GradientText 
-                text="Tirthvi" 
-                className="text-3xl font-bold"
-                gradient="linear-gradient(90deg, #3b82f6 0%, #a855f7 20%, #ec4899 50%, #a855f7 80%, #3b82f6 100%)"
-              />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Tirthvi
+              </h1>
             </div>
           </div>
 
-          <Card className="backdrop-blur-sm bg-background/80 border-border/50">
+          <Card className="bg-background/95 border shadow-xl">
             <CardContent className="pt-6">
               <div className="text-center space-y-4">
                 <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
@@ -86,9 +79,9 @@ export default function ForgotPasswordPage() {
                 </div>
                 
                 <div>
-                  <h1 className="text-2xl font-semibold mb-2">
-                    <FlipWords words={words} className="text-2xl font-semibold" />
-                  </h1>
+                  <h2 className="text-2xl font-semibold mb-2">
+                    Reset your password
+                  </h2>
                   <p className="text-muted-foreground">
                     We&apos;ve sent a password reset link to your email address.
                   </p>
@@ -101,23 +94,22 @@ export default function ForgotPasswordPage() {
 
                 <div className="pt-4 space-y-2">
                   <Button asChild className="w-full">
-                    <Link href="/auth/signin">Back to Sign In</Link>
-                  </Button>
-                  <Button variant="outline" asChild className="w-full">
-                    <Link href="/auth/reset-password">I have a reset token</Link>
+                    <Link href="/auth/signin">
+                      Back to Sign In
+                    </Link>
                   </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
-      </AuroraBackground>
+      </div>
     )
   }
 
   return (
-    <AuroraBackground>
-      <div className="relative z-10 w-full max-w-sm mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/auth/signin" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
             <ArrowLeft className="h-4 w-4" />
@@ -132,22 +124,20 @@ export default function ForgotPasswordPage() {
               height={32}
               className="h-8 w-8 rounded-lg"
             />
-            <GradientText 
-              text="Tirthvi" 
-              className="text-2xl font-semibold"
-              gradient="linear-gradient(90deg, #3b82f6 0%, #a855f7 20%, #ec4899 50%, #a855f7 80%, #3b82f6 100%)"
-            />
+            <h1 className="text-2xl font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Tirthvi
+            </h1>
           </div>
           
-          <h1 className="text-xl font-medium mb-2 text-foreground">
-            <FlipWords words={words} className="text-xl font-medium" />
-          </h1>
+          <h2 className="text-xl font-medium mb-2 text-foreground">
+            Reset your password
+          </h2>
           <p className="text-sm text-muted-foreground">
             We&apos;ll send you a reset link
           </p>
         </div>
 
-        <Card className="backdrop-blur-sm bg-background/95 border-border/20 shadow-xl">
+        <Card className="bg-background/95 border shadow-xl">
           <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
@@ -191,6 +181,6 @@ export default function ForgotPasswordPage() {
           </CardContent>
         </Card>
       </div>
-    </AuroraBackground>
+    </div>
   )
 }
