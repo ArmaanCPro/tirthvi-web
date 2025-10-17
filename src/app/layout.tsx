@@ -4,6 +4,9 @@ import "@/styles/globals.css";
 import { Toaster } from "@/components/ui/sonner"
 import ClerkClientProvider from "@/components/clerk/ClerkProviderLazy";
 import LazyAnalytics from "@/components/lazy-analytics";
+import { StructuredData } from "@/components/structured-data";
+import { SkipLink } from "@/components/accessibility-utils";
+import { PreloadCriticalResources, ResourceHints, PerformanceMonitor } from "@/components/performance-optimizations";
 import dynamic from "next/dynamic";
 
 const Navigation = dynamic(() => import("@/components/navbar/navigation").then(mod => ({ default: mod.Navigation })) );
@@ -24,8 +27,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_SITE_URL!.toString() : "http://localhost:3000"),
-  title: "Tirthvi - Hindu Wisdom Hub",
-  description: "A digital hub and AI tool for Hindu wisdom, philosophy, and scripture",
+  title: {
+    default: "Tirthvi - Hindu Wisdom Hub",
+    template: "%s | Tirthvi"
+  },
+  description: "Discover Hindu wisdom through our comprehensive calendar of sacred events, digital scripture library, and AI-powered spiritual guidance. Your gateway to ancient knowledge.",
+  keywords: ["Hindu", "scriptures", "calendar", "festivals", "AI", "spiritual guidance", "Bhagavad Gita", "Vedas", "Upanishads"],
   alternates: {
       canonical: "/",
   },
@@ -43,13 +50,13 @@ export const metadata: Metadata = {
 
   openGraph: {
       title: "Tirthvi - Hindu Wisdom Hub",
-      description: "A digital hub and AI tool for Hindu wisdom, philosophy, and scripture",
+      description: "Discover Hindu wisdom through our comprehensive calendar of sacred events, digital scripture library, and AI-powered spiritual guidance.",
       images: [
           {
               url: "/android-chrome-512x512.png",
               width: 512,
               height: 512,
-              alt: "Tirthvi Logo",
+              alt: "Tirthvi - Hindu Wisdom Hub Logo",
           },
           {
               url: "/android-chrome-192x192.png",
@@ -59,13 +66,16 @@ export const metadata: Metadata = {
           }
       ],
       type: "website",
+      siteName: "Tirthvi",
+      locale: "en_US",
   },
 
   twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: "Tirthvi - Hindu Wisdom Hub",
-      description: "A digital hub and AI tool for Hindu wisdom, philosophy, and scripture",
+      description: "Discover Hindu wisdom through our comprehensive calendar of sacred events, digital scripture library, and AI-powered spiritual guidance.",
       images: ["/android-chrome-512x512.png"],
+      creator: "@tirthvi",
   },
   other: {
       "msapplication-TileColor": "#111111",
@@ -83,9 +93,15 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
         >
+            <SkipLink href="#main-content">Skip to main content</SkipLink>
+            <PreloadCriticalResources />
+            <ResourceHints />
+            <PerformanceMonitor />
+            <StructuredData type="website" />
+            <StructuredData type="organization" />
             <ClerkClientProvider>
               <Navigation />
-              <main className="min-h-screen">
+              <main id="main-content" className="min-h-screen" role="main">
                 {children}
               </main>
             </ClerkClientProvider>

@@ -1,5 +1,6 @@
 import { getScriptureBySlug, getAllScriptures } from '@/lib/scriptures';
 import { ScriptureDetail } from '@/components/scriptures/scripture-detail';
+import { StructuredData } from '@/components/structured-data';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
@@ -17,7 +18,12 @@ export default async function ScripturePage({ params }: ScripturePageProps) {
     notFound();
   }
   
-  return <ScriptureDetail scripture={scripture} />;
+  return (
+    <>
+      <StructuredData type="scripture" data={scripture} />
+      <ScriptureDetail scripture={scripture} />
+    </>
+  );
 }
 
 export async function generateMetadata({ params }: ScripturePageProps): Promise<Metadata> {

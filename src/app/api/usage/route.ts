@@ -4,6 +4,37 @@ import { db } from '@/lib/drizzle'
 import { profiles } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { getUserUsageStats } from '@/lib/usage-tracking'
+import { unstable_cache } from 'next/cache'
+
+// Cache user usage stats for 1 minute
+const getCachedUserUsageStats = unstable_cache(
+  async (userId: string) => {
+    console.log('Cache miss - loading usage stats for user:', userId)
+    
+    // Get user from database
+    const user = await db.query.profiles.findFirst({
+      where: eq(profiles.clerkId, userId),
+    })
+
+    if (!user) {
+      // Return default usage stats if user not found in database
+      return {
+        messagesCount: 0,
+        tokensUsed: 0,
+        messagesRemaining: 20,
+        tokensRemaining: 10000,
+        isLimitReached: false,
+      }
+    }
+
+    return await getUserUsageStats(user.id)
+  },
+  ['user-usage-stats'],
+  {
+    revalidate: 60, // 1 minute
+    tags: ['user-usage-stats'],
+  }
+)
 
 export async function GET() {
   try {
@@ -13,24 +44,7 @@ export async function GET() {
       return new Response('Unauthorized', { status: 401 })
     }
 
-    // Get user from database
-    const user = await db.query.profiles.findFirst({
-      where: eq(profiles.clerkId, userId),
-    })
-
-    if (!user) {
-      // Return default usage stats if user not found in database
-      return NextResponse.json({
-        messagesCount: 0,
-        tokensUsed: 0,
-        messagesRemaining: 20,
-        tokensRemaining: 10000,
-        isLimitReached: false,
-      })
-    }
-
-    const usageStats = await getUserUsageStats(user.id)
-
+    const usageStats = await getCachedUserUsageStats(userId)
     return NextResponse.json(usageStats)
   } catch (error) {
     console.error('Error fetching usage stats:', error)

@@ -8,11 +8,20 @@ Disallow: /api/
 # Disallow crawling of temporary or development files
 Disallow: /_next/
 Disallow: /static/
+Disallow: /dashboard/
+Disallow: /chat/
+Disallow: /upload/
 
 # Allow crawling of important resources
 Allow: /images/
 Allow: /favicon.ico
 Allow: /site.webmanifest
+Allow: /events/
+Allow: /scriptures/
+Allow: /calendar/
+
+# Crawl delay for better server performance
+Crawl-delay: 1
 
 # Sitemap location
 Sitemap: https://www.tirthvi.com/sitemap.xml

@@ -1,5 +1,6 @@
 import { getEventBySlug, getAllEvents } from '@/lib/events';
 import { EventDetail } from '@/components/event-detail';
+import { StructuredData } from '@/components/structured-data';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
@@ -17,7 +18,12 @@ export default async function EventPage({ params }: EventPageProps) {
     notFound();
   }
   
-  return <EventDetail event={event} />;
+  return (
+    <>
+      <StructuredData type="event" data={event} />
+      <EventDetail event={event} />
+    </>
+  );
 }
 
 export async function generateMetadata({ params }: EventPageProps): Promise<Metadata> {

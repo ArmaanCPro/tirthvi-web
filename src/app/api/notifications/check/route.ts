@@ -2,6 +2,57 @@
 // This is called by the Supabase Edge Function
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllEvents } from '@/lib/events'
+import { unstable_cache } from 'next/cache'
+
+// Cache events for a specific date for 5 minutes
+const getCachedEventsForDate = unstable_cache(
+  async (date: string) => {
+    console.log('Cache miss - loading events for date:', date)
+    
+    // Get all events
+    const events = await getAllEvents()
+    
+    // Find events that occur on the specified date
+    const eventsOnDate = events.filter(event => {
+      // Check all years for this event
+      for (const year of Object.keys(event.occurrences)) {
+        const occurrences = event.occurrences[year]
+        for (const occurrence of occurrences) {
+          if (occurrence.date === date) {
+            return true
+          }
+        }
+      }
+      return false
+    })
+
+    // Return simplified event data for notifications
+    return eventsOnDate.map(event => ({
+      slug: event.slug,
+      name: event.name,
+      description: event.description,
+      // Find the specific occurrence for this date
+      occurrence: (() => {
+        for (const year of Object.keys(event.occurrences)) {
+          const occurrences = event.occurrences[year]
+          const occurrence = occurrences.find(occ => occ.date === date)
+          if (occurrence) {
+            return {
+              ...occurrence,
+              year: parseInt(year)
+            }
+          }
+        }
+        return null
+      })()
+    }))
+  },
+  ['events-for-date'],
+  {
+    revalidate: 300, // 5 minutes
+    tags: ['events', 'events-for-date'],
+  }
+)
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,43 +76,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid date format. Use YYYY-MM-DD' }, { status: 400 })
     }
 
-    // Get all events
-    const events = await getAllEvents()
-    
-    // Find events that occur on the specified date
-    const eventsOnDate = events.filter(event => {
-      // Check all years for this event
-      for (const year of Object.keys(event.occurrences)) {
-        const occurrences = event.occurrences[year]
-        for (const occurrence of occurrences) {
-          if (occurrence.date === date) {
-            return true
-          }
-        }
-      }
-      return false
-    })
-
-    // Return simplified event data for notifications
-    const eventData = eventsOnDate.map(event => ({
-      slug: event.slug,
-      name: event.name,
-      description: event.description,
-      // Find the specific occurrence for this date
-      occurrence: (() => {
-        for (const year of Object.keys(event.occurrences)) {
-          const occurrences = event.occurrences[year]
-          const occurrence = occurrences.find(occ => occ.date === date)
-          if (occurrence) {
-            return {
-              ...occurrence,
-              year: parseInt(year)
-            }
-          }
-        }
-        return null
-      })()
-    }))
+    const eventData = await getCachedEventsForDate(date)
 
     return NextResponse.json({ 
       date,
