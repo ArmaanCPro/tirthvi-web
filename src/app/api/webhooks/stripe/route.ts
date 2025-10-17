@@ -96,7 +96,8 @@ async function handleSubscriptionCreated(session: Stripe.Checkout.Session) {
     isPremium: true,
     stripeSubscriptionId: subscriptionId,
     stripePriceId: priceId,
-    currentPeriodEnd: new Date((subscription as Stripe.Subscription).current_period_end * 1000),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
   }).onConflictDoUpdate({
     target: subscriptions.userId,
     set: {
@@ -104,7 +105,8 @@ async function handleSubscriptionCreated(session: Stripe.Checkout.Session) {
       isPremium: true,
       stripeSubscriptionId: subscriptionId,
       stripePriceId: priceId,
-      currentPeriodEnd: new Date((subscription as Stripe.Subscription).current_period_end * 1000),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
       updatedAt: new Date(),
     }
   })
@@ -120,7 +122,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       plan: subscription.status === 'active' ? 'premium' : 'free',
       isPremium: subscription.status === 'active',
       stripePriceId: priceId,
-      currentPeriodEnd: new Date((subscription as Stripe.Subscription).current_period_end * 1000),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
       updatedAt: new Date(),
     })
     .where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
@@ -141,7 +144,8 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
-  const subscriptionId = (invoice as Stripe.Invoice).subscription as string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const subscriptionId = (invoice as any).subscription as string
 
   if (subscriptionId) {
     // Mark subscription as past due
