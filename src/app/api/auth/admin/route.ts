@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from 'next-auth'
+import { auth } from '@/lib/auth-config'
 import { isAdmin } from '@/lib/auth'
 
 export async function GET() {

@@ -1,6 +1,6 @@
 import { streamText, convertToModelMessages } from 'ai'
 import { NextRequest } from 'next/server'
-import { auth } from 'next-auth'
+import { auth } from '@/lib/auth-config'
 import { db } from '@/lib/drizzle'
 import { profiles } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       : ''
 
     // Determine user's plan (by Clerk ID), prune old conversations for free users, and set context size
-    const plan = await getUserPlan(user.id)
+    const plan = await getUserPlan(user?.id || '')
 
     if (user && typeof plan.retentionDays === 'number') {
       // Opportunistically prune old conversations for free plan
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     // Select model with per-plan limits and fallback
     let selectedModel: string = 'openai/gpt-oss-120b'
     if (user) {
-      const model = await chooseModelForUser(user.id, user.id)
+      const model = await chooseModelForUser(user?.id || '', user?.id || '')
       if (!model) {
         return new Response('Daily AI usage for your plan has been reached. Please try again tomorrow.', {
           status: 429,

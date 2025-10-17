@@ -1,5 +1,4 @@
-import { auth } from "next-auth"
-import { authOptions } from "./auth-config"
+import { auth } from "./auth-config"
 import { db } from "./drizzle"
 import { profiles } from "./drizzle/schema"
 import { eq } from "drizzle-orm"

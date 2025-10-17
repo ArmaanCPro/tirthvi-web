@@ -1,6 +1,6 @@
 import { isAdmin } from "@/lib/auth";
 import { db } from "@/lib/drizzle";
-import { profiles, subscriptions } from "@/lib/drizzle";
+import { profiles } from "@/lib/drizzle";
 import { eq } from "drizzle-orm";
 
 export async function isPremium(userId: string): Promise<boolean> {

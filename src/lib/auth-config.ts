@@ -1,4 +1,4 @@
-import type { NextAuthConfig } from "next-auth"
+import NextAuth from "next-auth"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
@@ -7,7 +7,7 @@ import { profiles } from "@/lib/drizzle/schema"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 
-export const authOptions: NextAuthConfig = {
+export const { handlers, auth } = NextAuth({
   adapter: DrizzleAdapter(db),
   providers: [
     GoogleProvider({
@@ -20,7 +20,7 @@ export const authOptions: NextAuthConfig = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials: any) {
+      async authorize(credentials: Record<string, unknown>) {
         if (!credentials?.email || !credentials?.password) {
           return null
         }
@@ -34,7 +34,7 @@ export const authOptions: NextAuthConfig = {
         }
 
         const isPasswordValid = await bcrypt.compare(
-          credentials.password,
+          credentials.password as string,
           user.password
         )
 
@@ -55,13 +55,13 @@ export const authOptions: NextAuthConfig = {
     strategy: "jwt"
   },
   callbacks: {
-    async jwt({ token, user }: any) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id
       }
       return token
     },
-    async session({ session, token }: any) {
+    async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string
       }
@@ -70,6 +70,5 @@ export const authOptions: NextAuthConfig = {
   },
   pages: {
     signIn: "/auth/signin",
-    signUp: "/auth/signup",
   }
-}
+})
