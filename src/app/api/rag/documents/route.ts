@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { processDocument, getDocumentsWithStats, deleteDocument } from '@/lib/document-processor'
 
 export async function GET() {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
@@ -21,7 +22,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
@@ -53,7 +55,8 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })

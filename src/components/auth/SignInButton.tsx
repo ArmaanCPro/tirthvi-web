@@ -12,13 +12,9 @@ interface SignInButtonProps {
 
 export function SignInButton({ children, mode = "redirect", className }: SignInButtonProps) {
   const handleSignIn = () => {
-    if (mode === "modal") {
-      // For now, redirect to sign in page
-      // TODO: Implement modal sign in
-      window.location.href = "/auth/signin"
-    } else {
-      window.location.href = "/auth/signin"
-    }
+    // For now, always redirect to sign in page
+    // TODO: Implement modal sign in for mode="modal"
+    window.location.href = "/auth/signin"
   }
 
   return (

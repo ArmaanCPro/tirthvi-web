@@ -3,19 +3,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser } from '@clerk/nextjs'
+import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Download, Crown, Loader2 } from 'lucide-react'
 import { Scripture } from '@/lib/schemas/scripture'
 import { toast } from 'sonner'
-import { Protect } from '@clerk/nextjs'
+import { Protect } from '@/components/auth'
 
 interface DownloadButtonProps {
     scripture: Scripture
 }
 
 export function DownloadButton({ scripture }: DownloadButtonProps) {
-    const { user } = useUser()
+    const { data: session } = useSession()
+    const user = session?.user
     const [downloading, setDownloading] = useState(false)
     const [isAdmin, setIsAdmin] = useState(false)
 
@@ -93,7 +94,7 @@ export function DownloadButton({ scripture }: DownloadButtonProps) {
 
     return (
         <Protect
-        condition={(has) => has({ feature: 'premium_scripture_downloads' })}
+        plan="premium"
         fallback={
             <Button
                 onClick={handleDownload}

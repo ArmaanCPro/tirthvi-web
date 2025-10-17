@@ -1,26 +1,49 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { ReactNode } from "react"
+import { ReactNode, useEffect, useState } from "react"
 
 interface ProtectProps {
   children: ReactNode
   fallback?: ReactNode
-  plan?: string // For future use with subscription plans
+  plan?: string // For subscription plan protection
 }
 
-export function Protect({ children, fallback = null }: ProtectProps) {
+export function Protect({ children, fallback = null, plan }: ProtectProps) {
   const { data: session, status } = useSession()
+  const [isPremium, setIsPremium] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-  if (status === "loading") {
-    return null // or a loading spinner
+  useEffect(() => {
+    if (session?.user?.id && plan) {
+      // Check premium status for plan-based protection
+      fetch('/api/auth/premium')
+        .then(res => res.json())
+        .then(data => {
+          setIsPremium(!!data?.isPremium)
+          setIsLoading(false)
+        })
+        .catch(() => {
+          setIsPremium(false)
+          setIsLoading(false)
+        })
+    } else {
+      setIsLoading(false)
+    }
+  }, [session?.user?.id, plan])
+
+  if (status === "loading" || isLoading) {
+    return null
   }
 
   if (!session?.user) {
     return <>{fallback}</>
   }
 
-  // TODO: Add plan-based protection logic here
-  // For now, just check if user is authenticated
+  // If plan is specified, check if user has premium access
+  if (plan && !isPremium) {
+    return <>{fallback}</>
+  }
+
   return <>{children}</>
 }

@@ -11,13 +11,9 @@ interface SignUpButtonProps {
 
 export function SignUpButton({ children, mode = "redirect", className }: SignUpButtonProps) {
   const handleSignUp = () => {
-    if (mode === "modal") {
-      // For now, redirect to sign up page
-      // TODO: Implement modal sign up
-      window.location.href = "/auth/signup"
-    } else {
-      window.location.href = "/auth/signup"
-    }
+    // For now, always redirect to sign up page
+    // TODO: Implement modal sign up for mode="modal"
+    window.location.href = "/auth/signup"
   }
 
   return (

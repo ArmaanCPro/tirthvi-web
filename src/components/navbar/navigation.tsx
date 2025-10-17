@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Calendar, BookOpen, Shield, Bot, Heart, User, Upload, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, Protect } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, Protect } from "@/components/auth";
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(false);
@@ -199,7 +199,7 @@ export function Navigation() {
 
         <div className="flex items-center gap-4">
 
-            <Protect plan={"free_plan"}>
+            <Protect plan="free_plan">
               <Button variant="default" size="sm" asChild className="hidden sm:flex">
                 <Link href="/pricing">
                   <Heart className="mr-2 h-4 w-4" />
@@ -301,7 +301,7 @@ export function Navigation() {
 
             <div className="pt-2 border-t">
 
-                <Protect plan={"free_plan"}>
+                <Protect plan="free_plan">
                   <Button variant="default" className="w-full justify-start" asChild>
                     <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)}>
                       <Heart className="mr-2 h-4 w-4" />

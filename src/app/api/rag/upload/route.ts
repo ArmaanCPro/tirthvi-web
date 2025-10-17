@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth-config'
 import { processPDF, processDocument } from '@/lib/document-processor'
 import { processDocumentsBatch } from '@/lib/batch-processor'
 import { checkRAGTables } from '@/lib/db-init'
@@ -12,7 +12,8 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
@@ -200,7 +201,8 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const { userId } = await auth()
+    const session = await auth()
+    const userId = session?.user?.id
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
