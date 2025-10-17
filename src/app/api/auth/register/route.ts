@@ -6,10 +6,10 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 
 const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
+  email: z.string().email().max(255),
+  password: z.string().min(8).max(128),
+  firstName: z.string().max(100).optional(),
+  lastName: z.string().max(100).optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -44,12 +44,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      }
+      message: 'User registered successfully'
     })
   } catch (error) {
     if (error instanceof z.ZodError) {

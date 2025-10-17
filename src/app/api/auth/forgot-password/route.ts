@@ -5,15 +5,32 @@ import { eq } from 'drizzle-orm'
 import { Resend } from 'resend'
 import crypto from 'crypto'
 import { z } from 'zod'
+import { rateLimit, getClientIP } from '@/lib/rate-limit'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email(),
+  email: z.string().email().max(255),
 })
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting
+    const clientIP = getClientIP(req)
+    const rateLimitResult = rateLimit(`forgot-password:${clientIP}`, 3, 15 * 60 * 1000) // 3 attempts per 15 minutes
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString()
+          }
+        }
+      )
+    }
+
     const body = await req.json()
     const { email } = forgotPasswordSchema.parse(body)
 

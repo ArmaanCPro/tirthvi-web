@@ -6,8 +6,8 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 
 const resetPasswordSchema = z.object({
-  token: z.string(),
-  password: z.string().min(8),
+  token: z.string().length(64), // 32 bytes = 64 hex chars
+  password: z.string().min(8).max(128),
 })
 
 export async function POST(req: NextRequest) {
