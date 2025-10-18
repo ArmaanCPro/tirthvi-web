@@ -34,48 +34,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   })
 
   useEffect(() => {
-    // Use Better Auth's reactive session
-    const { data: session, isPending } = authClient.useSession()
-    
-    if (isPending) {
-      setAuthState(prev => ({ ...prev, isLoading: true }))
-      return
-    }
-
-    if (session) {
-      // Check admin and premium status
-      Promise.all([
-        fetch('/api/auth/admin').then(res => res.json()),
-        fetch('/api/auth/premium').then(res => res.json())
-      ]).then(([adminData, premiumData]) => {
+    // Use Better Auth's getSession method instead of useSession hook
+    const checkAuth = async () => {
+      try {
+        const response = await authClient.getSession()
+        
+        if (response && 'data' in response && response.data && response.data.user) {
+          // Check admin and premium status
+          const [adminResponse, premiumResponse] = await Promise.all([
+            fetch('/api/auth/admin').then(res => res.json()),
+            fetch('/api/auth/premium').then(res => res.json())
+          ])
+          
+          setAuthState({
+            user: {
+              ...response.data.user,
+              image: response.data.user.image || null
+            },
+            isLoading: false,
+            isAdmin: adminResponse?.isAdmin || false,
+            isPremium: premiumResponse?.isPremium || false,
+          })
+        } else {
+          setAuthState({
+            user: null,
+            isLoading: false,
+            isAdmin: false,
+            isPremium: false,
+          })
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error)
         setAuthState({
-          user: {
-            ...session.user,
-            image: session.user.image || null
-          },
-          isLoading: false,
-          isAdmin: adminData?.isAdmin || false,
-          isPremium: premiumData?.isPremium || false,
-        })
-      }).catch(() => {
-        setAuthState({
-          user: {
-            ...session.user,
-            image: session.user.image || null
-          },
+          user: null,
           isLoading: false,
           isAdmin: false,
           isPremium: false,
         })
-      })
-    } else {
-      setAuthState({
-        user: null,
-        isLoading: false,
-        isAdmin: false,
-        isPremium: false,
-      })
+      }
     }
+
+    checkAuth()
   }, [])
 
   return (
