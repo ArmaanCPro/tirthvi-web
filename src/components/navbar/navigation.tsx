@@ -8,7 +8,7 @@ import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuL
 import { Calendar, BookOpen, Shield, Bot, Heart, User, Upload, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserButton, Protect } from "@/components/auth";
-import { useAuthContext } from "@/components/auth/AuthProvider";
+import { useAuthContext, authClient } from "@/components/auth/AuthProvider";
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(false);
@@ -56,7 +56,8 @@ const HamburgerIcon = ({ className, ...props }: React.SVGAttributes<SVGElement>)
 
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, isAdmin, isLoading } = useAuthContext();
+  const { isAdmin } = useAuthContext();
+  const { data: session, isPending } = authClient.useSession();
   const containerRef = useRef<HTMLElement>(null);
 
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -186,7 +187,7 @@ export function Navigation() {
         {/* Right side actions */}
         <div className="flex items-center gap-4">
           {/* Loading state */}
-          {isLoading ? (
+          {isPending ? (
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 bg-muted animate-pulse rounded-full"></div>
               <div className="h-4 w-16 bg-muted animate-pulse rounded"></div>
@@ -203,7 +204,7 @@ export function Navigation() {
               </Protect>
               
               {/* Authentication */}
-              {!user ? (
+              {!session?.user ? (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" asChild>
                     <Link href="/auth/signin">
@@ -306,12 +307,12 @@ export function Navigation() {
 
               {/* Mobile Authentication */}
               <div className="pt-2 space-y-2">
-                {isLoading ? (
+                {isPending ? (
                   <div className="flex items-center gap-2 p-2">
                     <div className="h-8 w-8 bg-muted animate-pulse rounded-full"></div>
                     <div className="h-4 w-20 bg-muted animate-pulse rounded"></div>
                   </div>
-                ) : !user ? (
+                ) : !session?.user ? (
                   <>
                     <Button variant="outline" className="w-full justify-start" asChild>
                       <Link href="/auth/signin" onClick={() => setIsMobileMenuOpen(false)}>

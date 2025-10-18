@@ -10,28 +10,10 @@ interface SignedInProps {
 }
 
 export function SignedIn({ children, fallback = null }: SignedInProps) {
-  const [session, setSession] = useState<{ user?: { id: string } } | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  // Use Better Auth's reactive useSession hook
+  const { data: session, isPending } = authClient.useSession()
 
-  useEffect(() => {
-    // Use Better Auth client for session
-    authClient.getSession()
-      .then((response) => {
-        // Better Auth returns a Data wrapper with user property
-        if (response && 'data' in response && response.data && response.data.user) {
-          setSession({ user: { id: response.data.user.id } })
-        } else {
-          setSession(null)
-        }
-        setIsLoading(false)
-      })
-      .catch(() => {
-        setSession(null)
-        setIsLoading(false)
-      })
-  }, [])
-
-  if (isLoading) {
+  if (isPending) {
     return null // or a loading spinner
   }
 

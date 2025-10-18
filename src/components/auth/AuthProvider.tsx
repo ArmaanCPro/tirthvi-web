@@ -4,81 +4,67 @@ import { createContext, useContext, useEffect, useState } from "react"
 import { authClient } from "@/lib/auth-client"
 
 interface AuthContextType {
-  user: { 
-    id: string; 
-    email: string; 
-    name?: string; 
-    image?: string | null;
-    createdAt?: Date;
-    updatedAt?: Date;
-    emailVerified?: boolean;
-  } | null
-  isLoading: boolean
   isAdmin: boolean
   isPremium: boolean
+  isLoadingPermissions: boolean
 }
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isLoading: true,
   isAdmin: false,
   isPremium: false,
+  isLoadingPermissions: false,
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [authState, setAuthState] = useState<AuthContextType>({
-    user: null,
-    isLoading: true,
+  const [permissions, setPermissions] = useState<AuthContextType>({
     isAdmin: false,
     isPremium: false,
+    isLoadingPermissions: false,
   })
 
+  // Use Better Auth's reactive useSession hook
+  const { data: session, isPending } = authClient.useSession()
+
   useEffect(() => {
-    // Use Better Auth's getSession method instead of useSession hook
-    const checkAuth = async () => {
+    if (isPending || !session?.user) {
+      setPermissions({
+        isAdmin: false,
+        isPremium: false,
+        isLoadingPermissions: false,
+      })
+      return
+    }
+
+    // Only fetch permissions when user changes
+    setPermissions(prev => ({ ...prev, isLoadingPermissions: true }))
+    
+    const checkPermissions = async () => {
       try {
-        const response = await authClient.getSession()
+        const [adminResponse, premiumResponse] = await Promise.all([
+          fetch('/api/auth/admin').then(res => res.json()),
+          fetch('/api/auth/premium').then(res => res.json())
+        ])
         
-        if (response && 'data' in response && response.data && response.data.user) {
-          // Check admin and premium status
-          const [adminResponse, premiumResponse] = await Promise.all([
-            fetch('/api/auth/admin').then(res => res.json()),
-            fetch('/api/auth/premium').then(res => res.json())
-          ])
-          
-          setAuthState({
-            user: {
-              ...response.data.user,
-              image: response.data.user.image || null
-            },
-            isLoading: false,
-            isAdmin: adminResponse?.isAdmin || false,
-            isPremium: premiumResponse?.isPremium || false,
-          })
-        } else {
-          setAuthState({
-            user: null,
-            isLoading: false,
-            isAdmin: false,
-            isPremium: false,
-          })
-        }
+        setPermissions({
+          isAdmin: adminResponse?.isAdmin || false,
+          isPremium: premiumResponse?.isPremium || false,
+          isLoadingPermissions: false,
+        })
       } catch (error) {
-        console.error('Auth check failed:', error)
-        setAuthState({
-          user: null,
-          isLoading: false,
+        console.error('Permission check failed:', error)
+        setPermissions({
           isAdmin: false,
           isPremium: false,
+          isLoadingPermissions: false,
         })
       }
     }
 
-    checkAuth()
-  }, [])
+    checkPermissions()
+  }, [session?.user?.id, isPending]) // Only re-run when user ID changes
 
   return (
-    <AuthContext.Provider value={authState}>
+    <AuthContext.Provider value={permissions}>
       {children}
     </AuthContext.Provider>
   )
@@ -91,3 +77,6 @@ export function useAuthContext() {
   }
   return context
 }
+
+// Export Better Auth's useSession for direct access
+export { authClient } from "@/lib/auth-client"

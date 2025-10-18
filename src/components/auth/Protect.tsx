@@ -10,41 +10,28 @@ interface ProtectProps {
 }
 
 export function Protect({ children, fallback = null, plan }: ProtectProps) {
-  const [session, setSession] = useState<{ user?: { id: string } } | null>(null)
   const [isPremium, setIsPremium] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  
+  // Use Better Auth's reactive useSession hook
+  const { data: session, isPending } = authClient.useSession()
 
   useEffect(() => {
-    // Use Better Auth client for session
-    authClient.getSession()
-      .then((response) => {
-        // Better Auth returns a Data wrapper with user property
-        if (response && 'data' in response && response.data && response.data.user) {
-          setSession({ user: { id: response.data.user.id } })
-          if (response.data.user.id && plan) {
-            // Check premium status for plan-based protection
-            return fetch('/api/auth/premium')
-              .then(res => res.json())
-              .then(premiumData => {
-                setIsPremium(!!premiumData?.isPremium)
-                setIsLoading(false)
-              })
-          } else {
-            setIsLoading(false)
-          }
-        } else {
-          setSession(null)
-          setIsLoading(false)
-        }
-      })
-      .catch(() => {
-        setSession(null)
-        setIsPremium(false)
-        setIsLoading(false)
-      })
-  }, [plan])
+    if (session?.user && plan) {
+      // Check premium status for plan-based protection
+      fetch('/api/auth/premium')
+        .then(res => res.json())
+        .then(premiumData => {
+          setIsPremium(!!premiumData?.isPremium)
+        })
+        .catch(() => {
+          setIsPremium(false)
+        })
+    } else {
+      setIsPremium(false)
+    }
+  }, [session, plan])
 
-  if (isLoading) {
+  if (isPending) {
     return null
   }
 
