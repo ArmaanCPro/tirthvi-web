@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-// Better Auth client will be imported dynamically
+import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -60,8 +60,17 @@ export default function SignInForm() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
     try {
-      window.location.href = `/api/auth/sign-in/social/google?callbackUrl=${encodeURIComponent(callbackUrl)}`
-    } catch {
+      // Use Better Auth client for Google OAuth
+      const data = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: callbackUrl
+      })
+      
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error) {
+      console.error('Google sign-in error:', error)
       toast.error("Failed to sign in with Google")
     } finally {
       setIsLoading(false)

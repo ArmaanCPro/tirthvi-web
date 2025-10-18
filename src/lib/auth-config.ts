@@ -5,6 +5,9 @@ import { profiles, accounts, sessions, verificationTokens } from "@/lib/drizzle/
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  baseURL: process.env.NODE_ENV === "production" 
+    ? process.env.NEXT_PUBLIC_SITE_URL 
+    : "http://localhost:3000",
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
@@ -50,6 +53,9 @@ export const auth = betterAuth({
 
 // Export the auth function for server components
 export const authHandler = auth
+
+// Default export for Better Auth CLI
+export default auth
 
 export type Session = typeof auth.$Infer.Session
 export type User = typeof auth.$Infer.Session.user

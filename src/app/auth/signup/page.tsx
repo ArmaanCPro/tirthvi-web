@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -77,8 +78,17 @@ export default function SignUpPage() {
   const handleGoogleSignUp = async () => {
     setIsLoading(true)
     try {
-      window.location.href = `/api/auth/sign-in/social/google?callbackUrl=${encodeURIComponent("/dashboard")}`
-    } catch {
+      // Use Better Auth client for Google OAuth
+      const data = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/dashboard"
+      })
+      
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error) {
+      console.error('Google sign-up error:', error)
       toast.error("Failed to sign up with Google")
     } finally {
       setIsLoading(false)

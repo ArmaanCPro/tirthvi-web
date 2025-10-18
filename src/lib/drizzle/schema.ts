@@ -274,10 +274,12 @@ export const sessions = pgTable('sessions', {
 })
 
 export const verificationTokens = pgTable('verification_tokens', {
+  id: text('id').primaryKey(),
   identifier: text('identifier').notNull(),
-  token: text('token').unique().notNull(),
-  expires: timestamp('expires', { withTimezone: true }).notNull(),
+  value: text('value').notNull(), // Better Auth requires this field
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(), // Better Auth expects this field name
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().$onUpdate(() => new Date()), // Better Auth requires this field
 })
 
 // NextAuth Relations
