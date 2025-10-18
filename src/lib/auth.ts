@@ -40,19 +40,15 @@ export async function getSession() {
 
 export async function createUserProfile(userData: {
   email: string
-  firstName?: string
-  lastName?: string
+  name?: string
   image?: string
   password?: string
 }) {
   const [profile] = await db.insert(profiles).values({
     id: crypto.randomUUID(),
-    name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.email,
+    name: userData.name || userData.email,
     email: userData.email,
-    firstName: userData.firstName,
-    lastName: userData.lastName,
     image: userData.image,
-    password: userData.password,
   }).returning()
 
   return profile

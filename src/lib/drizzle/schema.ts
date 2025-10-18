@@ -8,6 +8,9 @@ export const profiles = pgTable('profiles', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').default(false).notNull(), // Better Auth uses boolean
   image: text('image'), // Better Auth expects 'image' not 'avatarUrl'
+  isAdmin: boolean('is_admin').default(false), // Keep admin functionality
+  // Keep these for existing code compatibility
+  stripeCustomerId: text('stripe_customer_id'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
