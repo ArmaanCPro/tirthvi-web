@@ -7,19 +7,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Bot, Upload } from 'lucide-react'
 import Link from 'next/link'
-import { getCurrentUser, isAdmin } from '@/lib/auth'
-
-// This page uses headers() for auth, so it must be dynamic
-export const dynamic = 'force-dynamic'
+import { auth } from '@/lib/auth-config'
+import { headers } from 'next/headers'
 
 export default async function DashboardPage() {
-  const user = await getCurrentUser()
-  
-  if (!user?.id) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+
+  if (!session) {
     redirect('/auth/signin')
   }
 
-  const admin = await isAdmin(user.id)
+  // Check admin status
+  const adminResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/auth/admin`, {
+    headers: {
+      cookie: (await headers()).get('cookie') || ''
+    }
+  })
+  const adminData = await adminResponse.json()
+  const admin = adminData?.isAdmin || false
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">

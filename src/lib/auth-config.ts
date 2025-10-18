@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
+import { nextCookies } from "better-auth/next-js"
 import { db } from "@/lib/drizzle"
 import { profiles, accounts, sessions, verificationTokens } from "@/lib/drizzle/schema"
 
@@ -36,19 +37,9 @@ export const auth = betterAuth({
       ? process.env.NEXT_PUBLIC_SITE_URL! 
       : "http://localhost:3000"
   ],
-  callbacks: {
-    session: {
-      async create({ user, session }: { user: { id: string; email: string; name?: string }; session: { user: { id: string; email: string; name?: string } } }) {
-        return {
-          ...session,
-          user: {
-            ...session.user,
-            id: user.id,
-          },
-        }
-      },
-    },
-  },
+  plugins: [
+    nextCookies() // Automatically handle cookies in server actions
+  ],
 })
 
 // Export the auth function for server components

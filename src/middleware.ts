@@ -1,26 +1,19 @@
-import { auth } from "@/lib/auth-config"
+import { getSessionCookie } from "better-auth/cookies"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 export default async function middleware(request: NextRequest) {
-  try {
-    const session = await auth.api.getSession({
-      headers: request.headers
-    })
-    
-    // Basic auth check for protected routes - detailed checks happen in server components
-    if (request.nextUrl.pathname.startsWith('/dashboard') || 
-        request.nextUrl.pathname.startsWith('/upload')) {
-      if (!session?.user) {
-        return NextResponse.redirect(new URL('/auth/signin', request.url))
-      }
-    }
+  // Only check for session cookie existence - actual validation happens in server components
+  const sessionCookie = getSessionCookie(request)
 
-    return NextResponse.next()
-  } catch (error) {
-    console.error('Middleware auth error:', error)
-    return NextResponse.next()
+  if (request.nextUrl.pathname.startsWith('/dashboard') ||
+      request.nextUrl.pathname.startsWith('/upload')) {
+    if (!sessionCookie) {
+      return NextResponse.redirect(new URL('/auth/signin', request.url))
+    }
   }
+
+  return NextResponse.next()
 }
 
 export const config = {

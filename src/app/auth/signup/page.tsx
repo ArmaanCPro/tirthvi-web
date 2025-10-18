@@ -46,26 +46,18 @@ export default function SignUpPage() {
     }
 
     try {
-      const res = await fetch("/api/auth/sign-up/email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          name: `${formData.firstName} ${formData.lastName}`,
-        }),
+      const result = await authClient.signUp.email({
+        email: formData.email,
+        password: formData.password,
+        name: `${formData.firstName} ${formData.lastName}`,
       })
 
-      const data = await res.json()
-
-      if (res.ok) {
+      if (result.error) {
+        setError(result.error.message || "Failed to create account")
+        toast.error(result.error.message || "Failed to create account")
+      } else {
         toast.success("Account created successfully! Please sign in.")
         router.push("/auth/signin")
-      } else {
-        setError(data.error || "Failed to create account")
-        toast.error(data.error || "Failed to create account")
       }
     } catch {
       setError("Something went wrong. Please try again.")

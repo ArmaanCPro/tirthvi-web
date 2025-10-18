@@ -28,26 +28,18 @@ export default function SignInForm() {
     setError("")
 
     try {
-      const res = await fetch('/api/auth/sign-in/email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+      const result = await authClient.signIn.email({
+        email,
+        password,
       })
 
-      const data = await res.json()
-
-      if (res.ok) {
+      if (result.error) {
+        setError(result.error.message || "Invalid credentials")
+        toast.error(result.error.message || "Invalid credentials")
+      } else {
         toast.success("Welcome back!")
         router.push(callbackUrl)
         router.refresh()
-      } else {
-        setError(data.error || "Invalid credentials")
-        toast.error(data.error || "Invalid credentials")
       }
     } catch {
       setError("Something went wrong. Please try again.")

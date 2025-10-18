@@ -25,33 +25,31 @@ interface UserButtonProps {
 }
 
 export function UserButton({ afterSignOutUrl = "/" }: UserButtonProps) {
-  const [session, setSession] = useState<{ user?: { id: string; name?: string; email?: string; image?: string } } | null>(null)
+  const [session, setSession] = useState<{ user?: { id: string; name?: string; email?: string; image?: string | null } } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Fetch session on mount
+  // Use Better Auth's reactive session
   useEffect(() => {
-    // Use Better Auth client for session
-    authClient.getSession()
-      .then((response) => {
-        // Better Auth returns a Data wrapper with user property
-        if (response && 'data' in response && response.data && response.data.user) {
-          setSession({ 
-            user: { 
-              id: response.data.user.id,
-              name: response.data.user.name,
-              email: response.data.user.email,
-              image: response.data.user.image || undefined
-            } 
-          })
-        } else {
-          setSession(null)
-        }
-        setIsLoading(false)
+    const { data: session, isPending } = authClient.useSession()
+    
+    if (isPending) {
+      setIsLoading(true)
+      return
+    }
+
+    if (session) {
+      setSession({ 
+        user: { 
+          id: session.user.id,
+          name: session.user.name,
+          email: session.user.email,
+          image: session.user.image
+        } 
       })
-      .catch(() => {
-        setSession(null)
-        setIsLoading(false)
-      })
+    } else {
+      setSession(null)
+    }
+    setIsLoading(false)
   }, [])
 
   if (isLoading || !session?.user) {

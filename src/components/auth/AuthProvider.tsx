@@ -4,7 +4,15 @@ import { createContext, useContext, useEffect, useState } from "react"
 import { authClient } from "@/lib/auth-client"
 
 interface AuthContextType {
-  user: { id: string; email: string; name?: string; image?: string } | null
+  user: { 
+    id: string; 
+    email: string; 
+    name?: string; 
+    image?: string | null;
+    createdAt?: Date;
+    updatedAt?: Date;
+    emailVerified?: boolean;
+  } | null
   isLoading: boolean
   isAdmin: boolean
   isPremium: boolean
@@ -26,55 +34,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   })
 
   useEffect(() => {
-    // Initial auth check
-    authClient.getSession()
-      .then((response) => {
-        if (response && 'data' in response && response.data && response.data.user) {
-          // Check admin status
-          fetch('/api/auth/admin')
-            .then(res => res.json())
-            .then(data => {
-              // Check premium status
-              return fetch('/api/auth/premium')
-                .then(res => res.json())
-                .then(premiumData => ({
-                  isAdmin: data?.isAdmin || false,
-                  isPremium: premiumData?.isPremium || false,
-                }))
-            })
-            .then(({ isAdmin, isPremium }) => {
-              setAuthState({
-                user: response.data.user,
-                isLoading: false,
-                isAdmin,
-                isPremium,
-              })
-            })
-            .catch(() => {
-              setAuthState({
-                user: response.data.user,
-                isLoading: false,
-                isAdmin: false,
-                isPremium: false,
-              })
-            })
-        } else {
-          setAuthState({
-            user: null,
-            isLoading: false,
-            isAdmin: false,
-            isPremium: false,
-          })
-        }
-      })
-      .catch(() => {
+    // Use Better Auth's reactive session
+    const { data: session, isPending } = authClient.useSession()
+    
+    if (isPending) {
+      setAuthState(prev => ({ ...prev, isLoading: true }))
+      return
+    }
+
+    if (session) {
+      // Check admin and premium status
+      Promise.all([
+        fetch('/api/auth/admin').then(res => res.json()),
+        fetch('/api/auth/premium').then(res => res.json())
+      ]).then(([adminData, premiumData]) => {
         setAuthState({
-          user: null,
+          user: {
+            ...session.user,
+            image: session.user.image || null
+          },
+          isLoading: false,
+          isAdmin: adminData?.isAdmin || false,
+          isPremium: premiumData?.isPremium || false,
+        })
+      }).catch(() => {
+        setAuthState({
+          user: {
+            ...session.user,
+            image: session.user.image || null
+          },
           isLoading: false,
           isAdmin: false,
           isPremium: false,
         })
       })
+    } else {
+      setAuthState({
+        user: null,
+        isLoading: false,
+        isAdmin: false,
+        isPremium: false,
+      })
+    }
   }, [])
 
   return (
