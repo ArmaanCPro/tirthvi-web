@@ -2,6 +2,9 @@ import { ReactNode } from 'react'
 import { redirect } from 'next/navigation'
 import { getCurrentUser, isAdmin } from '@/lib/auth'
 
+// This layout uses headers() for auth, so it must be dynamic
+export const dynamic = 'force-dynamic'
+
 export default async function UploadLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser()
 

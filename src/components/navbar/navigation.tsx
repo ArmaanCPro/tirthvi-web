@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Calendar, BookOpen, Shield, Bot, Heart, User, Upload, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SignedIn, SignedOut, UserButton, Protect } from "@/components/auth";
+import { UserButton, Protect } from "@/components/auth";
+import { useAuthContext } from "@/components/auth/AuthProvider";
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(false);
@@ -55,21 +56,8 @@ const HamburgerIcon = ({ className, ...props }: React.SVGAttributes<SVGElement>)
 
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { user, isAdmin, isLoading } = useAuthContext();
   const containerRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    let active = true
-    fetch('/api/auth/admin')
-      .then((res) => res.json())
-      .then((data) => {
-        if (active) setIsAdmin(!!data?.isAdmin)
-      })
-      .catch(() => {
-        if (active) setIsAdmin(false)
-      })
-    return () => { active = false }
-  }, [])
 
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -196,53 +184,59 @@ export function Navigation() {
         </div>
 
         {/* Right side actions */}
-
         <div className="flex items-center gap-4">
-
-            <Protect plan="free_plan">
-              <Button variant="default" size="sm" asChild className="hidden sm:flex">
-                <Link href="/pricing">
-                  <Heart className="mr-2 h-4 w-4" />
-                  Upgrade to Premium
-                </Link>
-              </Button>
-            </Protect>
-          
-          {/* Clerk Authentication */}
-          <SignedOut>
+          {/* Loading state */}
+          {isLoading ? (
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/auth/signin">
-                  <User className="mr-2 h-4 w-4" />
-                  Sign In
-                </Link>
-              </Button>
-              <Button size="sm" asChild>
-                <Link href="/auth/signup">
-                  Sign Up
-                </Link>
-              </Button>
+              <div className="h-8 w-8 bg-muted animate-pulse rounded-full"></div>
+              <div className="h-4 w-16 bg-muted animate-pulse rounded"></div>
             </div>
-          </SignedOut>
-          
-          <SignedIn>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/dashboard">
-                  <User className="mr-2 h-4 w-4" />
-                  Dashboard
-                </Link>
-              </Button>
-              <UserButton 
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    avatarBox: "h-8 w-8"
-                  }
-                }}
-              />
-            </div>
-          </SignedIn>
+          ) : (
+            <>
+              <Protect plan="free_plan">
+                <Button variant="default" size="sm" asChild className="hidden sm:flex">
+                  <Link href="/pricing">
+                    <Heart className="mr-2 h-4 w-4" />
+                    Upgrade to Premium
+                  </Link>
+                </Button>
+              </Protect>
+              
+              {/* Authentication */}
+              {!user ? (
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/auth/signin">
+                      <User className="mr-2 h-4 w-4" />
+                      Sign In
+                    </Link>
+                  </Button>
+                  <Button size="sm" asChild>
+                    <Link href="/auth/signup">
+                      Sign Up
+                    </Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href="/dashboard">
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </Button>
+                  <UserButton 
+                    afterSignOutUrl="/"
+                    appearance={{
+                      elements: {
+                        avatarBox: "h-8 w-8"
+                      }
+                    }}
+                  />
+                </div>
+              )}
+            </>
+          )}
         </div>
       </nav>
 
@@ -310,41 +304,48 @@ export function Navigation() {
                   </Button>
                 </Protect>
 
-              {/* Mobile Clerk Authentication */}
+              {/* Mobile Authentication */}
               <div className="pt-2 space-y-2">
-                <SignedOut>
-                  <Button variant="outline" className="w-full justify-start" asChild>
-                    <Link href="/auth/signin" onClick={() => setIsMobileMenuOpen(false)}>
-                      <User className="mr-2 h-4 w-4" />
-                      Sign In
-                    </Link>
-                  </Button>
-                  <Button className="w-full justify-start" asChild>
-                    <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                      Sign Up
-                    </Link>
-                  </Button>
-                </SignedOut>
-                
-                <SignedIn>
-                  <Button variant="ghost" className="w-full justify-start" asChild>
-                    <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                      <User className="mr-2 h-4 w-4" />
-                      Dashboard
-                    </Link>
-                  </Button>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Account</span>
-                    <UserButton 
-                      afterSignOutUrl="/"
-                      appearance={{
-                        elements: {
-                          avatarBox: "h-8 w-8"
-                        }
-                      }}
-                    />
+                {isLoading ? (
+                  <div className="flex items-center gap-2 p-2">
+                    <div className="h-8 w-8 bg-muted animate-pulse rounded-full"></div>
+                    <div className="h-4 w-20 bg-muted animate-pulse rounded"></div>
                   </div>
-                </SignedIn>
+                ) : !user ? (
+                  <>
+                    <Button variant="outline" className="w-full justify-start" asChild>
+                      <Link href="/auth/signin" onClick={() => setIsMobileMenuOpen(false)}>
+                        <User className="mr-2 h-4 w-4" />
+                        Sign In
+                      </Link>
+                    </Button>
+                    <Button className="w-full justify-start" asChild>
+                      <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                        Sign Up
+                      </Link>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" className="w-full justify-start" asChild>
+                      <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                        <User className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </Button>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Account</span>
+                      <UserButton 
+                        afterSignOutUrl="/"
+                        appearance={{
+                          elements: {
+                            avatarBox: "h-8 w-8"
+                          }
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

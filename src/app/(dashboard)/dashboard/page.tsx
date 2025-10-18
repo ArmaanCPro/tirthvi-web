@@ -9,6 +9,9 @@ import { Bot, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { getCurrentUser, isAdmin } from '@/lib/auth'
 
+// This page uses headers() for auth, so it must be dynamic
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardPage() {
   const user = await getCurrentUser()
   
