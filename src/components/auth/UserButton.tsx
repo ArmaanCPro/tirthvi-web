@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -29,8 +30,8 @@ export function UserButton({ afterSignOutUrl = "/" }: UserButtonProps) {
 
   // Fetch session on mount
   useEffect(() => {
-    fetch('/api/auth/session')
-      .then(res => res.json())
+    // Use Better Auth client for session
+    authClient.getSession()
       .then(data => {
         setSession(data)
         setIsLoading(false)
@@ -46,9 +47,8 @@ export function UserButton({ afterSignOutUrl = "/" }: UserButtonProps) {
 
   const handleSignOut = async () => {
     try {
-      await fetch('/api/auth/sign-out', {
-        method: 'POST',
-      })
+      // Use Better Auth client for sign out
+      await authClient.signOut()
       window.location.href = afterSignOutUrl
     } catch (error) {
       console.error('Sign out failed:', error)

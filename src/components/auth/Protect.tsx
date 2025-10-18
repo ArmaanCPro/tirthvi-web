@@ -1,6 +1,7 @@
 "use client"
 
 import { ReactNode, useEffect, useState } from "react"
+import { authClient } from "@/lib/auth-client"
 
 interface ProtectProps {
   children: ReactNode
@@ -14,8 +15,8 @@ export function Protect({ children, fallback = null, plan }: ProtectProps) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/auth/session')
-      .then(res => res.json())
+    // Use Better Auth client for session
+    authClient.getSession()
       .then(data => {
         setSession(data)
         if (data?.user?.id && plan) {

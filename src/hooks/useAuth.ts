@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { authClient } from "@/lib/auth-client"
 
 interface AuthState {
   isSignedIn: boolean
@@ -25,9 +26,8 @@ export function useAuth() {
   })
 
   useEffect(() => {
-    // Fetch session from Better Auth
-    fetch('/api/auth/session')
-      .then(res => res.json())
+    // Fetch session from Better Auth client
+    authClient.getSession()
       .then(session => {
         if (session?.user) {
           // Check admin status

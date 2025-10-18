@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { ReactNode } from "react"
+import { authClient } from "@/lib/auth-client"
 
 interface SignedOutProps {
   children: ReactNode
@@ -13,8 +14,8 @@ export function SignedOut({ children, fallback = null }: SignedOutProps) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/auth/session')
-      .then(res => res.json())
+    // Use Better Auth client for session
+    authClient.getSession()
       .then(data => {
         setSession(data)
         setIsLoading(false)
