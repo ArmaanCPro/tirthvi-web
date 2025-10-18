@@ -47,10 +47,10 @@ export function useAuth() {
               setAuthState({
                 isSignedIn: true,
                 user: {
-                  id: response.data.user.id || '',
-                  email: response.data.user.email || '',
-                  name: response.data.user.name || undefined,
-                  image: response.data.user.image || undefined,
+                  id: response.data?.user.id || '',
+                  email: response.data?.user.email || '',
+                  name: response.data?.user.name || undefined,
+                  image: response.data?.user.image || undefined,
                 },
                 isLoading: false,
                 isAdmin,
@@ -61,10 +61,10 @@ export function useAuth() {
               setAuthState({
                 isSignedIn: true,
                 user: {
-                  id: response.data.user.id || '',
-                  email: response.data.user.email || '',
-                  name: response.data.user.name || undefined,
-                  image: response.data.user.image || undefined,
+                  id: response.data?.user.id || '',
+                  email: response.data?.user.email || '',
+                  name: response.data?.user.name || undefined,
+                  image: response.data?.user.image || undefined,
                 },
                 isLoading: false,
                 isAdmin: false,

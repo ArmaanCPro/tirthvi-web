@@ -40,7 +40,7 @@ export function UserButton({ afterSignOutUrl = "/" }: UserButtonProps) {
               id: response.data.user.id,
               name: response.data.user.name,
               email: response.data.user.email,
-              image: response.data.user.image
+              image: response.data.user.image || undefined
             } 
           })
         } else {
