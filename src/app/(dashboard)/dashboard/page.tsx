@@ -1,6 +1,5 @@
-"use client"
-
 import { Suspense } from 'react'
+import { redirect } from 'next/navigation'
 import { SavedEventsList } from '@/components/saved-events-list'
 import { SubscribedEventsList } from '@/components/subscribed-events-list'
 import { DashboardStats } from '@/components/dashboard-stats'
@@ -8,18 +7,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Bot, Upload } from 'lucide-react'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
+import { getCurrentUser, isAdmin } from '@/lib/auth'
 
-export default function DashboardPage() {
-  const { user, isAdmin, isLoading } = useAuth()
-
-  if (isLoading) {
-    return <DashboardSkeleton />
+export default async function DashboardPage() {
+  const user = await getCurrentUser()
+  
+  if (!user?.id) {
+    redirect('/auth/signin')
   }
 
-  if (!user) {
-    return null // Middleware should handle redirect
-  }
+  const admin = await isAdmin(user.id)
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -31,7 +28,7 @@ export default function DashboardPage() {
               Manage your saved events, subscriptions, and preferences
             </p>
           </div>
-          {isAdmin && (
+          {admin && (
             <Button asChild>
               <Link href="/upload">
                 <Upload className="mr-2 h-4 w-4" />
@@ -98,35 +95,6 @@ export default function DashboardPage() {
             </Suspense>
           </CardContent>
         </Card>
-      </div>
-    </div>
-  )
-}
-
-function DashboardSkeleton() {
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="mb-8">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="h-8 bg-muted animate-pulse rounded w-48 mb-2"></div>
-            <div className="h-4 bg-muted animate-pulse rounded w-96"></div>
-          </div>
-        </div>
-      </div>
-      <div className="grid gap-6">
-        <div className="grid gap-4 md:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <Card key={i}>
-              <CardHeader className="pb-2">
-                <div className="h-4 bg-muted animate-pulse rounded w-24"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 bg-muted animate-pulse rounded w-16"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
       </div>
     </div>
   )

@@ -8,38 +8,11 @@ export default async function middleware(request: NextRequest) {
       headers: request.headers
     })
     
-    // Protect dashboard routes
-    if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    // Basic auth check for protected routes - detailed checks happen in server components
+    if (request.nextUrl.pathname.startsWith('/dashboard') || 
+        request.nextUrl.pathname.startsWith('/upload')) {
       if (!session?.user) {
         return NextResponse.redirect(new URL('/auth/signin', request.url))
-      }
-    }
-
-    // Protect upload routes (admin only)
-    if (request.nextUrl.pathname.startsWith('/upload')) {
-      if (!session?.user) {
-        return NextResponse.redirect(new URL('/auth/signin', request.url))
-      }
-      
-      // Check if user is admin by making a request to the admin API
-      try {
-        const adminResponse = await fetch(new URL('/api/auth/admin', request.url), {
-          headers: {
-            'Cookie': request.headers.get('cookie') || '',
-          },
-        })
-        
-        if (!adminResponse.ok) {
-          return NextResponse.redirect(new URL('/dashboard', request.url))
-        }
-        
-        const adminData = await adminResponse.json()
-        if (!adminData.isAdmin) {
-          return NextResponse.redirect(new URL('/dashboard', request.url))
-        }
-      } catch (error) {
-        console.error('Admin check failed:', error)
-        return NextResponse.redirect(new URL('/dashboard', request.url))
       }
     }
 
