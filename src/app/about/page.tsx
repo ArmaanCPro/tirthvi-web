@@ -28,18 +28,30 @@ export default function AboutPage() {
                     <div className="space-y-6">
                         <h1 className="text-4xl font-bold">About Us</h1>
                         <p className="text-lg leading-relaxed">
-                            Tirthvi is a platform for learning about Hinduism and hindu philosophy.
-                            In a world where people are losing touch with their roots, and misinformation (or rather, disinformation) is widespread, Tirthvi aims to provide an enduring platform with accurate and reliable information.
+                            Tirthvi is a comprehensive platform for learning about Hinduism and Hindu philosophy.
+                            In a world where people are losing touch with their roots, and misinformation is widespread, Tirthvi aims to provide an enduring platform with accurate and reliable information.
                         </p>
 
                         <h2 className="text-2xl font-semibold">Our Mission</h2>
                         <p className="text-lg leading-relaxed">
-                            I&apos;d first like to mention that Tirthvi is an open source project. 
+                            Tirthvi is an open source project. 
                             You can find the source code on Github, <Link href="https://github.com/armaancpro/tirthvi-web" className="text-primary underline">here.</Link> If you&apos;d like to contribute, please do so.
-                            Tirthvi is built using modern tools and technologies.
-                            We built it knowing that in order to be successful, we need to combine old wisdom with new technology.
-                            Thus we&apos;ve integrated modern AI tools along with traditional calendar knowledge and scriptures.
-                            Ultimately, Tirthvi is a hub, for people to learn about all major aspects of Hinduism.
+                        </p>
+                        
+                        <p className="text-lg leading-relaxed">
+                            We built Tirthvi knowing that to be successful, we need to combine ancient wisdom with modern technology.
+                            Our platform features:
+                        </p>
+                        <ul className="list-disc list-inside text-lg leading-relaxed space-y-2">
+                            <li>Hindu calendar with accurate event dates and details</li>
+                            <li>AI-powered chatbot for answering questions about Hindu philosophy</li>
+                            <li>Digital library of Hindu scriptures and texts</li>
+                            <li>Event subscription and saving features</li>
+                            <li>Secure user accounts and premium features</li>
+                        </ul>
+                        
+                        <p className="text-lg leading-relaxed">
+                            Ultimately, Tirthvi serves as a hub for people to learn about all major aspects of Hinduism, from daily practices to deep philosophical concepts.
                         </p>
                     </div>
 

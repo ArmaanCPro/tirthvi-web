@@ -33,32 +33,38 @@ const PrivacyPolicyPage: React.FC = () => {
                 </p>
 
                 <p className="mb-4">
-                    Tirthvi (“we”, “our”, or “us”) respects your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, and share information when you use our website and services, including when signing in with Google OAuth.
+                    Tirthvi ("we", "our", or "us") respects your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, and share information when you use our website and services.
                 </p>
 
                 <h2 className="text-2xl font-semibold mt-6 mb-4">1. Information We Collect</h2>
                 <p className="mb-4">
-                    When you sign in to Tirthvi using Google OAuth, we collect the following information:
+                    We collect the following types of information:
                 </p>
                 <ul className="list-disc list-inside mb-4">
-                    <li>Your full name</li>
-                    <li>Your email address</li>
+                    <li>Account information (name, email address) when you create an account</li>
+                    <li>Chat history and preferences when using our AI features</li>
+                    <li>Event subscriptions and saved events</li>
+                    <li>Payment information (processed securely through Stripe) for premium subscriptions</li>
                 </ul>
-                <p className="mb-4">
-                    We also store billing information via Clerk if you subscribe to paid services.
-                </p>
 
                 <h2 className="text-2xl font-semibold mt-6 mb-4">2. How We Use Your Information</h2>
                 <ul className="list-disc list-inside mb-4">
-                    <li>Authenticating your account and providing login access</li>
+                    <li>Providing and maintaining your account</li>
                     <li>Personalizing your experience on Tirthvi</li>
-                    <li>Managing billing and subscription services via Clerk</li>
+                    <li>Processing payments and managing subscriptions</li>
+                    <li>Improving our AI chat features and recommendations</li>
+                    <li>Managing your event subscriptions and saved events</li>
                 </ul>
 
-                <h2 className="text-2xl font-semibold mt-6 mb-4">3. Data Sharing</h2>
+                <h2 className="text-2xl font-semibold mt-6 mb-4">3. Data Storage and Sharing</h2>
                 <p className="mb-4">
-                    We do not sell or share your personal information with third parties, except as necessary to provide our services (e.g., Clerk for authentication and billing).
+                    Your data is stored securely in our Supabase database. We do not sell or share your personal information with third parties, except as necessary to provide our services:
                 </p>
+                <ul className="list-disc list-inside mb-4">
+                    <li>Stripe for secure payment processing</li>
+                    <li>Supabase for secure data storage and authentication</li>
+                    <li>AI service providers for chat functionality (data is processed securely and not stored by third parties)</li>
+                </ul>
 
                 <h2 className="text-2xl font-semibold mt-6 mb-4">4. Your Rights and Choices</h2>
                 <p className="mb-4">
