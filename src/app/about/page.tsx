@@ -19,11 +19,11 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
     return (
-        <div className="relative min-h-screen w-full overflow-hidden">
+        <div className="relative min-h-screen w-full overflow-hidden flex items-center justify-center">
             <Particles className="absolute inset-0 pointer-events-none" quantity={120} ease={80} refresh color={"#f1c338"}/>
 
-            <div className="relative z-20 p-6 md:p-12">
-                <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <div className="relative z-20 p-6 md:p-12 w-full max-w-6xl">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     {/* Text Content - Left Side */}
                     <div className="space-y-6">
                         <h1 className="text-4xl font-bold">About Us</h1>
