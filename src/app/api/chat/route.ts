@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
       ? (lastUserMessage.content || lastUserMessage.parts?.[0]?.text || '')
       : ''
 
-    // Determine user's plan (by Clerk ID), prune old conversations for free users, and set context size
+    // Determine user's plan, prune old conversations for free users, and set context size
     const plan = await getUserPlan(user?.id || '')
 
     if (user && typeof plan.retentionDays === 'number') {
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     // Select model with per-plan limits and fallback
     let selectedModel: string = 'openai/gpt-oss-120b'
     if (user) {
-      const model = await chooseModelForUser(user?.id || '', user?.id || '')
+      const model = await chooseModelForUser(user?.id || '')
       if (!model) {
         return new Response('Daily AI usage for your plan has been reached. Please try again tomorrow.', {
           status: 429,

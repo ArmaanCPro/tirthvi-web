@@ -33,7 +33,7 @@ const PrivacyPolicyPage: React.FC = () => {
                 </p>
 
                 <p className="mb-4">
-                    Tirthvi ("we", "our", or "us") respects your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, and share information when you use our website and services.
+                    Tirthvi (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) respects your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, and share information when you use our website and services.
                 </p>
 
                 <h2 className="text-2xl font-semibold mt-6 mb-4">1. Information We Collect</h2>

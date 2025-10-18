@@ -154,7 +154,7 @@
   }
 }
 
-/* Ensure Clerk Billing/Authentication overlays appear above the sticky navbar */
+/* Ensure auth overlays appear above the sticky navbar - Clerk removed */
 :where(#clerk-portal-root),
 :where([data-clerk-portal]),
 :where([class*="cl-"])[role="dialog"],

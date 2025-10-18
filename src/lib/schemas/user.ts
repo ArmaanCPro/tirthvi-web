@@ -1,12 +1,12 @@
 import { z } from 'zod'
 
 export const UserProfileSchema = z.object({
-  id: z.string().uuid(),
-  clerkId: z.string(),
-  email: z.string().email().optional(),
+  id: z.string(),
+  email: z.string().email(),
+  name: z.string(),
+  image: z.string().url().optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  avatarUrl: z.string().url().optional(),
   timezone: z.string().default('UTC'),
   language: z.string().default('en'),
   isAdmin: z.boolean().default(false),
@@ -16,7 +16,7 @@ export const UserProfileSchema = z.object({
 
 export const EventSubscriptionSchema = z.object({
   id: z.string().uuid(),
-  userId: z.string().uuid(),
+  userId: z.string(),
   eventSlug: z.string(),
   notificationEnabled: z.boolean().default(true),
   createdAt: z.date(),
@@ -24,7 +24,7 @@ export const EventSubscriptionSchema = z.object({
 
 export const SavedEventSchema = z.object({
   id: z.string().uuid(),
-  userId: z.string().uuid(),
+  userId: z.string(),
   eventSlug: z.string(),
   notes: z.string().optional(),
   createdAt: z.date(),
@@ -32,7 +32,7 @@ export const SavedEventSchema = z.object({
 
 export const ChatConversationSchema = z.object({
   id: z.string().uuid(),
-  userId: z.string().uuid(),
+  userId: z.string(),
   title: z.string().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -49,7 +49,7 @@ export const ChatMessageSchema = z.object({
 
 export const DonationSchema = z.object({
   id: z.string().uuid(),
-  userId: z.string().uuid(),
+  userId: z.string(),
   amount: z.number().int().positive(), // Amount in cents
   currency: z.string().default('usd'),
   stripePaymentIntentId: z.string().optional(),
@@ -60,7 +60,7 @@ export const DonationSchema = z.object({
 
 export const UserPreferencesSchema = z.object({
   id: z.string().uuid(),
-  userId: z.string().uuid(),
+  userId: z.string(),
   theme: z.enum(['light', 'dark', 'system']).default('system'),
   notifications: z.object({
     email: z.boolean().default(true),

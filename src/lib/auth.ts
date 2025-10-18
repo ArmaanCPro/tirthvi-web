@@ -42,15 +42,16 @@ export async function createUserProfile(userData: {
   email: string
   firstName?: string
   lastName?: string
-  avatarUrl?: string
+  image?: string
   password?: string
 }) {
   const [profile] = await db.insert(profiles).values({
     id: crypto.randomUUID(),
+    name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.email,
     email: userData.email,
     firstName: userData.firstName,
     lastName: userData.lastName,
-    avatarUrl: userData.avatarUrl,
+    image: userData.image,
     password: userData.password,
   }).returning()
 

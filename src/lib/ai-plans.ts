@@ -34,8 +34,8 @@ export const PREMIUM_PLAN: PlanConfig = {
   overallDailyLimit: 45, // 15 + 30
 }
 
-export async function getUserPlan(clerkUserId: string): Promise<PlanConfig> {
-  const premium = await isPremium(clerkUserId)
+export async function getUserPlan(userId: string): Promise<PlanConfig> {
+  const premium = await isPremium(userId)
   return premium ? PREMIUM_PLAN : FREE_PLAN
 }
 
@@ -80,8 +80,8 @@ export async function getTodayAssistantCountByModel(userId: string, model: Model
  * - For premium: try gpt-5-mini up to 15, else gpt-oss-120b up to 30.
  * - For free: gpt-oss-120b up to 20.
  */
-export async function chooseModelForUser(userId: string, clerkUserId: string): Promise<ModelName | null> {
-  const plan = await getUserPlan(clerkUserId)
+export async function chooseModelForUser(userId: string): Promise<ModelName | null> {
+  const plan = await getUserPlan(userId)
 
   for (const { model, dailyLimit } of plan.models) {
     const used = await getTodayAssistantCountByModel(userId, model)

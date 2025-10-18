@@ -240,7 +240,7 @@ export default function ChatPage() {
     }
   }
 
-  // Show loading state while Clerk is loading
+  // Show loading state while auth is loading
   if (!isLoaded) {
     return (
       <div className="container mx-auto p-6 max-w-4xl">
