@@ -1,23 +1,13 @@
 import { pgTable, uuid, text, timestamp, boolean, jsonb, integer } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
-// Profiles table - Better Auth users
+// Profiles table - Better Auth users (cleaned up)
 export const profiles = pgTable('profiles', {
   id: text('id').primaryKey(), // Better Auth uses text, not uuid
   name: text('name').notNull(), // Better Auth requires this field
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').default(false).notNull(), // Better Auth uses boolean
   image: text('image'), // Better Auth expects 'image' not 'avatarUrl'
-  // Keep additional fields for your app
-  firstName: text('first_name'),
-  lastName: text('last_name'),
-  password: text('password'), // For credentials provider
-  resetToken: text('reset_token'),
-  resetTokenExpires: timestamp('reset_token_expires', { withTimezone: true }),
-  stripeCustomerId: text('stripe_customer_id'),
-  timezone: text('timezone').default('UTC'),
-  language: text('language').default('en'),
-  isAdmin: boolean('is_admin').default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
@@ -248,10 +238,9 @@ export const embeddingsRelations = relations(embeddings, ({ one }) => ({
   }),
 }))
 
-// Better Auth Tables
+// Better Auth Tables (cleaned up)
 export const accounts = pgTable('accounts', {
   id: text('id').primaryKey(), // Better Auth uses text, not uuid
-  accountId: text('account_id').notNull(),
   providerId: text('provider_id').notNull(), // Better Auth expects providerId
   userId: text('user_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
   accessToken: text('access_token'),
@@ -268,7 +257,7 @@ export const accounts = pgTable('accounts', {
 export const sessions = pgTable('sessions', {
   id: text('id').primaryKey(), // Better Auth uses text, not uuid
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-  token: text('token').notNull().unique(), // Better Auth expects 'token' not 'sessionToken'
+  token: text('token').notNull().unique(), // Better Auth expects 'token' as the session token
   userId: text('user_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
