@@ -1,14 +1,16 @@
 import { pgTable, uuid, text, timestamp, boolean, jsonb, integer } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
-// Profiles table - NextAuth users
+// Profiles table - Better Auth users
 export const profiles = pgTable('profiles', {
-  id: uuid('id').primaryKey(),
-  email: text('email').unique().notNull(),
-  emailVerified: timestamp('email_verified', { withTimezone: true }),
+  id: text('id').primaryKey(), // Better Auth uses text, not uuid
+  name: text('name').notNull(), // Better Auth requires this field
+  email: text('email').notNull().unique(),
+  emailVerified: boolean('email_verified').default(false).notNull(), // Better Auth uses boolean
+  image: text('image'), // Better Auth expects 'image' not 'avatarUrl'
+  // Keep additional fields for your app
   firstName: text('first_name'),
   lastName: text('last_name'),
-  avatarUrl: text('avatar_url'),
   password: text('password'), // For credentials provider
   resetToken: text('reset_token'),
   resetTokenExpires: timestamp('reset_token_expires', { withTimezone: true }),
@@ -16,14 +18,14 @@ export const profiles = pgTable('profiles', {
   timezone: text('timezone').default('UTC'),
   language: text('language').default('en'),
   isAdmin: boolean('is_admin').default(false),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
 // Plan Subscriptions
 export const subscriptions = pgTable("subscriptions", {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").notNull().references(() => profiles.id),
+    userId: text("user_id").notNull().references(() => profiles.id),
     plan: text("plan").notNull().default("free"),
     isPremium: boolean("is_premium").default(false),
     stripeSubscriptionId: text("stripe_subscription_id"),
@@ -35,7 +37,7 @@ export const subscriptions = pgTable("subscriptions", {
 // Event subscriptions - users can subscribe to events for notifications
 export const eventSubscriptions = pgTable('event_subscriptions', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
+  userId: text('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
   eventSlug: text('event_slug').notNull(),
   notificationEnabled: boolean('notification_enabled').default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
@@ -44,7 +46,7 @@ export const eventSubscriptions = pgTable('event_subscriptions', {
 // Saved events - users can save events for later reference
 export const savedEvents = pgTable('saved_events', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
+  userId: text('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
   eventSlug: text('event_slug').notNull(),
   notes: text('notes'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
@@ -53,7 +55,7 @@ export const savedEvents = pgTable('saved_events', {
 // Chat conversations - AI chat sessions
 export const chatConversations = pgTable('chat_conversations', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
+  userId: text('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
   title: text('title'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
@@ -72,7 +74,7 @@ export const chatMessages = pgTable('chat_messages', {
 // Donations - track user donations
 export const donations = pgTable('donations', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
+  userId: text('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
   amount: integer('amount').notNull(), // Amount in cents
   currency: text('currency').default('usd'),
   stripePaymentIntentId: text('stripe_payment_intent_id').unique(),
@@ -84,7 +86,7 @@ export const donations = pgTable('donations', {
 // User preferences - store user settings
 export const userPreferences = pgTable('user_preferences', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull().unique(),
+  userId: text('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull().unique(),
   theme: text('theme', { enum: ['light', 'dark', 'system' ]}).default('system'),
   notifications: jsonb('notifications').default('{"email": true, "push": false}'),
   calendarView: text('calendar_view', { enum: ['month', 'week', 'day' ]}).default('month'),
@@ -95,7 +97,7 @@ export const userPreferences = pgTable('user_preferences', {
 // User usage tracking - track daily AI usage for rate limiting
 export const userUsage = pgTable('user_usage', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
+  userId: text('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
   date: timestamp('date', { withTimezone: true }).notNull(), // Date without time (YYYY-MM-DD)
   aiMessagesCount: integer('ai_messages_count').default(0).notNull(),
   aiTokensUsed: integer('ai_tokens_used').default(0).notNull(),
@@ -106,7 +108,7 @@ export const userUsage = pgTable('user_usage', {
 // Scripture downloads tracking - track monthly download usage
 export const scriptureDownloads = pgTable('scripture_downloads', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
+  userId: text('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
   scriptureSlug: text('scripture_slug').notNull(),
   downloadedAt: timestamp('downloaded_at', { withTimezone: true }).defaultNow(),
   month: text('month').notNull(), // YYYY-MM format for monthly tracking
@@ -246,43 +248,44 @@ export const embeddingsRelations = relations(embeddings, ({ one }) => ({
   }),
 }))
 
-// NextAuth Tables
+// Better Auth Tables
 export const accounts = pgTable('accounts', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
-  type: text('type').notNull(),
-  provider: text('provider').notNull(),
-  accountId: text('account_id').notNull(), // Better Auth expects this field
-  refreshToken: text('refresh_token'),
+  id: text('id').primaryKey(), // Better Auth uses text, not uuid
+  accountId: text('account_id').notNull(),
+  providerId: text('provider_id').notNull(), // Better Auth expects providerId
+  userId: text('user_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
   accessToken: text('access_token'),
-  expiresAt: integer('expires_at'),
-  tokenType: text('token_type'),
-  scope: text('scope'),
+  refreshToken: text('refresh_token'),
   idToken: text('id_token'),
-  sessionState: text('session_state'),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+  accessTokenExpiresAt: timestamp('access_token_expires_at', { withTimezone: true }),
+  refreshTokenExpiresAt: timestamp('refresh_token_expires_at', { withTimezone: true }),
+  scope: text('scope'),
+  password: text('password'), // For email/password auth
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
 export const sessions = pgTable('sessions', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  sessionToken: text('session_token').unique().notNull(),
-  userId: uuid('user_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
-  expires: timestamp('expires', { withTimezone: true }).notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+  id: text('id').primaryKey(), // Better Auth uses text, not uuid
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  token: text('token').notNull().unique(), // Better Auth expects 'token' not 'sessionToken'
+  userId: text('user_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
 export const verificationTokens = pgTable('verification_tokens', {
   id: text('id').primaryKey(),
   identifier: text('identifier').notNull(),
-  value: text('value').notNull(), // Better Auth requires this field
-  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(), // Better Auth expects this field name
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().$onUpdate(() => new Date()), // Better Auth requires this field
+  value: text('value').notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
-// NextAuth Relations
+// Better Auth Relations
 export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(profiles, {
     fields: [accounts.userId],
