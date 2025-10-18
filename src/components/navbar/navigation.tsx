@@ -56,7 +56,7 @@ const HamburgerIcon = ({ className, ...props }: React.SVGAttributes<SVGElement>)
 
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isAdmin } = useAuthContext();
+  const { isAdmin, isPremium } = useAuthContext();
   const { data: session, isPending } = authClient.useSession();
   const containerRef = useRef<HTMLElement>(null);
 
@@ -194,14 +194,19 @@ export function Navigation() {
             </div>
           ) : (
             <>
-              <Protect plan="free_plan">
-                <Button variant="default" size="sm" asChild className="hidden sm:flex">
+              {!isPremium && (
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  asChild 
+                  className="hidden sm:flex bg-orange-500 hover:bg-orange-600 text-black"
+                >
                   <Link href="/pricing">
                     <Heart className="mr-2 h-4 w-4" />
                     Upgrade to Premium
                   </Link>
                 </Button>
-              </Protect>
+              )}
               
               {/* Authentication */}
               {!session?.user ? (
@@ -296,14 +301,18 @@ export function Navigation() {
 
             <div className="pt-2 border-t">
 
-                <Protect plan="free_plan">
-                  <Button variant="default" className="w-full justify-start" asChild>
+                {!isPremium && (
+                  <Button 
+                    variant="default" 
+                    className="w-full justify-start bg-orange-500 hover:bg-orange-600 text-black" 
+                    asChild
+                  >
                     <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)}>
                       <Heart className="mr-2 h-4 w-4" />
                       Upgrade to Premium
                     </Link>
                   </Button>
-                </Protect>
+                )}
 
               {/* Mobile Authentication */}
               <div className="pt-2 space-y-2">
