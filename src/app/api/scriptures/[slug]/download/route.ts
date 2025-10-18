@@ -1,7 +1,7 @@
 // Download Scripture API Route
 
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth-config'
+import { getSession } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/db'
 import { getScriptureBySlug } from '@/lib/scriptures'
 import { checkDownloadLimit, recordDownload } from '@/lib/download-limits'
@@ -12,7 +12,7 @@ export async function GET(
     { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
-        const session = await auth()
+        const session = await getSession()
         const userId = session?.user?.id
         if (!userId) {
             return new Response('Unauthorized', { status: 401 })

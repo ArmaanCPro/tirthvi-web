@@ -3,7 +3,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Download, Crown, Loader2 } from 'lucide-react'
 import { Scripture } from '@/lib/schemas/scripture'
@@ -15,8 +15,7 @@ interface DownloadButtonProps {
 }
 
 export function DownloadButton({ scripture }: DownloadButtonProps) {
-    const { data: session } = useSession()
-    const user = session?.user
+    const { user } = useAuth()
     const [downloading, setDownloading] = useState(false)
     const [isAdmin, setIsAdmin] = useState(false)
 

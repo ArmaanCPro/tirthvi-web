@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth-config'
+import { getSession } from '@/lib/auth'
 import { processDocument, getDocumentsWithStats, deleteDocument } from '@/lib/document-processor'
 
 export async function GET() {
   try {
-    const session = await auth()
+    const session = await getSession()
     const userId = session?.user?.id
     
     if (!userId) {
@@ -22,7 +22,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
+    const session = await getSession()
     const userId = session?.user?.id
     
     if (!userId) {
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await auth()
+    const session = await getSession()
     const userId = session?.user?.id
     
     if (!userId) {

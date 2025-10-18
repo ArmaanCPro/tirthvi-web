@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth-config'
+import { getSession } from '@/lib/auth'
 import { stripe, STRIPE_CONFIG } from '@/lib/stripe'
 import { db } from '@/lib/drizzle'
 import { profiles } from '@/lib/drizzle/schema'
@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm'
 
 export async function POST() {
   try {
-    const session = await auth()
+    const session = await getSession()
     
     if (!session?.user?.id) {
       return NextResponse.json(

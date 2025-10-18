@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth-config'
+import { getSession } from '@/lib/auth'
 import { generateTextEmbedding } from '@/lib/embeddings'
 import { searchSimilarChunks, createRAGContext } from '@/lib/rag-utils'
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
+    const session = await getSession()
     const userId = session?.user?.id
     
     if (!userId) {

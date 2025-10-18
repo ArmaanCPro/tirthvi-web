@@ -1,6 +1,5 @@
 "use client"
 
-import { SessionProvider as NextAuthSessionProvider } from "next-auth/react"
 import { ReactNode } from "react"
 
 interface SessionProviderProps {
@@ -8,9 +7,6 @@ interface SessionProviderProps {
 }
 
 export function SessionProvider({ children }: SessionProviderProps) {
-  return (
-    <NextAuthSessionProvider>
-      {children}
-    </NextAuthSessionProvider>
-  )
+  // Better Auth handles sessions server-side, no provider needed
+  return <>{children}</>
 }

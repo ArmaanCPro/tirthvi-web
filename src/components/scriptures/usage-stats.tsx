@@ -3,15 +3,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Crown, Download } from 'lucide-react'
 
 export function UsageStats() {
-    const { data: session } = useSession()
-    const user = session?.user
+    const { user } = useAuth()
     const [stats, setStats] = useState<{
         remaining: number
         limit: number

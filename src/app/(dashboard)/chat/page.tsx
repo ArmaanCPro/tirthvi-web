@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 import { SignInButton } from '@/components/auth'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
@@ -53,9 +53,9 @@ function extractMessageText(message: UIMessage): string {
 }
 
 export default function ChatPage() {
-  const { data: session, status: authStatus } = useSession()
-  const isLoaded = authStatus !== "loading"
-  const isSignedIn = !!session?.user
+  const { user, isLoading: authStatus } = useAuth()
+  const isLoaded = !authStatus
+  const isSignedIn = !!user
   const [input, setInput] = useState('')
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
   const [currentConversationId, setCurrentConversationId] = useState<string | undefined>()

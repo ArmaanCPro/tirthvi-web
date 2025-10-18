@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth-config'
+import { getSession } from '@/lib/auth'
 import { getSubscriptionStatus } from '@/lib/premium'
 
 export async function GET() {
   try {
-    const session = await auth()
+    const session = await getSession()
     
     if (!session?.user?.id) {
       return NextResponse.json(

@@ -1,6 +1,5 @@
 "use client"
 
-import { useSession } from "next-auth/react"
 import { ReactNode, useEffect, useState } from "react"
 
 interface ProtectProps {
@@ -10,29 +9,34 @@ interface ProtectProps {
 }
 
 export function Protect({ children, fallback = null, plan }: ProtectProps) {
-  const { data: session, status } = useSession()
+  const [session, setSession] = useState<{ user?: { id: string } } | null>(null)
   const [isPremium, setIsPremium] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (session?.user?.id && plan) {
-      // Check premium status for plan-based protection
-      fetch('/api/auth/premium')
-        .then(res => res.json())
-        .then(data => {
-          setIsPremium(!!data?.isPremium)
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(data => {
+        setSession(data)
+        if (data?.user?.id && plan) {
+          // Check premium status for plan-based protection
+          return fetch('/api/auth/premium')
+            .then(res => res.json())
+            .then(premiumData => {
+              setIsPremium(!!premiumData?.isPremium)
+              setIsLoading(false)
+            })
+        } else {
           setIsLoading(false)
-        })
-        .catch(() => {
-          setIsPremium(false)
-          setIsLoading(false)
-        })
-    } else {
-      setIsLoading(false)
-    }
-  }, [session?.user?.id, plan])
+        }
+      })
+      .catch(() => {
+        setIsPremium(false)
+        setIsLoading(false)
+      })
+  }, [plan])
 
-  if (status === "loading" || isLoading) {
+  if (isLoading) {
     return null
   }
 

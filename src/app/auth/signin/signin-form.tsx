@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
-import { useRouter, useSearchParams } from "next/navigation"
+// Better Auth client will be imported dynamically
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -20,8 +20,7 @@ export default function SignInForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
+  const callbackUrl = "/dashboard"
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,19 +28,26 @@ export default function SignInForm() {
     setError("")
 
     try {
-      const res = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
+      const res = await fetch('/api/auth/sign-in/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       })
 
-      if (res?.error) {
-        setError(res.error)
-        toast.error(res.error)
-      } else {
+      const data = await res.json()
+
+      if (res.ok) {
         toast.success("Welcome back!")
         router.push(callbackUrl)
         router.refresh()
+      } else {
+        setError(data.error || "Invalid credentials")
+        toast.error(data.error || "Invalid credentials")
       }
     } catch {
       setError("Something went wrong. Please try again.")
@@ -54,7 +60,7 @@ export default function SignInForm() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
     try {
-      await signIn("google", { callbackUrl })
+      window.location.href = `/api/auth/sign-in/social/google?callbackUrl=${encodeURIComponent(callbackUrl)}`
     } catch {
       toast.error("Failed to sign in with Google")
     } finally {

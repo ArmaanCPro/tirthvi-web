@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Bookmark, BookmarkCheck, Loader2 } from 'lucide-react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 
 interface SaveEventButtonProps {
@@ -12,8 +12,8 @@ interface SaveEventButtonProps {
 }
 
 export function SaveEventButton({ eventSlug, className }: SaveEventButtonProps) {
-  const { data: session } = useSession()
-  const isSignedIn = !!session?.user
+  const { user } = useAuth()
+  const isSignedIn = !!user
   const [isSaved, setIsSaved] = useState(false)
   const [loading, setLoading] = useState(false)
   const [checking, setChecking] = useState(true)

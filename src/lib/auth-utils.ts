@@ -5,17 +5,24 @@ import { eq } from "drizzle-orm"
 import { redirect } from "next/navigation"
 
 export async function getCurrentUser() {
-  const session = await auth()
-  
-  if (!session?.user?.id) {
+  try {
+    const session = await auth.api.getSession({
+      headers: new Headers()
+    })
+    
+    if (!session?.user?.id) {
+      return null
+    }
+
+    const user = await db.query.profiles.findFirst({
+      where: eq(profiles.id, session.user.id),
+    })
+
+    return user
+  } catch (error) {
+    console.error('Error getting current user:', error)
     return null
   }
-
-  const user = await db.query.profiles.findFirst({
-    where: eq(profiles.id, session.user.id),
-  })
-
-  return user
 }
 
 export async function isAdmin(userId: string): Promise<boolean> {
@@ -27,29 +34,22 @@ export async function isAdmin(userId: string): Promise<boolean> {
 }
 
 export async function requireAuth() {
-  const session = await auth()
+  const user = await getCurrentUser()
   
-  if (!session?.user?.id) {
+  if (!user?.id) {
     redirect('/auth/signin')
   }
 
-  return session
+  return user
 }
 
 export async function requireAdmin() {
-  const session = await requireAuth()
+  const user = await requireAuth()
   
-  if (!session?.user?.id) {
-    redirect('/')
-  }
-  
-  const user = await db.query.profiles.findFirst({
-    where: eq(profiles.id, session.user.id),
-  })
-
-  if (!user?.isAdmin) {
+  const admin = await isAdmin(user.id)
+  if (!admin) {
     redirect('/')
   }
 
-  return { session, user }
+  return user
 }

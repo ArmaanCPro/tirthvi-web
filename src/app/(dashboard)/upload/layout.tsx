@@ -1,19 +1,17 @@
 import { ReactNode } from 'react'
-import { auth } from '@/lib/auth-config'
 import { redirect } from 'next/navigation'
-import { isAdmin } from '@/lib/auth'
+import { getCurrentUser, isAdmin } from '@/lib/auth'
 
 export default async function UploadLayout({ children }: { children: ReactNode }) {
-  const session = await auth()
-  const userId = session?.user?.id
+  const user = await getCurrentUser()
 
   // Require auth
-  if (!userId) {
+  if (!user?.id) {
     redirect('/')
   }
 
   // Require admin
-  const admin = await isAdmin(userId)
+  const admin = await isAdmin(user.id)
   if (!admin) {
     redirect('/')
   }
