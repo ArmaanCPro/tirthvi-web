@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
@@ -12,7 +12,7 @@ import { Loader2, Lock, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react
 import { toast } from "sonner"
 import { authClient } from "@/lib/auth-client"
 
-export default function ResetPasswordForm() {
+function ResetPasswordFormContent() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -252,5 +252,22 @@ export default function ResetPasswordForm() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordForm() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p>Loading...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <ResetPasswordFormContent />
+    </Suspense>
   )
 }

@@ -4,7 +4,7 @@ import { nextCookies } from "better-auth/next-js"
 import { emailOTP } from "better-auth/plugins"
 import { db } from "@/lib/drizzle"
 import { profiles, accounts, sessions, verificationTokens } from "@/lib/drizzle/schema"
-import { sendVerificationOTP, sendPasswordResetEmail } from "@/lib/email"
+import { sendVerificationOTP, sendPasswordResetEmail, sendWelcomeEmail } from "@/lib/email"
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET || process.env.NEXTAUTH_SECRET,
@@ -23,11 +23,24 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true, // Enable email verification
-    sendResetPassword: async ({ user, url, token }, request) => {
+    sendResetPassword: async ({ user, url, token }) => {
       await sendPasswordResetEmail({ user, url, token })
     },
-    onPasswordReset: async ({ user }, request) => {
+    onPasswordReset: async ({ user }) => {
       console.log(`Password reset completed for user: ${user.email}`)
+    },
+    onUserCreate: async ({ user }) => {
+      // Send welcome email when user is created
+      try {
+        await sendWelcomeEmail({
+          userEmail: user.email,
+          userName: user.name || user.email.split('@')[0]
+        })
+        console.log(`Welcome email sent to: ${user.email}`)
+      } catch (error) {
+        console.error('Failed to send welcome email:', error)
+        // Don't throw error to avoid blocking user creation
+      }
     },
   },
   socialProviders: {
@@ -49,7 +62,7 @@ export const auth = betterAuth({
   ],
   plugins: [
     emailOTP({
-      sendVerificationOTP: async ({ email, otp, type }, request) => {
+      sendVerificationOTP: async ({ email, otp, type }) => {
         await sendVerificationOTP({ email, otp, type })
       },
       overrideDefaultEmailVerification: true, // Use OTP instead of magic links
