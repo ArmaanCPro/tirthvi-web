@@ -66,8 +66,9 @@ export default function SignInForm() {
         callbackURL: callbackUrl
       })
       
-      if (data.url) {
-        window.location.href = data.url
+      // Better Auth returns data with url property for redirect
+      if (data && 'url' in data && data.url) {
+        window.location.href = data.url as string
       }
     } catch (error) {
       console.error('Google sign-in error:', error)

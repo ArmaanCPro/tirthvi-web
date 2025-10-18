@@ -28,8 +28,9 @@ export function useAuth() {
   useEffect(() => {
     // Fetch session from Better Auth client
     authClient.getSession()
-      .then(session => {
-        if (session?.user) {
+      .then((response) => {
+        // Better Auth returns a Data wrapper with user property
+        if (response && 'data' in response && response.data && response.data.user) {
           // Check admin status
           fetch('/api/auth/admin')
             .then(res => res.json())
@@ -46,10 +47,10 @@ export function useAuth() {
               setAuthState({
                 isSignedIn: true,
                 user: {
-                  id: session.user.id || '',
-                  email: session.user.email || '',
-                  name: session.user.name || undefined,
-                  image: session.user.image || undefined,
+                  id: response.data.user.id || '',
+                  email: response.data.user.email || '',
+                  name: response.data.user.name || undefined,
+                  image: response.data.user.image || undefined,
                 },
                 isLoading: false,
                 isAdmin,
@@ -60,10 +61,10 @@ export function useAuth() {
               setAuthState({
                 isSignedIn: true,
                 user: {
-                  id: session.user.id || '',
-                  email: session.user.email || '',
-                  name: session.user.name || undefined,
-                  image: session.user.image || undefined,
+                  id: response.data.user.id || '',
+                  email: response.data.user.email || '',
+                  name: response.data.user.name || undefined,
+                  image: response.data.user.image || undefined,
                 },
                 isLoading: false,
                 isAdmin: false,

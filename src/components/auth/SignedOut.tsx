@@ -16,11 +16,17 @@ export function SignedOut({ children, fallback = null }: SignedOutProps) {
   useEffect(() => {
     // Use Better Auth client for session
     authClient.getSession()
-      .then(data => {
-        setSession(data)
+      .then((response) => {
+        // Better Auth returns a Data wrapper with user property
+        if (response && 'data' in response && response.data && response.data.user) {
+          setSession({ user: { id: response.data.user.id } })
+        } else {
+          setSession(null)
+        }
         setIsLoading(false)
       })
       .catch(() => {
+        setSession(null)
         setIsLoading(false)
       })
   }, [])

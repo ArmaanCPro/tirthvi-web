@@ -84,8 +84,9 @@ export default function SignUpPage() {
         callbackURL: "/dashboard"
       })
       
-      if (data.url) {
-        window.location.href = data.url
+      // Better Auth returns data with url property for redirect
+      if (data && 'url' in data && data.url) {
+        window.location.href = data.url as string
       }
     } catch (error) {
       console.error('Google sign-up error:', error)

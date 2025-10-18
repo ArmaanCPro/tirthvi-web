@@ -17,21 +17,28 @@ export function Protect({ children, fallback = null, plan }: ProtectProps) {
   useEffect(() => {
     // Use Better Auth client for session
     authClient.getSession()
-      .then(data => {
-        setSession(data)
-        if (data?.user?.id && plan) {
-          // Check premium status for plan-based protection
-          return fetch('/api/auth/premium')
-            .then(res => res.json())
-            .then(premiumData => {
-              setIsPremium(!!premiumData?.isPremium)
-              setIsLoading(false)
-            })
+      .then((response) => {
+        // Better Auth returns a Data wrapper with user property
+        if (response && 'data' in response && response.data && response.data.user) {
+          setSession({ user: { id: response.data.user.id } })
+          if (response.data.user.id && plan) {
+            // Check premium status for plan-based protection
+            return fetch('/api/auth/premium')
+              .then(res => res.json())
+              .then(premiumData => {
+                setIsPremium(!!premiumData?.isPremium)
+                setIsLoading(false)
+              })
+          } else {
+            setIsLoading(false)
+          }
         } else {
+          setSession(null)
           setIsLoading(false)
         }
       })
       .catch(() => {
+        setSession(null)
         setIsPremium(false)
         setIsLoading(false)
       })
