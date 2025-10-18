@@ -3,9 +3,15 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 export default async function middleware(request: NextRequest) {
-  // Only check for session cookie existence - actual validation happens in server components
+  // SECURITY WARNING: This middleware only checks for the existence of a session cookie
+  // It does NOT validate the session. This is intentional for performance reasons.
+  // Actual session validation happens in server components using auth.api.getSession()
+  // 
+  // This approach is recommended by Better Auth for Next.js middleware to avoid
+  // blocking requests with database calls in middleware.
   const sessionCookie = getSessionCookie(request)
 
+  // Protect dashboard and upload routes
   if (request.nextUrl.pathname.startsWith('/dashboard') ||
       request.nextUrl.pathname.startsWith('/upload')) {
     if (!sessionCookie) {

@@ -50,16 +50,19 @@ export default function SignUpPage() {
         email: formData.email,
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`,
+        image: undefined, // Optional profile image
+        callbackURL: "/auth/verify-email", // Redirect to verification page
       })
 
       if (result.error) {
         setError(result.error.message || "Failed to create account")
         toast.error(result.error.message || "Failed to create account")
       } else {
-        toast.success("Account created successfully! Please sign in.")
-        router.push("/auth/signin")
+        toast.success("Account created! Please check your email for verification code.")
+        router.push("/auth/verify-email")
       }
-    } catch {
+    } catch (error) {
+      console.error('Sign up error:', error)
       setError("Something went wrong. Please try again.")
       toast.error("Something went wrong. Please try again.")
     } finally {

@@ -19,6 +19,7 @@ export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [rememberMe, setRememberMe] = useState(true)
   const router = useRouter()
   const callbackUrl = "/dashboard"
 
@@ -31,17 +32,26 @@ export default function SignInForm() {
       const result = await authClient.signIn.email({
         email,
         password,
+        rememberMe,
+        callbackURL: callbackUrl,
       })
 
       if (result.error) {
-        setError(result.error.message || "Invalid credentials")
-        toast.error(result.error.message || "Invalid credentials")
+        // Handle specific error cases
+        if (result.error.status === 403) {
+          setError("Please verify your email address before signing in.")
+          toast.error("Please verify your email address before signing in.")
+        } else {
+          setError(result.error.message || "Invalid credentials")
+          toast.error(result.error.message || "Invalid credentials")
+        }
       } else {
         toast.success("Welcome back!")
         router.push(callbackUrl)
         router.refresh()
       }
-    } catch {
+    } catch (error) {
+      console.error('Sign in error:', error)
       setError("Something went wrong. Please try again.")
       toast.error("Something went wrong. Please try again.")
     } finally {
@@ -158,7 +168,16 @@ export default function SignInForm() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end">
+              <div className="flex items-center justify-between">
+                <label className="flex items-center space-x-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <span className="text-muted-foreground">Remember me</span>
+                </label>
                 <Link
                   href="/auth/forgot-password"
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"

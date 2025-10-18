@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Lock, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
+import { authClient } from "@/lib/auth-client"
 
 export default function ResetPasswordForm() {
   const [password, setPassword] = useState("")
@@ -19,14 +21,18 @@ export default function ResetPasswordForm() {
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState("")
   const [token, setToken] = useState("")
+  const searchParams = useSearchParams()
   
   useEffect(() => {
-    // TODO: Get token from URL params
-    // For now, set a default token
-    setToken("")
-    setError("Invalid or missing reset token.")
-    toast.error("Invalid or missing reset token.")
-  }, [])
+    // Extract token from URL search params
+    const tokenParam = searchParams.get('token')
+    if (tokenParam) {
+      setToken(tokenParam)
+    } else {
+      setError("Invalid or missing reset token.")
+      toast.error("Invalid or missing reset token.")
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,24 +54,20 @@ export default function ResetPasswordForm() {
     }
 
     try {
-      const res = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token, password }),
+      const result = await authClient.resetPassword({
+        token,
+        newPassword: password,
       })
 
-      const data = await res.json()
-
-      if (res.ok) {
+      if (result.error) {
+        setError(result.error.message || "Failed to reset password")
+        toast.error(result.error.message || "Failed to reset password")
+      } else {
         setIsSuccess(true)
         toast.success("Password reset successfully!")
-      } else {
-        setError(data.error || "Failed to reset password")
-        toast.error(data.error || "Failed to reset password")
       }
-    } catch {
+    } catch (error) {
+      console.error('Password reset error:', error)
       setError("Something went wrong. Please try again.")
       toast.error("Something went wrong. Please try again.")
     } finally {

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Mail, ArrowLeft, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
+import { authClient } from "@/lib/auth-client"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
@@ -22,24 +23,20 @@ export default function ForgotPasswordPage() {
     setError("")
 
     try {
-      const res = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
+      const result = await authClient.forgetPassword.email({
+        email,
+        redirectTo: `${window.location.origin}/auth/reset-password`,
       })
 
-      const data = await res.json()
-
-      if (res.ok) {
+      if (result.error) {
+        setError(result.error.message || "Failed to send reset email")
+        toast.error(result.error.message || "Failed to send reset email")
+      } else {
         setIsSuccess(true)
         toast.success("Password reset email sent!")
-      } else {
-        setError(data.error || "Failed to send reset email")
-        toast.error(data.error || "Failed to send reset email")
       }
-    } catch {
+    } catch (error) {
+      console.error('Password reset error:', error)
       setError("Something went wrong. Please try again.")
       toast.error("Something went wrong. Please try again.")
     } finally {

@@ -1,8 +1,10 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { nextCookies } from "better-auth/next-js"
+import { emailOTP } from "better-auth/plugins"
 import { db } from "@/lib/drizzle"
 import { profiles, accounts, sessions, verificationTokens } from "@/lib/drizzle/schema"
+import { sendVerificationOTP, sendPasswordResetEmail } from "@/lib/email"
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET || process.env.NEXTAUTH_SECRET,
@@ -20,12 +22,20 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: true, // Enable email verification
+    sendResetPassword: async ({ user, url, token }, request) => {
+      await sendPasswordResetEmail({ user, url, token })
+    },
+    onPasswordReset: async ({ user }, request) => {
+      console.log(`Password reset completed for user: ${user.email}`)
+    },
   },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      accessType: "offline", // Always get refresh token
+      prompt: "select_account consent", // Always ask for consent
     },
   },
   session: {
@@ -38,6 +48,15 @@ export const auth = betterAuth({
       : "http://localhost:3000"
   ],
   plugins: [
+    emailOTP({
+      sendVerificationOTP: async ({ email, otp, type }, request) => {
+        await sendVerificationOTP({ email, otp, type })
+      },
+      overrideDefaultEmailVerification: true, // Use OTP instead of magic links
+      otpLength: 6,
+      expiresIn: 600, // 10 minutes
+      allowedAttempts: 3,
+    }),
     nextCookies() // Automatically handle cookies in server actions
   ],
 })
