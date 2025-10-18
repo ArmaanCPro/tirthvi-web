@@ -2,19 +2,40 @@ import { auth } from "./auth-config"
 import { db } from "./drizzle"
 import { profiles } from "./drizzle/schema"
 import { eq } from "drizzle-orm"
+import { headers } from "next/headers"
 
-export async function getCurrentUser() {
-  const session = await auth()
-  
-  if (!session?.user?.id) {
+export async function getCurrentUser(): Promise<{ id: string } | null> {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers()
+    })
+    
+    if (!session?.user?.id) {
+      return null
+    }
+
+    const user = await db.query.profiles.findFirst({
+      where: eq(profiles.id, session.user.id),
+    })
+
+    return user || null
+  } catch (error) {
+    console.error('Error getting current user:', error)
     return null
   }
+}
 
-  const user = await db.query.profiles.findFirst({
-    where: eq(profiles.id, session.user.id),
-  })
-
-  return user
+// Helper function for API routes
+export async function getSession() {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers()
+    })
+    return session
+  } catch (error) {
+    console.error('Error getting session:', error)
+    return null
+  }
 }
 
 export async function createUserProfile(userData: {

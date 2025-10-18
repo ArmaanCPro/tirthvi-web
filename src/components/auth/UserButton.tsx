@@ -1,6 +1,6 @@
 "use client"
 
-import { useSession, signOut } from "next-auth/react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -24,14 +24,35 @@ interface UserButtonProps {
 }
 
 export function UserButton({ afterSignOutUrl = "/" }: UserButtonProps) {
-  const { data: session } = useSession()
+  const [session, setSession] = useState<{ user?: { id: string; name?: string; email?: string; image?: string } } | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  if (!session?.user) {
+  // Fetch session on mount
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(data => {
+        setSession(data)
+        setIsLoading(false)
+      })
+      .catch(() => {
+        setIsLoading(false)
+      })
+  }, [])
+
+  if (isLoading || !session?.user) {
     return null
   }
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: afterSignOutUrl })
+    try {
+      await fetch('/api/auth/sign-out', {
+        method: 'POST',
+      })
+      window.location.href = afterSignOutUrl
+    } catch (error) {
+      console.error('Sign out failed:', error)
+    }
   }
 
   const user = session.user

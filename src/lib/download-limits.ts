@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth-config'
+import { getSession } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
 import { scriptureDownloads } from '@/lib/drizzle/schema'
 import { eq, and, count } from 'drizzle-orm'
@@ -24,10 +24,20 @@ export async function checkDownloadLimit(userIdParam: string): Promise<{
     }
   }
 
-  const session = await auth()
-  const userId = session?.user?.id
-  
-  if (!userId) {
+  let session
+  try {
+    session = await getSession().then(session => session?.user?.id)
+    
+    if (!session) {
+      return { 
+        canDownload: false, 
+        remaining: 0, 
+        limit: FREE_DOWNLOAD_LIMIT,
+        isPremium: false
+      }
+    }
+  } catch (error) {
+    console.error('Auth error in checkDownloadLimit:', error)
     return { 
       canDownload: false, 
       remaining: 0, 
@@ -37,7 +47,7 @@ export async function checkDownloadLimit(userIdParam: string): Promise<{
   }
 
   // Check if user is admin (unlimited downloads)
-  const userIsAdmin = await isAdmin(userId)
+  const userIsAdmin = await isAdmin(session)
   if (userIsAdmin) {
     return { 
       canDownload: true, 
@@ -110,10 +120,20 @@ export async function getUserDownloadStats(userId: string): Promise<{
     }
   }
 
-  const session = await auth()
-  const sessionUserId = session?.user?.id
-  
-  if (!sessionUserId) {
+  let session
+  try {
+    session = await getSession().then(session => session?.user?.id)
+    
+    if (!session) {
+      return {
+        downloadsThisMonth: 0,
+        limit: FREE_DOWNLOAD_LIMIT,
+        remaining: FREE_DOWNLOAD_LIMIT,
+        isPremium: false
+      }
+    }
+  } catch (error) {
+    console.error('Auth error in getUserDownloadStats:', error)
     return {
       downloadsThisMonth: 0,
       limit: FREE_DOWNLOAD_LIMIT,
@@ -123,7 +143,7 @@ export async function getUserDownloadStats(userId: string): Promise<{
   }
 
   // Check if user is admin (unlimited downloads)
-  const userIsAdmin = await isAdmin(sessionUserId)
+  const userIsAdmin = await isAdmin(session)
   if (userIsAdmin) {
     return {
       downloadsThisMonth: 0,

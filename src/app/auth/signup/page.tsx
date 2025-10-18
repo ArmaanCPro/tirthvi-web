@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Eye, EyeOff, Mail, Lock, User, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
-import { signIn } from "next-auth/react"
+// Better Auth client will be imported dynamically
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -45,12 +45,16 @@ export default function SignUpPage() {
     }
 
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch("/api/auth/sign-up/email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          name: `${formData.firstName} ${formData.lastName}`,
+        }),
       })
 
       const data = await res.json()
@@ -73,7 +77,7 @@ export default function SignUpPage() {
   const handleGoogleSignUp = async () => {
     setIsLoading(true)
     try {
-      await signIn("google", { callbackUrl: "/dashboard" })
+      window.location.href = `/api/auth/sign-in/social/google?callbackUrl=${encodeURIComponent("/dashboard")}`
     } catch {
       toast.error("Failed to sign up with Google")
     } finally {

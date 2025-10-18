@@ -2,25 +2,32 @@ import { auth } from "@/lib/auth-config"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-export default auth(async function middleware(request: NextRequest) {
-  const session = await auth()
-  
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
-    if (!session) {
-      return NextResponse.redirect(new URL('/auth/signin', request.url))
+export default async function middleware(request: NextRequest) {
+  try {
+    const session = await auth.api.getSession({
+      headers: request.headers
+    })
+    
+    // Protect dashboard routes
+    if (request.nextUrl.pathname.startsWith('/dashboard')) {
+      if (!session?.user) {
+        return NextResponse.redirect(new URL('/auth/signin', request.url))
+      }
     }
-  }
 
-  // Protect upload routes (admin only)
-  if (request.nextUrl.pathname.startsWith('/upload')) {
-    if (!session) {
-      return NextResponse.redirect(new URL('/auth/signin', request.url))
+    // Protect upload routes (admin only)
+    if (request.nextUrl.pathname.startsWith('/upload')) {
+      if (!session?.user) {
+        return NextResponse.redirect(new URL('/auth/signin', request.url))
+      }
     }
-  }
 
-  return NextResponse.next()
-})
+    return NextResponse.next()
+  } catch (error) {
+    console.error('Middleware auth error:', error)
+    return NextResponse.next()
+  }
+}
 
 export const config = {
   matcher: [

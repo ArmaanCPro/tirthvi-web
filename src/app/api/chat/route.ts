@@ -1,6 +1,6 @@
 import { streamText, convertToModelMessages } from 'ai'
 import { NextRequest } from 'next/server'
-import { auth } from '@/lib/auth-config'
+import { getSession } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
 import { profiles } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
@@ -12,7 +12,7 @@ import { getUserPlan, chooseModelForUser } from '@/lib/ai-plans'
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
+    const session = await getSession()
     
     if (!session?.user?.id) {
       return new Response('Unauthorized', { status: 401 })

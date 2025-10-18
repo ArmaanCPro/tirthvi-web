@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth-config'
+import { getSession } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
 import { eventSubscriptions, profiles } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
@@ -10,7 +10,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth()
+    const session = await getSession()
     const userId = session?.user?.id
     
     if (!userId) {
@@ -49,7 +49,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth()
+    const session = await getSession()
     const userId = session?.user?.id
     
     if (!userId) {

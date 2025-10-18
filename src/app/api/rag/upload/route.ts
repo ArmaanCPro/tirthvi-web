@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth-config'
+import { getSession } from '@/lib/auth'
 import { processPDF, processDocument } from '@/lib/document-processor'
 import { processDocumentsBatch } from '@/lib/batch-processor'
 import { checkRAGTables } from '@/lib/db-init'
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
+    const session = await getSession()
     const userId = session?.user?.id
     
     if (!userId) {
@@ -201,7 +201,7 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const session = await auth()
+    const session = await getSession()
     const userId = session?.user?.id
     
     if (!userId) {

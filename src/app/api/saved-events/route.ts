@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth-config'
+import { getSession } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
 import { savedEvents, profiles } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
@@ -63,7 +63,7 @@ const getCachedSavedEvents = unstable_cache(
 // GET /api/saved-events - Get user's saved events
 export async function GET() {
   try {
-    const session = await auth()
+    const session = await getSession()
     const userId = session?.user?.id
     
     if (!userId) {
@@ -81,7 +81,7 @@ export async function GET() {
 // POST /api/saved-events - Save an event
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth()
+    const session = await getSession()
     const userId = session?.user?.id
     
     if (!userId) {

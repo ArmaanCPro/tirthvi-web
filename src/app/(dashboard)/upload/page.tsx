@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,9 +10,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function UploadPage() {
-  const { data: session, status } = useSession()
-  const isLoaded = status !== "loading"
-  const isSignedIn = !!session?.user
+  const { user, isLoading: status } = useAuth()
+  const isLoaded = !status
+  const isSignedIn = !!user
   const [mode, setMode] = useState<'file' | 'url' | 'supabase'>('file')
   const [file, setFile] = useState<File | null>(null)
   const [fileUrl, setFileUrl] = useState('')

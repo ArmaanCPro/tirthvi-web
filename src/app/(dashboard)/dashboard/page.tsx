@@ -1,5 +1,4 @@
 import { Suspense } from 'react'
-import { auth } from '@/lib/auth-config'
 import { redirect } from 'next/navigation'
 import { SavedEventsList } from '@/components/saved-events-list'
 import { SubscribedEventsList } from '@/components/subscribed-events-list'
@@ -8,16 +7,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Bot, Upload } from 'lucide-react'
 import Link from 'next/link'
-import { isAdmin } from '@/lib/auth'
+import { getCurrentUser, isAdmin } from '@/lib/auth'
 
 export default async function DashboardPage() {
-  const session = await auth()
+  const user = await getCurrentUser()
   
-  if (!session?.user?.id) {
+  if (!user?.id) {
     redirect('/')
   }
 
-  const admin = await isAdmin(session.user.id)
+  const admin = await isAdmin(user.id)
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">

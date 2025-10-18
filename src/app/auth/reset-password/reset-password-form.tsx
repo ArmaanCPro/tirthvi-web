@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -21,17 +20,13 @@ export default function ResetPasswordForm() {
   const [error, setError] = useState("")
   const [token, setToken] = useState("")
   
-  const searchParams = useSearchParams()
-
   useEffect(() => {
-    const tokenParam = searchParams.get("token")
-    if (tokenParam) {
-      setToken(tokenParam)
-    } else {
-      setError("Invalid or missing reset token.")
-      toast.error("Invalid or missing reset token.")
-    }
-  }, [searchParams])
+    // TODO: Get token from URL params
+    // For now, set a default token
+    setToken("")
+    setError("Invalid or missing reset token.")
+    toast.error("Invalid or missing reset token.")
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -1,6 +1,5 @@
 "use client"
 
-import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
 
 interface AuthState {
@@ -17,7 +16,6 @@ interface AuthState {
 }
 
 export function useAuth() {
-  const { data: session, status } = useSession()
   const [authState, setAuthState] = useState<AuthState>({
     isSignedIn: false,
     user: null,
@@ -27,62 +25,71 @@ export function useAuth() {
   })
 
   useEffect(() => {
-    if (status === "loading") {
-      setAuthState(prev => ({ ...prev, isLoading: true }))
-      return
-    }
-
-    if (session?.user) {
-      // Check admin status
-      fetch('/api/auth/admin')
-        .then(res => res.json())
-        .then(data => {
-          // Check premium status
-          return fetch('/api/auth/premium')
+    // Fetch session from Better Auth
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(session => {
+        if (session?.user) {
+          // Check admin status
+          fetch('/api/auth/admin')
             .then(res => res.json())
-            .then(premiumData => ({
-              isAdmin: data?.isAdmin || false,
-              isPremium: premiumData?.isPremium || false,
-            }))
-        })
-        .then(({ isAdmin, isPremium }) => {
+            .then(data => {
+              // Check premium status
+              return fetch('/api/auth/premium')
+                .then(res => res.json())
+                .then(premiumData => ({
+                  isAdmin: data?.isAdmin || false,
+                  isPremium: premiumData?.isPremium || false,
+                }))
+            })
+            .then(({ isAdmin, isPremium }) => {
+              setAuthState({
+                isSignedIn: true,
+                user: {
+                  id: session.user.id || '',
+                  email: session.user.email || '',
+                  name: session.user.name || undefined,
+                  image: session.user.image || undefined,
+                },
+                isLoading: false,
+                isAdmin,
+                isPremium,
+              })
+            })
+            .catch(() => {
+              setAuthState({
+                isSignedIn: true,
+                user: {
+                  id: session.user.id || '',
+                  email: session.user.email || '',
+                  name: session.user.name || undefined,
+                  image: session.user.image || undefined,
+                },
+                isLoading: false,
+                isAdmin: false,
+                isPremium: false,
+              })
+            })
+        } else {
           setAuthState({
-            isSignedIn: true,
-            user: session.user ? {
-              id: session.user.id || '',
-              email: session.user.email || '',
-              name: session.user.name || undefined,
-              image: session.user.image || undefined,
-            } : null,
-            isLoading: false,
-            isAdmin,
-            isPremium,
-          })
-        })
-        .catch(() => {
-          setAuthState({
-            isSignedIn: true,
-            user: session.user ? {
-              id: session.user.id || '',
-              email: session.user.email || '',
-              name: session.user.name || undefined,
-              image: session.user.image || undefined,
-            } : null,
+            isSignedIn: false,
+            user: null,
             isLoading: false,
             isAdmin: false,
             isPremium: false,
           })
-        })
-    } else {
-      setAuthState({
-        isSignedIn: false,
-        user: null,
-        isLoading: false,
-        isAdmin: false,
-        isPremium: false,
+        }
       })
-    }
-  }, [session, status])
+      .catch(() => {
+        setAuthState({
+          isSignedIn: false,
+          user: null,
+          isLoading: false,
+          isAdmin: false,
+          isPremium: false,
+        })
+      })
+  }, [])
 
   return authState
 }

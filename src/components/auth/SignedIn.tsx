@@ -1,6 +1,6 @@
 "use client"
 
-import { useSession } from "next-auth/react"
+import { useState, useEffect } from "react"
 import { ReactNode } from "react"
 
 interface SignedInProps {
@@ -9,9 +9,22 @@ interface SignedInProps {
 }
 
 export function SignedIn({ children, fallback = null }: SignedInProps) {
-  const { data: session, status } = useSession()
+  const [session, setSession] = useState<{ user?: { id: string } } | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  if (status === "loading") {
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(data => {
+        setSession(data)
+        setIsLoading(false)
+      })
+      .catch(() => {
+        setIsLoading(false)
+      })
+  }, [])
+
+  if (isLoading) {
     return null // or a loading spinner
   }
 
