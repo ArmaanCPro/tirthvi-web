@@ -10,10 +10,15 @@ export default async function middleware(request: NextRequest) {
   // This approach is recommended by Better Auth for Next.js middleware to avoid
   // blocking requests with database calls in middleware.
   const sessionCookie = getSessionCookie(request)
+  const { pathname } = request.nextUrl
 
-  // Protect dashboard and upload routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') ||
-      request.nextUrl.pathname.startsWith('/upload')) {
+  // Redirect authenticated users away from auth pages
+  if (sessionCookie && ['/auth/signin', '/auth/signup', '/auth/verify-email'].includes(pathname)) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  // Protect dashboard and upload routes (lightweight check)
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/upload')) {
     if (!sessionCookie) {
       return NextResponse.redirect(new URL('/auth/signin', request.url))
     }

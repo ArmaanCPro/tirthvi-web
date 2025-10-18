@@ -23,13 +23,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true, // Enable email verification
-    sendResetPassword: async ({ user, url, token }) => {
-      await sendPasswordResetEmail({ user, url, token })
+    sendResetPassword: async ({ user, url }) => {
+      await sendPasswordResetEmail({ user, url })
     },
     onPasswordReset: async ({ user }) => {
       console.log(`Password reset completed for user: ${user.email}`)
     },
-    onUserCreate: async ({ user }) => {
+    onUserCreate: async ({ user }: { user: { email: string; name?: string } }) => {
       // Send welcome email when user is created
       try {
         await sendWelcomeEmail({
