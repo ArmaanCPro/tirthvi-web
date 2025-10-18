@@ -10,7 +10,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 import { Loader2, ArrowLeft, CheckCircle, Mail } from "lucide-react"
 import { toast } from "sonner"
-import { authClient } from "@/lib/auth-client"
 
 export default function VerifyEmailPage() {
   const [otp, setOtp] = useState("")

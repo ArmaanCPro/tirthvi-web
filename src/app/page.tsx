@@ -29,8 +29,9 @@ export default function Home() {
                 />
               </Magnetic>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-center justify-center items-center">
-              Welcome to&nbsp;
-                    <ShimmeringText className="text-primary text-5xl md:text-7xl" text="Tirthvi" wave />
+              <span className="block md:inline">Welcome to</span>
+              <span className="hidden md:inline">&nbsp;</span>
+              <ShimmeringText className="text-primary text-5xl md:text-7xl" text="Tirthvi" wave />
             </h1>
 
               <BlurText

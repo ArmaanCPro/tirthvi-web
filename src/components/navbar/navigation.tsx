@@ -2,27 +2,14 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Calendar, BookOpen, Shield, Bot, Heart, User, Upload, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { UserButton, Protect } from "@/components/auth";
+import { UserButton } from "@/components/auth";
 import { useAuthContext, authClient } from "@/components/auth/AuthProvider";
-
-function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    setMatches(media.matches);
-    const listener = () => setMatches(media.matches);
-    media.addEventListener("change", listener);
-    return () => media.removeEventListener("change", listener);
-  }, [matches, query]);
-
-  return matches;
-}
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 // Animated Hamburger Icon component
 const HamburgerIcon = ({ className, ...props }: React.SVGAttributes<SVGElement>) => (

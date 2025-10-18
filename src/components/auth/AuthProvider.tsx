@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     checkPermissions()
-  }, [session?.user?.id, isPending]) // Only re-run when user ID changes
+  }, [session?.user, isPending]) // Only re-run when user changes
 
   return (
     <AuthContext.Provider value={permissions}>
