@@ -39,8 +39,10 @@ export default function SignInForm() {
       if (result.error) {
         // Handle specific error cases
         if (result.error.status === 403) {
-          setError("Please verify your email address before signing in.")
+          // Store email for verification page and redirect
+          localStorage.setItem('pendingVerificationEmail', email)
           toast.error("Please verify your email address before signing in.")
+          router.push("/auth/verify-email")
         } else {
           setError(result.error.message || "Invalid credentials")
           toast.error(result.error.message || "Invalid credentials")

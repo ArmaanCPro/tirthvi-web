@@ -3,6 +3,9 @@ import { render } from '@react-email/render'
 import OTPVerificationEmail from '@/components/emails/otp-verification'
 import PasswordResetEmail from '@/components/emails/password-reset'
 import WelcomeEmail from '@/components/emails/welcome'
+import { db } from '@/lib/drizzle'
+import { profiles } from '@/lib/drizzle/schema'
+import { eq } from 'drizzle-orm'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -15,8 +18,8 @@ export interface EmailTemplate {
 /**
  * Send verification OTP email for email verification
  */
-export async function sendVerificationOTP({ 
-  email, 
+export async function sendVerificationOTP({
+  email,
   otp, 
   type 
 }: { 
@@ -27,17 +30,32 @@ export async function sendVerificationOTP({
   try {
     const subject = getEmailSubject(type)
     
+    // Get user's name from database
+    let userName = email.split('@')[0] // Fallback to email prefix
+    try {
+      const user = await db.select({ name: profiles.name })
+        .from(profiles)
+        .where(eq(profiles.email, email))
+        .limit(1)
+      
+      if (user.length > 0 && user[0].name) {
+        userName = user[0].name
+      }
+    } catch (error) {
+      console.warn('Could not fetch user name from database:', error)
+    }
+    
     // Render React email component
     const emailHtml = await render(
       OTPVerificationEmail({ 
         otp, 
         type, 
-        userName: email.split('@')[0] // Extract name from email
+        userName
       })
     )
     
     const { data, error } = await resend.emails.send({
-      from: 'Tirthvi <noreply@tirthvi.com>',
+      from: `Tirthvi <${process.env.EMAIL_FROM!}>`,
       to: [email],
       subject,
       html: emailHtml,
@@ -76,7 +94,7 @@ export async function sendPasswordResetEmail({
     )
     
     const { data, error } = await resend.emails.send({
-      from: 'Tirthvi <noreply@tirthvi.com>',
+      from: `Tirthvi <${process.env.EMAIL_FROM!}>`,
       to: [user.email],
       subject: 'Reset your Tirthvi password',
       html: emailHtml,
@@ -117,7 +135,7 @@ export async function sendWelcomeEmail({
     )
     
     const { data, error } = await resend.emails.send({
-      from: 'Tirthvi <noreply@tirthvi.com>',
+      from: `Tirthvi <${process.env.EMAIL_FROM!}>`,
       to: [userEmail],
       subject: 'Welcome to Tirthvi - Your Hindu Wisdom Hub',
       html: emailHtml,

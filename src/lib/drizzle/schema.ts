@@ -244,6 +244,7 @@ export const embeddingsRelations = relations(embeddings, ({ one }) => ({
 // Better Auth Tables (cleaned up)
 export const accounts = pgTable('accounts', {
   id: text('id').primaryKey(), // Better Auth uses text, not uuid
+  accountId: text('account_id').notNull(), // Better Auth expects accountId field
   providerId: text('provider_id').notNull(), // Better Auth expects providerId
   userId: text('user_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
   accessToken: text('access_token'),

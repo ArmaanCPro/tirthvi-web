@@ -98,7 +98,7 @@ export const OTPVerificationEmail = ({
 
           <Section style={footer}>
             <Text style={footerText}>
-              This email was sent by Tirthvi - Your Hindu Wisdom Hub
+              This email was sent by Tirthvi
             </Text>
             <Text style={footerText}>
               If you have any questions, please contact our support team.
@@ -165,17 +165,18 @@ const text = {
 
 const otpContainer = {
   backgroundColor: '#f8fafc',
-  border: '2px solid #e2e8f0',
-  borderRadius: '8px',
-  padding: '24px',
+  border: '2px solid #3b82f6',
+  borderRadius: '12px',
+  padding: '32px',
   textAlign: 'center' as const,
-  margin: '24px 0',
+  margin: '32px 0',
+  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
 }
 
 const otpCode = {
-  fontSize: '32px',
+  fontSize: '36px',
   fontWeight: 'bold',
-  letterSpacing: '4px',
+  letterSpacing: '6px',
   color: '#1e293b',
   fontFamily: 'Courier New, monospace',
   margin: '0',

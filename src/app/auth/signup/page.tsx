@@ -58,6 +58,8 @@ export default function SignUpPage() {
         setError(result.error.message || "Failed to create account")
         toast.error(result.error.message || "Failed to create account")
       } else {
+        // Store email for verification page
+        localStorage.setItem('pendingVerificationEmail', formData.email)
         toast.success("Account created! Please check your email for verification code.")
         router.push("/auth/verify-email")
       }

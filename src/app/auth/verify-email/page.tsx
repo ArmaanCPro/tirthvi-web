@@ -22,10 +22,17 @@ export default function VerifyEmailPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Get email from localStorage or session
+    // Get email from localStorage or URL params
     const storedEmail = localStorage.getItem('pendingVerificationEmail')
     if (storedEmail) {
       setEmail(storedEmail)
+    } else {
+      // Fallback: try to get email from URL params
+      const urlParams = new URLSearchParams(window.location.search)
+      const emailParam = urlParams.get('email')
+      if (emailParam) {
+        setEmail(emailParam)
+      }
     }
   }, [])
 
@@ -47,14 +54,23 @@ export default function VerifyEmailPage() {
     setError("")
 
     try {
-      const result = await authClient.emailOtp.verifyEmail({
-        email,
-        otp,
+      console.log('Verifying email with:', { email, otp })
+      
+      const response = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp }),
       })
 
-      if (result.error) {
-        setError(result.error.message || "Invalid verification code")
-        toast.error(result.error.message || "Invalid verification code")
+      const result = await response.json()
+      console.log('Verification result:', result)
+
+      if (!response.ok || result.error) {
+        console.error('Verification error:', result.error)
+        setError(result.error || "Invalid verification code")
+        toast.error(result.error || "Invalid verification code")
       } else {
         setIsSuccess(true)
         toast.success("Email verified successfully!")
@@ -83,14 +99,19 @@ export default function VerifyEmailPage() {
     setError("")
 
     try {
-      const result = await authClient.emailOtp.sendVerificationOtp({
-        email,
-        type: "email-verification",
+      const response = await fetch('/api/auth/send-verification-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, type: "email-verification" }),
       })
 
-      if (result.error) {
-        setError(result.error.message || "Failed to send verification code")
-        toast.error(result.error.message || "Failed to send verification code")
+      const result = await response.json()
+
+      if (!response.ok || result.error) {
+        setError(result.error || "Failed to send verification code")
+        toast.error(result.error || "Failed to send verification code")
       } else {
         setResendCooldown(60) // 60 second cooldown
         toast.success("Verification code sent!")
@@ -201,28 +222,49 @@ export default function VerifyEmailPage() {
                 </Alert>
               )}
 
-              <div className="space-y-4">
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
+              <div className="space-y-6">
+                <div className="text-center space-y-4">
+                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                     <Mail className="h-4 w-4" />
                     <span>Code sent to {email || 'your email'}</span>
                   </div>
                   
-                  <InputOTP
-                    maxLength={6}
-                    value={otp}
-                    onChange={setOtp}
-                    disabled={isLoading}
-                  >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
+                  <div className="flex justify-center">
+                    <InputOTP
+                      maxLength={6}
+                      value={otp}
+                      onChange={setOtp}
+                      disabled={isLoading}
+                      className="gap-3"
+                    >
+                      <InputOTPGroup className="gap-3">
+                        <InputOTPSlot 
+                          index={0} 
+                          className="w-14 h-14 text-xl font-bold border-2 border-primary/20 hover:border-primary/50 transition-colors" 
+                        />
+                        <InputOTPSlot 
+                          index={1} 
+                          className="w-14 h-14 text-xl font-bold border-2 border-primary/20 hover:border-primary/50 transition-colors" 
+                        />
+                        <InputOTPSlot 
+                          index={2} 
+                          className="w-14 h-14 text-xl font-bold border-2 border-primary/20 hover:border-primary/50 transition-colors" 
+                        />
+                        <InputOTPSlot 
+                          index={3} 
+                          className="w-14 h-14 text-xl font-bold border-2 border-primary/20 hover:border-primary/50 transition-colors" 
+                        />
+                        <InputOTPSlot 
+                          index={4} 
+                          className="w-14 h-14 text-xl font-bold border-2 border-primary/20 hover:border-primary/50 transition-colors" 
+                        />
+                        <InputOTPSlot 
+                          index={5} 
+                          className="w-14 h-14 text-xl font-bold border-2 border-primary/20 hover:border-primary/50 transition-colors" 
+                        />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
                 </div>
 
                 <Button 
